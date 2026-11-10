@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantGuard Pro · Admin Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0b0f0c;
+      --surface: #0f1512;
+      --border: #2a3830;
+      --text: #e7ece8;
+      --text-muted: #9bada2;
+      --accent: #7fc29a;
+      --accent-dark: #5fa372;
+      --danger: #e0a48f;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0 30px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      color: var(--accent);
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: var(--accent-dark);
+    }
+
+    .status-active {
+      color: var(--accent);
+    }
+
+    .status-inactive {
+      color: var(--danger);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:hover {
+      background: rgba(127, 194, 154, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🌱 PlantGuard Pro Admin</h1>
+      <p class="subtitle">Control central de cultivos</p>
+    </header>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <h2>Estado General</h2>
+        <div class="stat">
+          <span class="stat-label">Cultivos activos</span>
+          <span class="stat-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Sensores conectados</span>
+          <span class="stat-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Alertas activas</span>
+          <span class="stat-value status-inactive">0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Últimas Acciones</h2>
+        <div class="stat">
+          <span class="stat-label">Último sync</span>
+          <span class="stat-value">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Usuarios en línea</span>
+          <span class="stat-value">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Sistema</span>
+          <span class="stat-value status-active">Operativo</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Acciones Rápidas</h2>
+        <button class="button" style="width: 100%; margin-bottom: 10px;">Generar Clave de Acceso</button>
+        <button class="button" style="width: 100%;">Exportar Datos</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Cultivos Monitoreados</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Fase</th>
+            <th>Sensores</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted);">No hay cultivos registrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    console.log('Admin Dashboard loaded');
+  </script>
+</body>
+</html>
