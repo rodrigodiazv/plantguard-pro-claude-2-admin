@@ -1,5 +1,5 @@
-const { checkSession, readCookie } = require('./_auth');
-const { getPIN, setPIN } = require('./_pin-store');
+const { checkSession, readCookie } = require('../../lib/auth.js');
+const { getPIN, setPIN } = require('../../lib/pin-store.js');
 
 module.exports = function handler(req, res) {
   if (req.method !== "POST") {

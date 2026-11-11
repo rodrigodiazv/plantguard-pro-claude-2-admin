@@ -84,6 +84,6 @@ curl -X POST http://localhost:3000/api/change-pin \
 ## Archivos Clave
 
 - `middleware.js` - Gate de acceso y validación de sesión
-- `api/_auth.js` - Generación y validación de códigos HMAC
-- `api/access.js` - Endpoint de autenticación
+- `lib/auth.js` - Generación y validación de códigos HMAC
+- `pages/api/access.js` - Endpoint de autenticación
 - `public/index.html` - Panel admin

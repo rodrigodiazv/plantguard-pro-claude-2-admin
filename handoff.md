@@ -1,7 +1,7 @@
 # handoff.md — plantguard-pro-claude-2-admin
 
-**Fecha:** 2026-11-11  
-**Estado:** ✅ COMPLETADO — Login funcional + seguridad
+**Fecha:** 2026-11-11
+**Estado:** Implementación del login y seguridad completada; redeploy y verificación en Vercel pendientes
 
 ## Logro Final
 PIN alfanumérico (8 chars) + dashboard en Vercel. **Ningún secreto expuesto.**
@@ -15,8 +15,8 @@ ADMIN_KEY=<32+ chars>      # Firma tokens (server-only)
 ## Estructura Limpia
 - `pages/api/access.js` → Login
 - `pages/api/change-pin.js` → Cambiar PIN
-- `pages/api/_auth.js` → Módulo (no expuesto)
-- `pages/api/_pin-store.js` → Módulo (no expuesto)
+- `lib/auth.js` → Módulo de autenticación
+- `lib/pin-store.js` → Almacenamiento del PIN
 - `public/login.html`, `public/index.html` → Estáticos
 - `SECURITY.md` → Guía de seguridad
 
@@ -39,3 +39,13 @@ Nueva sesión → Respeta ADMIN_PIN
 - Local: `npm run dev`
 
 **SECURITY.md tiene el checklist completo.**
+
+## Configuración de deploy
+- `vercel.json` — quitada la propiedad `public`, que Vercel ya no acepta
+- `package.json` — Node >=20.9, requerido por Next.js 16
+- Eliminadas rutas API duplicadas para que Next.js sea el único dueño de `/api/*`
+
+## Verificación pendiente
+No se pudo consultar la URL de producción desde este entorno. Después de publicar estos cambios, revisar que `/api/access` responda y que el login redirija al panel.
+
+URL de producción: https://plantguard-pro-claude-2-admin-virid.vercel.app/
