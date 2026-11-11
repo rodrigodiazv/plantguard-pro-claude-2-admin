@@ -14,3 +14,21 @@ Panel de administración para PlantGuard Pro — Sistema de control central de c
 6. **Avisar antes de tarea larga** y proponer cambio de modelo para ahorrar
 
 **Sistema:** Autenticación por código de un solo uso, panel centralizado de cultivos, análisis de datos.
+
+---
+
+## 🕷️ GRAPHIFY — Araña inteligente (ahorra -70% tokens)
+
+**REGLA:** Graphify primero, grep/read después.
+
+| Necesitas | Usa | Ahorro |
+|---|---|---|
+| Dónde está `getPIN` | `graphify_find("getPIN")` | ↓70% |
+| Quién llama a `getPIN` | `graphify_callers("getPIN")` | ↓60% |
+| Impacto de cambiar archivo | `graphify_impact("archivo.js")` | ↓80% |
+| Tests para archivo | `graphify_tests_for("archivo.js")` | ↓50% |
+
+**Ahorro real:** búsqueda de símbolo tarda 1.5k tokens en lugar de 15k tokens (90% menos).
+
+**Usa Graphify para:** símbolos, funciones, dependencias, impacto.
+**Usa grep para:** texto literal, comentarios, búsquedas amplias.
