@@ -1,6 +1,17 @@
 {
   "name": "plantguard-pro-admin",
   "version": "1.0.0",
-  "description": "PlantGuard Pro Admin Dashboard - Static HTML",
-  "private": true
+  "description": "PlantGuard Pro Admin Dashboard",
+  "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.4.6"
+  }
 }
