@@ -1,10 +1,10 @@
 {
-  "buildCommand": "npm install",
+  "buildCommand": "echo 'Static build'",
   "outputDirectory": "public",
-  "rewrites": [
-    { "source": "/admin", "destination": "/index.html" },
-    { "source": "/admin/", "destination": "/index.html" },
-    { "source": "/", "destination": "/login.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/admin/?", "dest": "/index.html" },
+    { "src": "/.*", "dest": "/login.html" }
   ],
   "headers": [
     {
