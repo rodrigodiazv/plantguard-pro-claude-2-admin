@@ -1,11 +1,6 @@
 {
-  "buildCommand": "npm run build || echo 'No build needed'",
-  "framework": "other",
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
+  "buildCommand": "npm run build",
+  "framework": "nextjs",
   "public": "public",
   "rewrites": [
     { "source": "/admin", "destination": "/index.html" },

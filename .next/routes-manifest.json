@@ -1,0 +1,85 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "pages",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [
+      {
+        "source": "/admin",
+        "destination": "/index.html",
+        "regex": "^/admin(?:/)?$"
+      },
+      {
+        "source": "/admin/",
+        "destination": "/index.html",
+        "regex": "^/admin/(?:/)?$"
+      },
+      {
+        "source": "/",
+        "destination": "/login.html",
+        "regex": "^/(?:/)?$"
+      }
+    ],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/api/_auth",
+      "regex": "^/api/_auth(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/_auth(?:/)?$"
+    },
+    {
+      "page": "/api/access",
+      "regex": "^/api/access(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/access(?:/)?$"
+    },
+    {
+      "page": "/api/change-pin",
+      "regex": "^/api/change\\-pin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/change\\-pin(?:/)?$"
+    },
+    {
+      "page": "/api/pin-store",
+      "regex": "^/api/pin\\-store(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pin\\-store(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
