@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlantGuard Pro · Admin Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0b0f0c;
+      --surface: #0f1512;
+      --border: #2a3830;
+      --text: #e7ece8;
+      --text-muted: #9bada2;
+      --accent: #7fc29a;
+      --accent-dark: #5fa372;
+      --danger: #e0a48f;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    input[type="password"] {
+      letter-spacing: 2px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.9rem;
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(224, 164, 143, 0.1);
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .info {
+      background: rgba(127, 194, 154, 0.1);
+      border: 1px solid rgba(127, 194, 154, 0.3);
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>🌱 PlantGuard Pro</h1>
+    <p class="subtitle">Admin Dashboard</p>
+
+    <div class="info">
+      PIN inicial: <strong>12345678</strong>
+      <br>Cámbialo a uno secreto después de acceder.
+    </div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="pin">PIN de Acceso</label>
+        <input
+          type="password"
+          id="pin"
+          name="pin"
+          placeholder="Ingresa tu PIN"
+          required
+          autofocus
+        />
+      </div>
+
+      <button type="submit">Acceder</button>
+
+      <div class="error" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const pinInput = document.getElementById('pin');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.classList.remove('show');
+
+      const pin = pinInput.value;
+      const btn = loginForm.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+
+      try {
+        const response = await fetch('/api/access', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin }),
+        });
+
+        if (response.ok) {
+          // Login exitoso, redirigir al admin
+          window.location.href = '/admin';
+        } else {
+          const data = await response.json();
+          if (data.error === 'pin_invalid') {
+            errorMsg.textContent = '❌ PIN incorrecto';
+          } else {
+            errorMsg.textContent = '❌ Error: ' + (data.error || 'Intenta de nuevo');
+          }
+          errorMsg.classList.add('show');
+          pinInput.value = '';
+          pinInput.focus();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorMsg.textContent = '❌ Error de conexión';
+        errorMsg.classList.add('show');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Acceder';
+    });
+  </script>
+</body>
+</html>

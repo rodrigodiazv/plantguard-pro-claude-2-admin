@@ -58,11 +58,23 @@ export default async function middleware(request) {
   const secret = process.env.ACCESS_SECRET;
   const pathname = new URL(request.url).pathname;
 
-  if (pathname.startsWith("/api/")) {
+  // Permitir acceso a API y archivos públicos (login.html, etc)
+  if (pathname.startsWith("/api/") || pathname === "/login.html" || pathname === "/") {
     return next();
   }
 
+  // Si no hay SECRET en env, pasar (sistema en modo PIN simple)
   if (!secret || secret.length < 32) {
+    const cookieHeader = request.headers.get("cookie");
+    const isValid = await validSession(cookieHeader, "dummy-secret");
+
+    if (!isValid && pathname.startsWith("/admin")) {
+      // Redirigir a login
+      return new Response(null, {
+        status: 302,
+        headers: { "Location": "/login.html" }
+      });
+    }
     return next({ headers: { "Cache-Control": "private, no-store" } });
   }
 
@@ -71,6 +83,14 @@ export default async function middleware(request) {
 
   if (isValid) {
     return next({ headers: { "Cache-Control": "private, no-store" } });
+  }
+
+  // Redirigir a login en lugar de mostrar GATE inline
+  if (pathname.startsWith("/admin")) {
+    return new Response(null, {
+      status: 302,
+      headers: { "Location": "/login.html" }
+    });
   }
 
   return new Response(GATE, {

@@ -35,18 +35,31 @@ ADMIN_KEY=your-admin-key
 
 ## Autenticación
 
-- Gate de acceso en `/` requiere código válido
-- Post-login redirige a `/admin/`
+Sistema de PIN con dos modos:
+
+### Modo PIN Simple (Recomendado para producción)
+- Login en `/login.html` con PIN de 8 dígitos
+- PIN inicial: **`12345678`** (cámbialo inmediatamente)
 - Sesión válida por 30 minutos (cookie `pg2_admin` con HMAC-SHA256)
-- Comparte `ACCESS_SECRET` con Cloud 2 para usar el mismo generador de códigos
+- Cambiar PIN desde el admin
+
+### Modo Código HMAC (Heredado, todavía soportado)
+- Gate de acceso en `/` requiere código válido formato `XXXXXXXX-XXXXXX`
+- Comparte `ACCESS_SECRET` con Cloud 2
 
 ## API
 
 ### POST `/api/access`
 
-Valida código y crea sesión.
+Autentica con PIN o código.
 
 ```bash
+# Autenticar con PIN
+curl -X POST http://localhost:3000/api/access \
+  -H "Content-Type: application/json" \
+  -d '{"pin":"12345678"}'
+
+# Autenticar con código HMAC (modo heredado)
 curl -X POST http://localhost:3000/api/access \
   -H "Content-Type: application/json" \
   -d '{"code":"XXXXXXXX-XXXXXX"}'
@@ -55,6 +68,17 @@ curl -X POST http://localhost:3000/api/access \
 **Response:**
 ```json
 { "ok": true }
+```
+
+### POST `/api/change-pin`
+
+Cambia el PIN (requiere sesión válida).
+
+```bash
+curl -X POST http://localhost:3000/api/change-pin \
+  -H "Content-Type: application/json" \
+  -H "Cookie: pg2_admin=<valid-session>" \
+  -d '{"oldPin":"12345678","newPin":"tu-pin-secreto"}'
 ```
 
 ## Archivos Clave

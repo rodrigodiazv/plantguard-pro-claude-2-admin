@@ -1,7 +1,11 @@
 import { parseCode, makeSession, SESSION_MS } from "./_auth.js";
 
+// PIN storage en memoria (en producción usaría DB)
+let currentPIN = process.env.ADMIN_PIN || '12345678';
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "method" });
+
   let body;
   try {
     body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
@@ -10,20 +14,44 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "invalid" });
   }
 
+  // Soporte para PIN simple (nuevo) O código HMAC (antiguo)
+  const pin = body && body.pin;
   const rawCode = body && body.code;
-  console.log("Admin access attempt:", { code: rawCode, has_secret: !!process.env.ACCESS_SECRET });
 
-  const id = parseCode(rawCode);
-  console.log("ParseCode result:", { id, rawCode });
-
-  if (!id) {
-    return res.status(401).json({ error: "invalid" });
+  // Validar PIN
+  if (pin) {
+    console.log("Admin access attempt with PIN");
+    if (String(pin).trim() === currentPIN) {
+      const token = makeSession();
+      const cookieValue = `pg2_admin=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MS / 1000}`;
+      res.setHeader("Set-Cookie", cookieValue);
+      return res.status(200).json({ ok: true });
+    } else {
+      return res.status(401).json({ error: "pin_invalid" });
+    }
   }
 
-  const token = makeSession();
-  const cookieValue = `pg2_admin=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MS / 1000}`;
-  console.log("Admin session set, valid until:", new Date(Number(token.split(".")[0])).toISOString());
+  // Fallback: validar código HMAC antiguo
+  if (rawCode) {
+    console.log("Admin access attempt with code:", { has_secret: !!process.env.ACCESS_SECRET });
+    const id = parseCode(rawCode);
+    if (!id) {
+      return res.status(401).json({ error: "invalid" });
+    }
+    const token = makeSession();
+    const cookieValue = `pg2_admin=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MS / 1000}`;
+    res.setHeader("Set-Cookie", cookieValue);
+    return res.status(200).json({ ok: true });
+  }
 
-  res.setHeader("Set-Cookie", cookieValue);
-  return res.status(200).json({ ok: true });
+  return res.status(400).json({ error: "pin_required" });
+}
+
+// Exportar para cambio de PIN
+export function changePIN(oldPIN, newPIN) {
+  if (String(oldPIN).trim() === currentPIN) {
+    currentPIN = String(newPIN).trim();
+    return { ok: true };
+  }
+  return { ok: false, error: "PIN actual incorrecto" };
 }
