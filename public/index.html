@@ -137,12 +137,9 @@
 </head>
 <body>
   <div class="container">
-    <header style="display: flex; justify-content: space-between; align-items: flex-start;">
-      <div>
-        <h1>🌱 PlantGuard Pro Admin</h1>
-        <p class="subtitle">Control central de cultivos</p>
-      </div>
-      <button class="button" id="logoutBtn" style="margin-top: 10px;">Salir</button>
+    <header>
+      <h1>🌱 PlantGuard Pro Admin</h1>
+      <p class="subtitle">Control central de cultivos</p>
     </header>
 
     <div class="dashboard-grid">
@@ -183,28 +180,6 @@
         <button class="button" style="width: 100%; margin-bottom: 10px;">Generar Clave de Acceso</button>
         <button class="button" style="width: 100%;">Exportar Datos</button>
       </div>
-
-      <div class="card">
-        <h2>🔐 Cambiar PIN</h2>
-        <form id="changePinForm" style="display: flex; flex-direction: column; gap: 12px;">
-          <input
-            type="password"
-            id="oldPin"
-            placeholder="PIN actual"
-            required
-            style="padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text);"
-          />
-          <input
-            type="password"
-            id="newPin"
-            placeholder="PIN nuevo (mínimo 4 dígitos)"
-            required
-            style="padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text);"
-          />
-          <button type="submit" class="button" style="width: 100%;">Actualizar PIN</button>
-          <p id="pinMessage" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px;"></p>
-        </form>
-      </div>
     </div>
 
     <div class="card">
@@ -229,53 +204,6 @@
 
   <script>
     console.log('Admin Dashboard loaded');
-
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      document.cookie = 'pg2_admin=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-      window.location.href = '/login.html';
-    });
-
-    // Cambiar PIN
-    document.getElementById('changePinForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const oldPin = document.getElementById('oldPin').value;
-      const newPin = document.getElementById('newPin').value;
-      const msgEl = document.getElementById('pinMessage');
-
-      if (newPin.length < 4) {
-        msgEl.textContent = '❌ El PIN debe tener al menos 4 dígitos';
-        msgEl.style.color = 'var(--danger)';
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/change-pin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ oldPin, newPin }),
-        });
-
-        if (response.ok) {
-          msgEl.textContent = '✅ PIN actualizado correctamente';
-          msgEl.style.color = 'var(--accent)';
-          document.getElementById('oldPin').value = '';
-          document.getElementById('newPin').value = '';
-          setTimeout(() => {
-            msgEl.textContent = '';
-          }, 3000);
-        } else {
-          const data = await response.json();
-          msgEl.textContent = '❌ ' + (data.error === 'invalid_old_pin' ? 'PIN actual incorrecto' : 'Error');
-          msgEl.style.color = 'var(--danger)';
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        msgEl.textContent = '❌ Error de conexión';
-        msgEl.style.color = 'var(--danger)';
-      }
-    });
   </script>
 </body>
 </html>
