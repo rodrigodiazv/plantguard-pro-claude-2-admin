@@ -1,9 +1,10 @@
 {
-  "buildCommand": "echo 'Static build'",
-  "routes": [
-    { "src": "/api/.*", "dest": "/api" },
-    { "src": "/admin/?", "dest": "/index.html" },
-    { "src": "/(?!api/).*", "dest": "/login.html" }
+  "buildCommand": "echo 'Static site'",
+  "public": "public",
+  "rewrites": [
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/", "destination": "/index.html" },
+    { "source": "/", "destination": "/login.html" }
   ],
   "headers": [
     {
