@@ -1,22 +1,54 @@
-# Handoff — plantguard-pro-claude-2-admin
+# handoff.md — plantguard-pro-claude-2-admin
 
-**Última actualización:** 2026-11-10
+**Fecha:** 2026-11-11  
+**Estado:** ⚠️ EN PROGRESO - Login no funciona aún  
+
+---
 
 ## Objetivo
+PIN authentication (12345678) + PIN change en Vercel.
 
-Dashboard de administración para PlantGuard Pro.
+## ✅ Completado
+- `api/pin-store.js` — PIN: `12345678` default
+- `api/access.js` — valida PIN, crea sesión
+- `api/change-pin.js` — cambiar PIN
+- `api/_auth.js` — tokens HMAC
+- `public/login.html` — formulario
+- `public/index.html` — dashboard + cambiar PIN
+- `middleware.js` — deshabilitado
+- `vercel.json` — rewrite + `"functions": {"api/*.js": {"runtime": "nodejs18.x"}}`
+- `package.json` — node >=18
 
-## Estado actual
+## ⚠️ Problema abierto
+**Login: "Error de conexión"** a `/api/access`
 
-Proyecto creado. Documentación inicial configurada.
+**Último commit:** `8edb7c9` - agregó `"functions"` a vercel.json
 
-## Cambios recientes
+**Siguiente:** Verificar en Vercel logs si las funciones están compiladas.
 
-- Creados CLAUDE.md y handoff.md (2026-11-10)
+## Intentos fallidos
+- routes `/api/(.*)` → no sirvió
+- outputDirectory: public → ocultó api/
+- middleware ES modules → bloqueó API
+- Sin package.json → no compiló
 
-## Próximos pasos
+## Si sigue sin funcionar
+1. Abre https://vercel.com
+2. Revisa "Deployments" → logs
+3. Busca "function invocation failed"
+4. Si no compila: agrega `npm install` a buildCommand
 
-1. Revisar instrucciones de proyecto en CLAUDE.md
-2. Actualizar handoff.md con el estado real del proyecto
-3. Documentar cambios pendientes según el ciclo de trabajo
+## Código correcto (verificado)
+- PIN: `'12345678'`
+- Validación: `String(pin).trim() === currentPIN`
+- Envío: `JSON.stringify({ pin })`
 
+## Continuar con
+- Otra sesión (contexto limpio)
+- Modelo Haiku (más barato)
+- Lee este archivo primero
+
+---
+
+URL: https://plantguard-pro-claude-2-admin-virid.vercel.app/
+PIN: 12345678
