@@ -1,9 +1,7 @@
-import { parseCode, makeSession, SESSION_MS } from "./_auth.js";
+const { parseCode, makeSession, SESSION_MS } = require("./_auth.js");
+const { getPIN } = require("./pin-store.js");
 
-// PIN storage en memoria (en producción usaría DB)
-let currentPIN = process.env.ADMIN_PIN || '12345678';
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "method" });
 
   let body;
@@ -14,9 +12,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "invalid" });
   }
 
-  // Soporte para PIN simple (nuevo) O código HMAC (antiguo)
   const pin = body && body.pin;
   const rawCode = body && body.code;
+  const currentPIN = getPIN();
 
   // Validar PIN
   if (pin) {
@@ -45,13 +43,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(400).json({ error: "pin_required" });
-}
-
-// Exportar para cambio de PIN
-export function changePIN(oldPIN, newPIN) {
-  if (String(oldPIN).trim() === currentPIN) {
-    currentPIN = String(newPIN).trim();
-    return { ok: true };
-  }
-  return { ok: false, error: "PIN actual incorrecto" };
-}
+};

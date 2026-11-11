@@ -1,14 +1,11 @@
-import { checkSession, readCookie } from './_auth.js';
+const { checkSession, readCookie } = require('./_auth.js');
+const { getPIN, setPIN } = require('./pin-store.js');
 
-// PIN storage en memoria (sincronizado con access.js)
-let currentPIN = process.env.ADMIN_PIN || '12345678';
-
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "method_not_allowed" });
   }
 
-  // Verificar sesión válida
   const session = readCookie(req, "pg2_admin");
   if (!checkSession(session)) {
     return res.status(401).json({ error: "unauthorized" });
@@ -28,11 +25,16 @@ export default function handler(req, res) {
     return res.status(400).json({ error: "missing_fields" });
   }
 
-  if (String(oldPin).trim() === currentPIN) {
-    currentPIN = String(newPin).trim();
-    console.log("PIN changed successfully");
-    return res.status(200).json({ ok: true, message: "PIN actualizado correctamente" });
-  } else {
+  const currentPIN = getPIN();
+  if (String(oldPin).trim() !== currentPIN) {
     return res.status(401).json({ error: "invalid_old_pin" });
   }
-}
+
+  const result = setPIN(newPin);
+  if (!result.ok) {
+    return res.status(400).json({ error: result.error });
+  }
+
+  console.log("PIN changed successfully");
+  return res.status(200).json({ ok: true, message: "PIN actualizado correctamente" });
+};

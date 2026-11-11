@@ -2,9 +2,9 @@
   "buildCommand": "npm install",
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/admin", "destination": "/public/index.html" },
-    { "source": "/admin/", "destination": "/public/index.html" },
-    { "source": "/", "destination": "/public/login.html" }
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/", "destination": "/index.html" },
+    { "source": "/", "destination": "/login.html" }
   ],
   "headers": [
     {
