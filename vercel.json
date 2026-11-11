@@ -1,11 +1,6 @@
 {
   "buildCommand": "npm install",
   "outputDirectory": "public",
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     { "source": "/admin", "destination": "/public/index.html" },
     { "source": "/admin/", "destination": "/public/index.html" },
