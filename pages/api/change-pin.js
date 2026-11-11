@@ -1,5 +1,5 @@
 const { checkSession, readCookie } = require('./_auth');
-const { getPIN, setPIN } = require('./pin-store');
+const { getPIN, setPIN } = require('./_pin-store');
 
 module.exports = function handler(req, res) {
   if (req.method !== "POST") {
