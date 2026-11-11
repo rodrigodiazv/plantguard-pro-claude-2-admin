@@ -1,7 +1,5 @@
 // Almacenamiento centralizado del PIN (en producción sería una DB)
-// Prioridad: ADMIN_PIN > ADMIN_KEY (primeros 8 chars si es más largo) > default
-let currentPIN = process.env.ADMIN_PIN ||
-  (process.env.ADMIN_KEY ? process.env.ADMIN_KEY.substring(0, 8) : '12345678');
+let currentPIN = process.env.ADMIN_PIN || '12345678';
 
 function validatePIN(pin) {
   // Validar: 8 caracteres alfanuméricos

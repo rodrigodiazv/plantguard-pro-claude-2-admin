@@ -1,9 +1,10 @@
 const crypto = require("crypto");
 
 const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const SECRET = process.env.ACCESS_SECRET || "plantguard-pro-claude-2-admin-default-secret-32-char-key";
+// Use ADMIN_KEY from Vercel if available, fallback to ACCESS_SECRET
+const SECRET = process.env.ADMIN_KEY || process.env.ACCESS_SECRET || "plantguard-pro-claude-2-admin-default-secret-32-char-key";
 if (SECRET.length < 32) {
-  console.warn("⚠️ ACCESS_SECRET is too short or missing. Using default (insecure). Set ACCESS_SECRET env var.");
+  console.warn("⚠️ SECRET is too short. Set ADMIN_KEY or ACCESS_SECRET env var (min 32 chars).");
 }
 const SESSION_MS = 30 * 60 * 1000;
 
