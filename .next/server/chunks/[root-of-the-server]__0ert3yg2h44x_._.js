@@ -1,3 +1,0 @@
-module.exports=[406,(e,t,r)=>{t.exports=e.x("next/dist/compiled/@opentelemetry/api",()=>require("next/dist/compiled/@opentelemetry/api"))},3832,(e,t,r)=>{let n=process.env.ADMIN_PIN||"12345678";function i(e){let t=String(e||"").trim();return/^[a-zA-Z0-9]{8}$/.test(t)?{valid:!0}:{valid:!1,error:"PIN debe tener exactamente 8 caracteres alfanuméricos"}}t.exports={getPIN:function(){return n},setPIN:function(e){let t=i(e);return t.valid?(n=String(e).trim(),{ok:!0}):{ok:!1,error:t.error}},validatePIN:i}}];
-
-//# sourceMappingURL=%5Broot-of-the-server%5D__0ert3yg2h44x_._.js.map
