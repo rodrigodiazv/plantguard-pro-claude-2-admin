@@ -1,8 +1,9 @@
 {
   "buildCommand": "echo 'Static build'",
   "routes": [
+    { "src": "/api/.*", "dest": "/api" },
     { "src": "/admin/?", "dest": "/index.html" },
-    { "src": "/.*", "dest": "/login.html" }
+    { "src": "/(?!api/).*", "dest": "/login.html" }
   ],
   "headers": [
     {
