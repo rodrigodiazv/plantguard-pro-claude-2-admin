@@ -476,6 +476,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-actions">
       <div class="btn btn-sm" id="weather-badge">☁️ 18°C · 62% HR ext.</div>
+      <div class="btn btn-sm" onclick="document.getElementById('modal-settings').style.display='flex'">⚙️ Ajustes</div>
       <div class="btn btn-sm btn-green" onclick="alert('Informe PDF generado por el Cerebro')">+ Informe</div>
     </div>
   </div>
@@ -1806,6 +1807,19 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     </div><!-- /proto-list -->
   </div><!-- /view-protocolos -->
 
+<!-- ===== SETTINGS MODAL ===== -->
+<div id="modal-settings" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
+  <div class="card" style="width:420px;max-width:95vw">
+    <div class="card-header"><div class="card-title">Ajustes — Cambiar PIN</div><div class="btn btn-sm" onclick="document.getElementById('modal-settings').style.display='none'">✕</div></div>
+    <div class="form-row"><label>PIN actual (verificación)</label><input type="password" id="settings-current-pin" placeholder="••••••••" maxlength="8" /></div>
+    <div class="form-row"><label>PIN nuevo</label><input type="password" id="settings-new-pin" placeholder="••••••••" maxlength="8" /></div>
+    <div class="form-row"><label>Repetir PIN nuevo</label><input type="password" id="settings-confirm-pin" placeholder="••••••••" maxlength="8" /></div>
+    <div id="settings-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
+    <div id="settings-success" style="color:var(--green);font-size:12px;margin-top:8px;display:none">✓ PIN actualizado correctamente</div>
+    <div style="display:flex;gap:8px;margin-top:12px"><div class="btn btn-green" onclick="saveNewPin()">Guardar PIN</div><div class="btn" onclick="document.getElementById('modal-settings').style.display='none'">Cancelar</div></div>
+  </div>
+</div>
+
 <!-- ===== PLAN DEL DÍA ===== -->
   <div class="view" id="view-plan">
     <div class="section-title">📋 Plan del día — Master Grower</div>
@@ -2335,6 +2349,50 @@ function openImageAnalysis() {
     setTimeout(()=>showNotif('Master Grower: Posible inicio de Botrytis detectado en hoja superior izquierda. Revisar humedad relativa. ¿Activar PRO-IPM-001?'), 2500);
   };
   document.body.appendChild(inp); inp.click(); document.body.removeChild(inp);
+}
+
+// PIN settings
+function saveNewPin() {
+  const currentPin = document.getElementById('settings-current-pin').value;
+  const newPin = document.getElementById('settings-new-pin').value;
+  const confirmPin = document.getElementById('settings-confirm-pin').value;
+  const errorDiv = document.getElementById('settings-error');
+  const successDiv = document.getElementById('settings-success');
+
+  errorDiv.style.display = 'none';
+  successDiv.style.display = 'none';
+
+  if(!currentPin || !newPin || !confirmPin) {
+    errorDiv.textContent = 'Todos los campos son requeridos.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const savedPin = localStorage.getItem('pg_admin_pin') || '12345678';
+  if(currentPin !== savedPin) {
+    errorDiv.textContent = 'PIN actual incorrecto.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  if(newPin !== confirmPin) {
+    errorDiv.textContent = 'Los PINs nuevos no coinciden.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  if(newPin.length < 4) {
+    errorDiv.textContent = 'El PIN debe tener al menos 4 dígitos.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  localStorage.setItem('pg_admin_pin', newPin);
+  document.getElementById('settings-current-pin').value = '';
+  document.getElementById('settings-new-pin').value = '';
+  document.getElementById('settings-confirm-pin').value = '';
+  successDiv.style.display = 'block';
+  setTimeout(()=>{ document.getElementById('modal-settings').style.display='none'; successDiv.style.display='none'; }, 2000);
 }
 
 // Hash routing
