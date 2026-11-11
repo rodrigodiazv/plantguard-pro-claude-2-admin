@@ -1,5 +1,25 @@
 # CLAUDE.md — plantguard-pro-claude-2-admin
 
+## ⚠️ CARGA INMEDIATA: Error Prevention Skill
+
+**ANTES DE CUALQUIER TAREA**, carga esta skill:
+```
+/skill plantguard-error-prevention
+```
+
+Esta skill documenta 5 errores críticos cometidos el 11 de noviembre de 2026 que NO DEBEN REPETIRSE.
+
+Lee la skill completa en `.claude/skills/plantguard-error-prevention/SKILL.md` para entender:
+1. No diagnosticar sin esperar (Vercel tarda 3-5 min)
+2. No revertir decisiones arquitectónicas por pánico
+3. No debuguear en arquitectura incorrecta
+4. Un cambio por commit (no bundlear 3 cambios)
+5. Detectar y romper loops de debugging
+
+**Esta es tu guardrail principal para no repetir 5 horas de incompetencia.**
+
+---
+
 ## Contexto del Proyecto
 
 Panel de administración para PlantGuard Pro — Sistema de control central de cultivos.
