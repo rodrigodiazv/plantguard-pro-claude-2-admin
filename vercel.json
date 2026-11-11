@@ -1,14 +1,22 @@
 {
   "buildCommand": "npm install",
+  "outputDirectory": "public",
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
     { "source": "/admin", "destination": "/public/index.html" },
-    { "source": "/admin/", "destination": "/public/index.html" }
+    { "source": "/admin/", "destination": "/public/index.html" },
+    { "source": "/", "destination": "/public/login.html" }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, private" }
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, private" },
+        { "key": "Content-Type", "value": "application/json" }
       ]
     },
     {
