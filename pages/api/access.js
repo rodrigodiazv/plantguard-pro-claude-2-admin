@@ -1,5 +1,5 @@
-const { parseCode, makeSession, SESSION_MS } = require("./_auth.js");
-const { getPIN } = require("./pin-store.js");
+const { parseCode, makeSession, SESSION_MS } = require("../../lib/auth.js");
+const { getPIN } = require("../../lib/pin-store.js");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "method" });
