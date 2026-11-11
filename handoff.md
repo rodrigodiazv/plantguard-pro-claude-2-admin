@@ -1,54 +1,41 @@
 # handoff.md — plantguard-pro-claude-2-admin
 
 **Fecha:** 2026-11-11  
-**Estado:** ⚠️ EN PROGRESO - Login no funciona aún  
+**Estado:** ✅ COMPLETADO — Login funcional + seguridad
 
----
+## Logro Final
+PIN alfanumérico (8 chars) + dashboard en Vercel. **Ningún secreto expuesto.**
 
-## Objetivo
-PIN authentication (12345678) + PIN change en Vercel.
+## Variables Vercel
+```
+ADMIN_PIN=<tu-8-chars>     # Usuario ingresa esto
+ADMIN_KEY=<32+ chars>      # Firma tokens (server-only)
+```
 
-## ✅ Completado
-- `api/pin-store.js` — PIN: `12345678` default
-- `api/access.js` — valida PIN, crea sesión
-- `api/change-pin.js` — cambiar PIN
-- `api/_auth.js` — tokens HMAC
-- `public/login.html` — formulario
-- `public/index.html` — dashboard + cambiar PIN
-- `middleware.js` — deshabilitado
-- `vercel.json` — rewrite + `"functions": {"api/*.js": {"runtime": "nodejs18.x"}}`
-- `package.json` — node >=18
+## Estructura Limpia
+- `pages/api/access.js` → Login
+- `pages/api/change-pin.js` → Cambiar PIN
+- `pages/api/_auth.js` → Módulo (no expuesto)
+- `pages/api/_pin-store.js` → Módulo (no expuesto)
+- `public/login.html`, `public/index.html` → Estáticos
+- `SECURITY.md` → Guía de seguridad
 
-## ⚠️ Problema abierto
-**Login: "Error de conexión"** a `/api/access`
+## Errores Evitados (Lecciones)
+1. API routes no compiladas → Migrar a Next.js
+2. Rewrites bloqueando APIs → Usar redirects server-side
+3. ADMIN_KEY como PIN → Variables separadas
+4. `/api/` + `pages/api/` duplicados → Single source
 
-**Último commit:** `8edb7c9` - agregó `"functions"` a vercel.json
+## Test
+```bash
+PIN correcto → Dashboard
+PIN incorrecto → Error
+Nueva sesión → Respeta ADMIN_PIN
+```
 
-**Siguiente:** Verificar en Vercel logs si las funciones están compiladas.
+## Para Continuar
+- Verifica ADMIN_PIN en Vercel env
+- Logs: `vercel logs --follow`
+- Local: `npm run dev`
 
-## Intentos fallidos
-- routes `/api/(.*)` → no sirvió
-- outputDirectory: public → ocultó api/
-- middleware ES modules → bloqueó API
-- Sin package.json → no compiló
-
-## Si sigue sin funcionar
-1. Abre https://vercel.com
-2. Revisa "Deployments" → logs
-3. Busca "function invocation failed"
-4. Si no compila: agrega `npm install` a buildCommand
-
-## Código correcto (verificado)
-- PIN: `'12345678'`
-- Validación: `String(pin).trim() === currentPIN`
-- Envío: `JSON.stringify({ pin })`
-
-## Continuar con
-- Otra sesión (contexto limpio)
-- Modelo Haiku (más barato)
-- Lee este archivo primero
-
----
-
-URL: https://plantguard-pro-claude-2-admin-virid.vercel.app/
-PIN: 12345678
+**SECURITY.md tiene el checklist completo.**
