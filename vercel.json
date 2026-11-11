@@ -1,6 +1,5 @@
 {
   "buildCommand": "echo 'Static build'",
-  "outputDirectory": "public",
   "routes": [
     { "src": "/admin/?", "dest": "/index.html" },
     { "src": "/.*", "dest": "/login.html" }
