@@ -108,44 +108,36 @@
   </div>
 
   <script>
-    const CORRECT_PIN = "12345678";
-    const SESSION_DURATION = 30 * 60 * 1000;
-
-    function login(event) {
+    async function login(event) {
       event.preventDefault();
-      const pin = document.getElementById("pin").value;
+      const pinInput = document.getElementById("pin");
+      const submitBtn = event.target.querySelector("button[type=submit]");
       const errorDiv = document.getElementById("error");
+      errorDiv.classList.remove("show");
+      submitBtn.disabled = true;
 
-      if (pin === CORRECT_PIN) {
-        const sessionData = {
-          token: btoa(CORRECT_PIN + Date.now()),
-          timestamp: Date.now()
-        };
-        localStorage.setItem("pg_admin_session", JSON.stringify(sessionData));
-        window.location.href = "/dashboard.html";
-      } else {
+      try {
+        const r = await fetch("/api/access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin: pinInput.value })
+        });
+        if (r.ok) {
+          window.location.href = "/dashboard.html";
+          return;
+        }
         errorDiv.textContent = "PIN incorrecto. Intenta de nuevo.";
         errorDiv.classList.add("show");
-        document.getElementById("pin").value = "";
-        document.getElementById("pin").focus();
+      } catch (e) {
+        errorDiv.textContent = "No se pudo conectar. Intenta de nuevo.";
+        errorDiv.classList.add("show");
       }
+      submitBtn.disabled = false;
+      pinInput.value = "";
+      pinInput.focus();
     }
 
     window.addEventListener("load", () => {
-      const sessionData = localStorage.getItem("pg_admin_session");
-      if (sessionData) {
-        try {
-          const data = JSON.parse(sessionData);
-          const elapsed = Date.now() - data.timestamp;
-          if (elapsed < SESSION_DURATION) {
-            window.location.href = "/dashboard.html";
-          } else {
-            localStorage.removeItem("pg_admin_session");
-          }
-        } catch (e) {
-          localStorage.removeItem("pg_admin_session");
-        }
-      }
       document.getElementById("pin").focus();
     });
   </script>
