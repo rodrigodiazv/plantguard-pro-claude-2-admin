@@ -3,7 +3,7 @@ import os
 import sys
 from http.server import BaseHTTPRequestHandler
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "growmaster_lib"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "growmaster_lib"))
 from session_check import has_valid_session  # noqa: E402
 from drone_planner import FlightParams, plan_day  # noqa: E402
 
