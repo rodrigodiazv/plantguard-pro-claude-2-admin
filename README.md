@@ -1,89 +1,53 @@
 # PlantGuard Pro - Admin Dashboard
 
-Panel de administración para PlantGuard Pro. Sistema de control central de cultivos con autenticación por código.
-
-## Instalación
-
-```bash
-npm install
-```
-
-## Desarrollo
-
-```bash
-npm run dev
-```
-
-Abre http://localhost:3000
+Panel de administración para PlantGuard Pro. Sitio estático (HTML puro) con un
+gate de PIN validado en el servidor.
 
 ## Deployment en Vercel
 
-1. Conecta el repositorio en Vercel
-2. Configura las variables de entorno:
-   - `ACCESS_SECRET` (mínimo 32 caracteres)
-   - `ADMIN_KEY` (clave para generar accesos)
-3. Deploy automático en cada push a `main`
+Deploy automático en cada push a `main`. No hay build: `vercel.json` está
+vacío (`{}`) y Vercel sirve `public/` tal cual, más las funciones en `api/`.
 
-## Variables de Entorno
+### Variables de entorno requeridas
 
-Copia `.env.example` a `.env.local` y completa:
+- `ADMIN_PIN` — el PIN de acceso (lo valida `api/access.js` en el servidor).
+- `ADMIN_KEY` o `ACCESS_SECRET` — secreto para firmar la cookie de sesión
+  (HMAC-SHA256). Usa el que esté definido; `ADMIN_KEY` tiene prioridad.
 
-```env
-ACCESS_SECRET=your-32-character-secret-key
-ADMIN_KEY=your-admin-key
-```
+Ninguno de los dos se envía al navegador. Para cambiar el PIN hay que
+rotarlo en Vercel (Project Settings → Environment Variables) — no hay base
+de datos en este sitio estático para guardarlo desde el propio panel.
 
 ## Autenticación
 
-Sistema de PIN con dos modos:
+- `public/index.html` es el login: pide el PIN y lo manda por `POST` a
+  `/api/access`.
+- `api/access.js` compara el PIN contra `ADMIN_PIN` (comparación segura
+  contra timing attacks) y, si es correcto, pone una cookie de sesión
+  `pg2_admin` firmada con HMAC, `httpOnly`, `Secure`, válida 30 minutos.
+- Si el PIN es correcto, redirige a `public/dashboard.html`.
 
-### Modo PIN Simple (Recomendado para producción)
-- Login en `/login.html` con PIN de 8 dígitos
-- PIN inicial: **`12345678`** (cámbialo inmediatamente)
-- Sesión válida por 30 minutos (cookie `pg2_admin` con HMAC-SHA256)
-- Cambiar PIN desde el admin
+**Importante:** `dashboard.html` es un archivo estático público — nada
+bloquea abrirlo directamente por URL sin pasar por el login. Hoy no expone
+datos reales (es una maqueta, sin llamadas a ningún backend), pero cerrar
+ese hueco de verdad necesitaría un Edge Middleware que valide la cookie en
+cada ruta de `/dashboard.html`, hoy sin implementar.
 
-### Modo Código HMAC (Heredado, todavía soportado)
-- Gate de acceso en `/` requiere código válido formato `XXXXXXXX-XXXXXX`
-- Comparte `ACCESS_SECRET` con Cloud 2
+### API
 
-## API
-
-### POST `/api/access`
-
-Autentica con PIN o código.
-
-```bash
-# Autenticar con PIN
-curl -X POST http://localhost:3000/api/access \
-  -H "Content-Type: application/json" \
-  -d '{"pin":"12345678"}'
-
-# Autenticar con código HMAC (modo heredado)
-curl -X POST http://localhost:3000/api/access \
-  -H "Content-Type: application/json" \
-  -d '{"code":"XXXXXXXX-XXXXXX"}'
-```
-
-**Response:**
-```json
-{ "ok": true }
-```
-
-### POST `/api/change-pin`
-
-Cambia el PIN (requiere sesión válida).
+`POST /api/access`
 
 ```bash
-curl -X POST http://localhost:3000/api/change-pin \
+curl -i -X POST https://<tu-deploy>.vercel.app/api/access \
   -H "Content-Type: application/json" \
-  -H "Cookie: pg2_admin=<valid-session>" \
-  -d '{"oldPin":"12345678","newPin":"tu-pin-secreto"}'
+  -d '{"pin":"tu-pin"}'
 ```
 
-## Archivos Clave
+Devuelve `200 {"ok":true}` y la cookie de sesión si el PIN es correcto,
+`401 {"error":"pin_invalid"}` si no.
 
-- `middleware.js` - Gate de acceso y validación de sesión
-- `lib/auth.js` - Generación y validación de códigos HMAC
-- `pages/api/access.js` - Endpoint de autenticación
-- `public/index.html` - Panel admin
+## Archivos clave
+
+- `public/index.html` — formulario de login.
+- `public/dashboard.html` — panel (maqueta de UI, sin datos en vivo).
+- `api/access.js` — valida el PIN y crea la sesión.
