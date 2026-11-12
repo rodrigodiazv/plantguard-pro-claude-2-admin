@@ -2133,22 +2133,20 @@ async function loadGrowmasterStatus() {
   const el = document.getElementById('gm-status');
   el.textContent = 'Cargando...';
   try {
-    const r = await fetch('/api/growmaster');
-    const data = await r.json();
-    if (!r.ok) {
-      el.innerHTML = '<span style="color:var(--red)">Error: ' + escapeHtml(data.error || r.status) + '</span>';
+    const [healthR, pbR] = await Promise.all([
+      fetch('/api/gm-health'),
+      fetch('/api/gm-photo-bank-check'),
+    ]);
+    if (!healthR.ok) {
+      el.innerHTML = '<span style="color:var(--red)">La API de Growmaster no responde (HTTP ' + healthR.status + ').</span>';
       return;
     }
-    if (!data.api_reachable) {
-      el.innerHTML = '<span style="color:var(--red)">La API de Growmaster no responde todavía (puede estar sin desplegar correctamente).</span>';
-      return;
-    }
-    const pb = data.photo_bank;
+    const pb = pbR.ok ? await pbR.json() : null;
     const pbLine = pb
       ? (pb.ok ? '<span style="color:var(--green)">Banco de fotos correcto (' + (pb.problems || []).length + ' problemas)</span>'
                : '<span style="color:var(--amber)">Banco de fotos con problemas: ' + escapeHtml((pb.problems || []).join('; ')) + '</span>')
       : '—';
-    el.innerHTML = '<span style="color:var(--green)">API en línea</span> · ' + pbLine;
+    el.innerHTML = '<span style="color:var(--green)">API en línea (integrada en este panel)</span> · ' + pbLine;
   } catch (e) {
     el.innerHTML = '<span style="color:var(--red)">No se pudo conectar.</span>';
   }
@@ -2171,7 +2169,7 @@ async function runPlanDay() {
   }
 
   try {
-    const r = await fetch('/api/growmaster', {
+    const r = await fetch('/api/gm-plan-day', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(plan)
