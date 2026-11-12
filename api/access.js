@@ -1,28 +1,7 @@
 // api/access.js - Server-side PIN check for the admin gate.
 // Replaces the old client-side-only check (the PIN used to be hardcoded
 // in public/index.html, readable by anyone via view-source).
-const crypto = require("crypto");
-
-const SESSION_MS = 30 * 60 * 1000;
-const SECRET = process.env.ADMIN_KEY || process.env.ACCESS_SECRET || "";
-
-function sign(text) {
-  return crypto.createHmac("sha256", SECRET).update(text).digest("hex");
-}
-
-function makeSessionCookie() {
-  const exp = Date.now() + SESSION_MS;
-  const body = String(exp);
-  const token = `${body}.${sign("s" + body)}`;
-  return `pg2_admin=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_MS / 1000}`;
-}
-
-function timingSafeEqual(a, b) {
-  const bufA = Buffer.from(String(a));
-  const bufB = Buffer.from(String(b));
-  if (bufA.length !== bufB.length) return false;
-  return crypto.timingSafeEqual(bufA, bufB);
-}
+const { SECRET, makeSessionCookie, timingSafeEqual } = require("../lib/session.js");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
