@@ -2,5 +2,8 @@
   "name": "plantguard-pro-admin",
   "version": "1.0.0",
   "description": "PlantGuard Pro Admin Dashboard - Static HTML",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@vercel/blob": "^0.27.1"
+  }
 }

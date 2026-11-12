@@ -2097,6 +2097,25 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <div id="gm-plan-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
       <div id="gm-plan-result" style="margin-top:12px;font-size:12px"></div>
     </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-header"><div class="card-title">📷 Foto de campo (plaga / enfermedad)</div></div>
+      <p style="font-size:11px;color:var(--fg3);margin-bottom:8px">
+        Desde el celular o tablet, toca el botón para abrir la cámara directo.
+        La foto se guarda y se cataloga para que Growmaster siempre tenga
+        acceso a ella — esto no reconoce plagas automáticamente todavía, solo
+        mide cobertura verde y la archiva para revisión.
+      </p>
+      <input type="file" id="gm-photo-input" accept="image/*" capture="environment" style="display:none" onchange="onGmPhotoSelected(event)">
+      <div class="btn btn-sm" onclick="document.getElementById('gm-photo-input').click()">Tomar / elegir foto</div>
+      <img id="gm-photo-preview" style="display:none;max-width:200px;border-radius:8px;margin-top:10px" />
+      <div class="form-row" style="margin-top:10px"><label>Zona</label><input type="text" id="gm-photo-zone" placeholder="ej. A1"></div>
+      <div class="form-row"><label>Técnico</label><input type="text" id="gm-photo-tech" placeholder="tu nombre"></div>
+      <div class="form-row"><label>Nota</label><input type="text" id="gm-photo-note" placeholder="qué viste, síntomas"></div>
+      <div class="btn btn-green" id="gm-photo-submit-btn" style="margin-top:8px" onclick="submitGmPhoto()">Subir foto</div>
+      <div id="gm-photo-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
+      <div id="gm-photo-success" style="color:var(--green);font-size:12px;margin-top:8px;display:none"></div>
+    </div>
   </div><!-- /view-growmaster -->
 
 <script>
@@ -2196,6 +2215,71 @@ async function runPlanDay() {
     errorEl.textContent = 'No se pudo conectar con el servidor.';
     errorEl.style.display = 'block';
   }
+}
+
+let gmPhotoBase64 = null;
+let gmPhotoFilename = null;
+
+function onGmPhotoSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  gmPhotoFilename = file.name;
+  const reader = new FileReader();
+  reader.onload = () => {
+    gmPhotoBase64 = reader.result.split(',')[1];
+    const preview = document.getElementById('gm-photo-preview');
+    preview.src = reader.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitGmPhoto() {
+  const errorEl = document.getElementById('gm-photo-error');
+  const successEl = document.getElementById('gm-photo-success');
+  const btn = document.getElementById('gm-photo-submit-btn');
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  if (!gmPhotoBase64) {
+    errorEl.textContent = 'Primero toma o elige una foto.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  btn.textContent = 'Subiendo...';
+  try {
+    const r = await fetch('/api/gm-upload-photo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_base64: gmPhotoBase64,
+        filename: gmPhotoFilename,
+        zone: document.getElementById('gm-photo-zone').value,
+        technician: document.getElementById('gm-photo-tech').value,
+        note: document.getElementById('gm-photo-note').value,
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      errorEl.textContent = data.error || ('Error ' + r.status);
+      errorEl.style.display = 'block';
+    } else {
+      let msg = 'Foto subida.';
+      if (data.coverage_pct != null) msg += ' Cobertura verde: ' + data.coverage_pct + '%.';
+      if (!data.catalogued) msg += ' (No se pudo catalogar en Airtable todavía: ' + JSON.stringify(data.catalog_error) + ')';
+      successEl.textContent = msg;
+      successEl.style.display = 'block';
+      gmPhotoBase64 = null;
+      document.getElementById('gm-photo-preview').style.display = 'none';
+      document.getElementById('gm-photo-zone').value = '';
+      document.getElementById('gm-photo-note').value = '';
+    }
+  } catch (e) {
+    errorEl.textContent = 'No se pudo conectar con el servidor.';
+    errorEl.style.display = 'block';
+  }
+  btn.textContent = 'Subir foto';
 }
 
 function escapeHtml(s) {
