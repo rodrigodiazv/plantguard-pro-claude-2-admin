@@ -413,6 +413,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       Drones
       <span class="nav-badge">1</span>
     </div>
+    <div class="nav-section">Ventas</div>
+    <div class="nav-item" onclick="showView('crm')" id="nav-crm">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13 C1 10 3 8.5 6 8.5 C9 8.5 11 10 11 13"/><circle cx="12" cy="6" r="2"/><path d="M11 13 C11 11 11.5 10 13 9.5 C14 9.5 15 10 15 12"/></svg>
+      CRM · Contactos
+    </div>
     <div class="nav-section">Cultivo</div>
     <div class="nav-item" onclick="showView('ipm')" id="nav-ipm">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
@@ -2063,9 +2068,33 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
   </div><!-- /view-plan -->
 
+  <div class="view" id="view-crm">
+    <div class="section-title">📇 CRM — Contactos y conversaciones reales</div>
+    <div style="font-size:11px;color:var(--fg3);margin-bottom:12px">Datos en vivo desde plantguard-crm.vercel.app (Airtable). Si está en cero, es porque todavía no ha llegado tráfico real del agente de voz — no es un error.</div>
+
+    <div id="crm-loading" style="color:var(--fg2);font-size:13px">Cargando...</div>
+    <div id="crm-error" style="color:var(--red);font-size:13px;display:none"></div>
+
+    <div id="crm-content" style="display:none">
+      <div class="kpi-grid">
+        <div class="kpi-tile"><div class="kpi-num" id="crm-total-calls">—</div><div class="kpi-label">Llamadas este mes</div></div>
+        <div class="kpi-tile"><div class="kpi-num" id="crm-new-contacts">—</div><div class="kpi-label">Contactos nuevos</div></div>
+        <div class="kpi-tile"><div class="kpi-num" id="crm-satisfaction">—</div><div class="kpi-label">Satisfacción</div></div>
+        <div class="kpi-tile"><div class="kpi-num" id="crm-conversion">—</div><div class="kpi-label">Conversión</div></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-header"><div class="card-title">Contactos</div></div>
+        <div id="crm-contacts-table"></div>
+      </div>
+    </div>
+  </div><!-- /view-crm -->
+
 <script>
-const views = ['dashboard','zonas','ciclos','germinacion','drones','ipm','nutricion','secado','informes','estadisticas','protocolos','campo','dispositivos','personal','plan','config'];
-const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',ipm:'IPM — Control integrado',nutricion:'Nutrición',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',personal:'Personal en campo',plan:'Plan del día — Master Grower',config:'Configuración'};
+const views = ['dashboard','zonas','ciclos','germinacion','drones','crm','ipm','nutricion','secado','informes','estadisticas','protocolos','campo','dispositivos','personal','plan','config'];
+const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',crm:'CRM · Contactos',ipm:'IPM — Control integrado',nutricion:'Nutrición',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',personal:'Personal en campo',plan:'Plan del día — Master Grower',config:'Configuración'};
+
+let crmLoaded = false;
 
 function showView(v) {
   views.forEach(id => {
@@ -2074,6 +2103,57 @@ function showView(v) {
   });
   document.getElementById('page-title').textContent = titles[v];
   location.hash = v;
+  if (v === 'crm' && !crmLoaded) loadCrm();
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadCrm() {
+  const loadingEl = document.getElementById('crm-loading');
+  const errorEl = document.getElementById('crm-error');
+  const contentEl = document.getElementById('crm-content');
+
+  try {
+    const r = await fetch('/api/crm');
+    const data = await r.json();
+    if (!r.ok) {
+      loadingEl.style.display = 'none';
+      errorEl.textContent = 'No se pudo cargar el CRM: ' + (data.error || r.status);
+      errorEl.style.display = 'block';
+      return;
+    }
+    crmLoaded = true;
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+
+    const m = data.metrics || {};
+    document.getElementById('crm-total-calls').textContent = m.total_calls ?? '0';
+    document.getElementById('crm-new-contacts').textContent = m.new_contacts ?? '0';
+    document.getElementById('crm-satisfaction').textContent = m.satisfaction_rate ?? '0%';
+    document.getElementById('crm-conversion').textContent = m.conversion_rate ?? '0%';
+
+    const contacts = data.contacts || [];
+    const tableEl = document.getElementById('crm-contacts-table');
+    if (contacts.length === 0) {
+      tableEl.innerHTML = '<div style="font-size:12px;color:var(--fg3);padding:8px 0">Todavía no hay contactos registrados. Aparecerán aquí en cuanto llegue tráfico real del agente de voz.</div>';
+    } else {
+      const rows = contacts.map(c => `
+        <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <div style="flex:1;font-weight:600">${escapeHtml(c.Name || '—')}</div>
+          <div style="flex:1;color:var(--fg2)">${escapeHtml(c.Email || c.Phone || '—')}</div>
+          <div style="flex:1;color:var(--fg2)">${escapeHtml(c.Company || '—')}</div>
+          <div style="width:80px;color:var(--fg2)">${escapeHtml(c.Status || '—')}</div>
+        </div>
+      `).join('');
+      tableEl.innerHTML = rows;
+    }
+  } catch (e) {
+    loadingEl.style.display = 'none';
+    errorEl.textContent = 'No se pudo conectar con el servidor.';
+    errorEl.style.display = 'block';
+  }
 }
 
 function selectZone(el, zone) {
