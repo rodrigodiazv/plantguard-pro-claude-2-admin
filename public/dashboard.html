@@ -492,9 +492,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="view active" id="view-dashboard">
       <div class="grid grid-4" style="margin-bottom:16px">
         <div class="card kpi">
-          <div class="kpi-val up">12</div>
+          <div class="kpi-val up" id="kpi-zonas">—</div>
           <div class="kpi-label">Zonas activas</div>
-          <div class="kpi-delta up">↑ 0 alertas críticas</div>
+          <div class="kpi-delta up" id="kpi-zonas-delta">—</div>
         </div>
         <div class="card kpi">
           <div class="kpi-val" style="color:var(--blue)">4</div>
@@ -502,9 +502,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
           <div class="kpi-delta warn">1 revisión pendiente</div>
         </div>
         <div class="card kpi">
-          <div class="kpi-val warn">3</div>
+          <div class="kpi-val warn" id="kpi-ipm">—</div>
           <div class="kpi-label">Alertas IPM</div>
-          <div class="kpi-delta up">↓ vs ayer</div>
+          <div class="kpi-delta up">Datos reales</div>
         </div>
         <div class="card kpi">
           <div class="kpi-val up">847</div>
@@ -530,19 +530,13 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
             <div class="card-title">Alertas recientes</div>
             <span class="btn btn-sm" onclick="showView('ipm')">Ver IPM</span>
           </div>
-          <div class="alert-banner alert-banner-amber">⚠️ Zona B3 — Trips (Frankliniella): umbral superado</div>
-          <div class="alert-banner alert-banner-amber">⚠️ Zona A1 — CE alta: 2.8 mS/cm (máx 2.5)</div>
-          <div class="alert-banner alert-banner-green">✓ Dron D2 completó revisión IR — Sin anomalías térmicas</div>
+          <div id="dash-alerts"><div style="font-size:12px;color:var(--fg3)">Cargando alertas…</div></div>
           <div style="margin-top:10px">
             <div class="card-title" style="margin-bottom:10px">Estado zonas</div>
             <table>
-              <thead><tr><th>Zona</th><th>Fase</th><th>Días</th><th>Estado</th></tr></thead>
-              <tbody>
-                <tr><td>A1 — Genética</td><td>Vegetativa</td><td>28</td><td><span class="badge badge-amber">CE alta</span></td></tr>
-                <tr><td>A2 — CBD-01</td><td>Floración</td><td>42</td><td><span class="badge badge-green">OK</span></td></tr>
-                <tr><td>B1 — Clones</td><td>Enraizamiento</td><td>12</td><td><span class="badge badge-green">OK</span></td></tr>
-                <tr><td>B3 — THC-low</td><td>Floración</td><td>35</td><td><span class="badge badge-red">IPM</span></td></tr>
-                <tr><td>C1 — Secado</td><td>Curado</td><td>8</td><td><span class="badge badge-green">aw 0.61</span></td></tr>
+              <thead><tr><th>Zona</th><th>Fase</th><th>Plantas</th><th>Estado</th></tr></thead>
+              <tbody id="dash-zonas-body">
+                <tr><td colspan="4" style="color:var(--fg3)">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -700,9 +694,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
     <!-- IPM -->
     <div class="view" id="view-ipm">
-      <div class="alert-banner alert-banner-red">🚨 B3 — Trips (Frankliniella occidentalis): 42 adultos/trampa · Umbral: 15. Acción inmediata.</div>
-      <div class="alert-banner alert-banner-amber">⚠️ A1 — Fungus gnats (Bradysia sp.): 8/trampa · Umbral: 10 (preventivo activado)</div>
-      <div class="alert-banner alert-banner-amber">⚠️ A2 — Ácaros (T. urticae): presencia baja detectada en IRC</div>
+      <div id="ipm-real-alerts"><div style="font-size:12px;color:var(--fg3)">Cargando alertas…</div></div>
 
       <div class="grid grid-2" style="margin-bottom:16px;margin-top:16px">
         <div class="card">
@@ -803,6 +795,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
           </table>
           <div style="margin-top:12px;font-size:11px;color:var(--fg2)">🧠 Master Grower ajusta volúmenes según VPD y temp. exterior (18°C/62% HR hoy)</div>
         </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">Fórmulas por zona — datos reales</div></div>
+        <div id="nutri-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
       </div>
 
       <div class="card">
@@ -1144,14 +1141,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         <!-- ACTIVIDAD MASTER GROWER -->
         <div class="card">
           <div class="card-header"><div class="card-title">Asignaciones Master Grower</div><span class="btn btn-sm btn-green" onclick="document.getElementById('modal-task-mg').style.display='flex'">+ Asignar tarea</span></div>
-          <table>
-            <thead><tr><th>Técnico</th><th>Tarea asignada por MG</th><th>Zona</th><th>Prioridad</th></tr></thead>
-            <tbody>
-              <tr><td><strong>J. Müller</strong></td><td>Liberar A. cucumeris + revisar hoja</td><td>B3</td><td><span class="badge badge-red">Urgente</span></td></tr>
-              <tr><td><strong>M. García</strong></td><td>Ajustar CE solución nutritiva</td><td>A1</td><td><span class="badge badge-amber">Alta</span></td></tr>
-              <tr><td><strong>M. García</strong></td><td>Medición manual aw lote C1</td><td>C1</td><td><span class="badge badge-gray">Normal</span></td></tr>
-            </tbody>
-          </table>
+          <div id="personal-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
           <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--fg2)">
             🧠 <strong style="color:var(--green)">Master Grower:</strong> J. Müller está en B3 — idóneo para aplicar protocolo IPM ahora. M. García más cerca de A1 — asignar CE. Eficiencia optimizada.
           </div>
@@ -2286,17 +2276,37 @@ function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+const ZONE_FALLBACK = {
+  A1:{title:'Zona A1 — Sala Genética',badge:'CE alta',badgeClass:'badge-amber',temp:'24.1°C',hr:'58%',co2:'1180 ppm',ce:'2.8 mS',ph:'6.1',ppfd:'620 µmol',tempC:'up',ceC:'warn'},
+  A2:{title:'Zona A2 — Floración CBD',badge:'OK',badgeClass:'badge-green',temp:'24.8°C',hr:'52%',co2:'1250 ppm',ce:'2.1 mS',ph:'6.0',ppfd:'900 µmol',tempC:'up',ceC:'up'},
+  B1:{title:'Zona B1 — Clones',badge:'OK',badgeClass:'badge-green',temp:'26.0°C',hr:'72%',co2:'900 ppm',ce:'0.8 mS',ph:'5.8',ppfd:'250 µmol',tempC:'warn',ceC:'up'},
+  B3:{title:'Zona B3 — THC-low',badge:'IPM ⚠️',badgeClass:'badge-red',temp:'23.5°C',hr:'55%',co2:'1100 ppm',ce:'2.0 mS',ph:'6.2',ppfd:'850 µmol',tempC:'up',ceC:'up'},
+  C1:{title:'Zona C1 — Secado/Curado',badge:'aw 0.61 ✓',badgeClass:'badge-green',temp:'18.0°C',hr:'50%',co2:'600 ppm',ce:'—',ph:'—',ppfd:'0 µmol',tempC:'up',ceC:'up'},
+};
+
+function buildZoneData(zone) {
+  const fb = ZONE_FALLBACK[zone] || {title:'Zona '+zone,badge:'Sin datos',badgeClass:'badge-gray',temp:'—',hr:'—',co2:'—',ce:'—',ph:'—',ppfd:'—',tempC:'',ceC:''};
+  if (!window.OPS_DATA) return fb;
+  const sensores = (window.OPS_DATA.sensores || []).filter(s => s.Zona === zone);
+  const byType = {};
+  sensores.forEach(s => { byType[s.Tipo] = s; });
+  const zonaRec = (window.OPS_DATA.zonas || []).find(z => z.Nombre === zone);
+  const out = Object.assign({}, fb);
+  if (zonaRec) {
+    out.badge = zonaRec.Estado === 'Alerta' ? 'Alerta' : (zonaRec.Estado === 'Aviso' ? 'Aviso' : 'OK');
+    out.badgeClass = zonaRec.Estado === 'Alerta' ? 'badge-red' : (zonaRec.Estado === 'Aviso' ? 'badge-amber' : 'badge-green');
+  }
+  if (byType['Temperatura']) { out.temp = byType['Temperatura'].Valor + (byType['Temperatura'].Unidad || ''); out.tempC = 'up'; }
+  if (byType['Humedad']) { out.hr = byType['Humedad'].Valor + (byType['Humedad'].Unidad || ''); }
+  if (byType['CE']) { out.ce = byType['CE'].Valor + ' ' + (byType['CE'].Unidad || ''); out.ceC = byType['CE'].Valor > 2.5 ? 'warn' : 'up'; }
+  if (byType['pH']) { out.ph = String(byType['pH'].Valor); }
+  return out;
+}
+
 function selectZone(el, zone) {
   document.querySelectorAll('.zone-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const data = {
-    A1:{title:'Zona A1 — Sala Genética',badge:'CE alta',badgeClass:'badge-amber',temp:'24.1°C',hr:'58%',co2:'1180 ppm',ce:'2.8 mS',ph:'6.1',ppfd:'620 µmol',tempC:'up',ceC:'warn'},
-    A2:{title:'Zona A2 — Floración CBD',badge:'OK',badgeClass:'badge-green',temp:'24.8°C',hr:'52%',co2:'1250 ppm',ce:'2.1 mS',ph:'6.0',ppfd:'900 µmol',tempC:'up',ceC:'up'},
-    B1:{title:'Zona B1 — Clones',badge:'OK',badgeClass:'badge-green',temp:'26.0°C',hr:'72%',co2:'900 ppm',ce:'0.8 mS',ph:'5.8',ppfd:'250 µmol',tempC:'warn',ceC:'up'},
-    B3:{title:'Zona B3 — THC-low',badge:'IPM ⚠️',badgeClass:'badge-red',temp:'23.5°C',hr:'55%',co2:'1100 ppm',ce:'2.0 mS',ph:'6.2',ppfd:'850 µmol',tempC:'up',ceC:'up'},
-    C1:{title:'Zona C1 — Secado/Curado',badge:'aw 0.61 ✓',badgeClass:'badge-green',temp:'18.0°C',hr:'50%',co2:'600 ppm',ce:'—',ph:'—',ppfd:'0 µmol',tempC:'up',ceC:'up'},
-  };
-  const d = data[zone];
+  const d = buildZoneData(zone);
   document.getElementById('zone-title').textContent = d.title;
   const b = document.getElementById('zone-badge');
   b.textContent = d.badge; b.className = 'badge '+d.badgeClass;
@@ -2616,6 +2626,94 @@ async function saveNewPin() {
 // Hash routing
 const h = location.hash.replace('#','');
 if(views.includes(h)) showView(h);
+
+// --- Datos reales de operaciones (Airtable vía /api/ops-data) ---
+function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+async function loadOpsData() {
+  try {
+    const r = await fetch('/api/ops-data');
+    if (!r.ok) { console.warn('ops-data', r.status); return; }
+    window.OPS_DATA = await r.json();
+    renderDashboardReal();
+    renderIpmReal();
+    renderNutricionReal();
+    renderPersonalReal();
+  } catch (e) {
+    console.warn('ops-data fetch failed', e);
+  }
+}
+
+function renderDashboardReal() {
+  const d = window.OPS_DATA;
+  if (!d) return;
+  const zonas = d.zonas || [];
+  const alertas = (d.alertas_ipm || []).filter(a => a.Estado !== 'Resuelta');
+  const kz = document.getElementById('kpi-zonas');
+  if (kz) kz.textContent = zonas.length;
+  const kzd = document.getElementById('kpi-zonas-delta');
+  if (kzd) {
+    const criticas = zonas.filter(z => z.Estado === 'Alerta').length;
+    kzd.textContent = (criticas ? '↑ ' : '') + criticas + ' alertas críticas';
+  }
+  const ki = document.getElementById('kpi-ipm');
+  if (ki) ki.textContent = alertas.length;
+
+  const alertsBox = document.getElementById('dash-alerts');
+  if (alertsBox) {
+    alertsBox.innerHTML = alertas.length
+      ? alertas.map(a => {
+          const cls = a.Severidad === 'Urgente' || a.Severidad === 'Alta' ? 'alert-banner-red' : 'alert-banner-amber';
+          return `<div class="alert-banner ${cls}">⚠️ Zona ${escapeHtml(a.Zona)} — ${escapeHtml(a.Plaga)}: ${escapeHtml(a.Protocolo||'')}</div>`;
+        }).join('')
+      : '<div class="alert-banner alert-banner-green">✓ Sin alertas abiertas</div>';
+  }
+
+  const tbody = document.getElementById('dash-zonas-body');
+  if (tbody) {
+    tbody.innerHTML = zonas.length ? zonas.map(z => {
+      const badgeClass = z.Estado === 'Alerta' ? 'badge-red' : (z.Estado === 'Aviso' ? 'badge-amber' : 'badge-green');
+      return `<tr><td>${escapeHtml(z.Nombre)}</td><td>${escapeHtml(z.Fase||'—')}</td><td>${z.Plantas ?? '—'}</td><td><span class="badge ${badgeClass}">${escapeHtml(z.Estado||'—')}</span></td></tr>`;
+    }).join('') : '<tr><td colspan="4" style="color:var(--fg3)">Sin zonas</td></tr>';
+  }
+}
+
+function renderIpmReal() {
+  const d = window.OPS_DATA;
+  const box = document.getElementById('ipm-real-alerts');
+  if (!d || !box) return;
+  const alertas = d.alertas_ipm || [];
+  box.innerHTML = alertas.length ? alertas.map(a => {
+    const cls = a.Severidad === 'Urgente' ? 'alert-banner-red' : (a.Severidad === 'Alta' ? 'alert-banner-red' : 'alert-banner-amber');
+    return `<div class="alert-banner ${cls}">🚨 ${escapeHtml(a.Zona)} — ${escapeHtml(a.Plaga)} (${escapeHtml(a.Severidad)}): ${escapeHtml(a.Protocolo||'')}</div>`;
+  }).join('') : '<div class="alert-banner alert-banner-green">✓ Sin alertas IPM abiertas</div>';
+}
+
+function renderNutricionReal() {
+  const d = window.OPS_DATA;
+  const box = document.getElementById('nutri-real');
+  if (!d || !box) return;
+  const rows = d.nutricion || [];
+  box.innerHTML = rows.length ? rows.map(n => `
+    <div class="sensor-row"><span class="sensor-label">Zona ${escapeHtml(n.Zona)}</span>
+    <span class="sensor-val">N ${n.N ?? '—'} · P ${n.P ?? '—'} · K ${n.K ?? '—'} · CE ${n.CE ?? '—'} · pH ${n.pH ?? '—'}</span></div>
+  `).join('') : '<div style="color:var(--fg3);font-size:12px">Sin datos de nutrición cargados.</div>';
+}
+
+function renderPersonalReal() {
+  const d = window.OPS_DATA;
+  const box = document.getElementById('personal-real');
+  if (!d || !box) return;
+  const rows = d.personal || [];
+  box.innerHTML = rows.length ? `<table><thead><tr><th>Técnico</th><th>Tarea asignada</th><th>Zona</th><th>Prioridad</th></tr></thead><tbody>${
+    rows.map(p => {
+      const cls = p.Prioridad === 'Urgente' ? 'badge-red' : (p.Prioridad === 'Alta' ? 'badge-amber' : 'badge-green');
+      return `<tr><td>${escapeHtml(p.Nombre)}</td><td>${escapeHtml(p.TareaActual||'—')}</td><td>${escapeHtml(p.ZonaActual||'—')}</td><td><span class="badge ${cls}">${escapeHtml(p.Prioridad||'Normal')}</span></td></tr>`;
+    }).join('')
+  }</tbody></table>` : '<div style="color:var(--fg3);font-size:12px">Sin personal asignado.</div>';
+}
+
+loadOpsData();
 </script>
 
 </body></html>
