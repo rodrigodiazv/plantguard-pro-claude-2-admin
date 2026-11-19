@@ -1,52 +1,126 @@
+"""Grow Agent: conversational assistant of the panel (text or voice from the browser).
+
+It reads the real operation state from Airtable and can create or update records
+(tasks, alerts, zones, devices, knowledge...) through tools limited to the same
+field whitelist as the panel. It never deletes.
+"""
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
-import urllib.parse
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "growmaster_lib"))
 from session_check import has_valid_session  # noqa: E402
+from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, airtable, clean_fields, list_all  # noqa: E402
 
-AIRTABLE_API_KEY = os.environ.get("AIRTABLE_GROWMASTER_API_KEY", "")
-BASE_ID = os.environ.get("AIRTABLE_OPS_BASE_ID", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
+MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
+FALLBACK_MODEL = "claude-haiku-4-5-20251001"
+MAX_TOOL_ROUNDS = 6
+MAX_HISTORY = 20
+CONTEXT_LIMIT = 60_000
 
-CONTEXT_TABLES = ["Zonas", "AlertasIPM", "Nutricion", "Ciclos", "MedicionesAgua", "Tareas", "BaseConocimiento"]
+TABLE_DOC = "\n".join(f"- {k} ({name}): {', '.join(fields)}" for k, (name, fields) in TABLES.items())
 
-
-def _airtable_list(table_name):
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{urllib.parse.quote(table_name)}"
-    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {AIRTABLE_API_KEY}"})
-    with urllib.request.urlopen(req, timeout=8) as r:
-        data = json.loads(r.read().decode())
-    return [rec.get("fields", {}) for rec in data.get("records", [])]
+TOOLS = [
+    {
+        "name": "crear_registro",
+        "description": "Crea un registro nuevo en una tabla del panel (tarea, alerta IPM, zona, "
+                       "dispositivo, entrada de la base de conocimiento, medición de agua, etc.).",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "table": {"type": "string", "enum": list(TABLES)},
+                "fields": {"type": "object", "description": "Solo campos permitidos de esa tabla."},
+            },
+            "required": ["table", "fields"],
+        },
+    },
+    {
+        "name": "actualizar_registro",
+        "description": "Actualiza campos de un registro existente, identificado por su _id (rec...).",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "table": {"type": "string", "enum": list(TABLES)},
+                "id": {"type": "string"},
+                "fields": {"type": "object"},
+            },
+            "required": ["table", "id", "fields"],
+        },
+    },
+]
 
 
 def build_context():
-    parts = []
-    for table in CONTEXT_TABLES:
+    parts, size = [], 0
+    for key, (name, _) in TABLES.items():
         try:
-            rows = _airtable_list(table)
-        except Exception:
+            rows = list_all(name)
+        except Exception:  # noqa: BLE001
+            parts.append(f"{key}: (no disponible)")
             continue
-        parts.append(f"{table}: {json.dumps(rows, ensure_ascii=False)}")
+        chunk = f"{key}: {json.dumps(rows, ensure_ascii=False)}"
+        if size + len(chunk) > CONTEXT_LIMIT:
+            chunk = f"{key}: ({len(rows)} registros, omitidos por tamaño)"
+        size += len(chunk)
+        parts.append(chunk)
     return "\n".join(parts)
 
 
-def call_claude(user_message, context):
-    system = (
-        "Eres Master Grower, el asistente de cultivo de PlantGuard Pro. "
-        "Respondes en espanol, de forma tecnica y concreta, basandote UNICAMENTE "
-        "en los datos reales de la operacion que te paso abajo. Si no tienes el dato, "
-        "dilo claramente en vez de inventarlo.\n\nDatos actuales de la operacion:\n" + context
+def system_prompt(context):
+    return (
+        "Eres el Grow Agent (Master Grower) de PlantGuard Pro: el asistente central del cultivo, "
+        "estilo Jarvis. Hablas en español de España y tratas de usted. Tus respuestas pueden leerse "
+        "en voz alta: frases claras y cortas, sin tablas ni markdown, salvo que te pidan detalle.\n"
+        "Puedes: informar del estado (zonas, ciclos, IPM, nutrición, agua, personal, dispositivos), "
+        "analizar y proponer planes, y ejecutar órdenes creando o actualizando registros con tus "
+        "herramientas (asignar tareas, abrir o cerrar alertas, registrar mediciones, añadir "
+        "conocimiento, dar de alta equipos). No puedes borrar: si te lo piden, indica que se borra "
+        "desde el panel.\n"
+        "Reglas: usa SOLO los datos reales de abajo; si falta un dato, dilo, nunca lo inventes. "
+        "Nunca pongas un equipo como 'Conectado' ni inventes lecturas de sensores. Cuando ejecutes "
+        "una acción, confirma brevemente qué has hecho. Si una orden es ambigua, pregunta antes.\n\n"
+        f"Tablas y campos que puedes escribir:\n{TABLE_DOC}\n\n"
+        f"Datos actuales de la operación (cada fila tiene _id):\n{context}"
     )
+
+
+def run_tool(name, args):
+    table_key = args.get("table")
+    entry = TABLES.get(table_key)
+    if not entry:
+        return {"ok": False, "error": "tabla desconocida"}
+    table, allowed = entry
+    fields = clean_fields(allowed, args.get("fields"))
+    if fields is None:
+        return {"ok": False, "error": "campos no permitidos", "permitidos": allowed}
+    try:
+        if name == "crear_registro":
+            rec = airtable("POST", table, "", {"fields": fields, "typecast": True})
+        elif name == "actualizar_registro":
+            rec_id = str(args.get("id") or "")
+            if not rec_id.startswith("rec"):
+                return {"ok": False, "error": "id inválido"}
+            rec = airtable("PATCH", table, "/" + rec_id, {"fields": fields, "typecast": True})
+        else:
+            return {"ok": False, "error": "herramienta desconocida"}
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "error": e.read().decode()[:300]}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": str(e)}
+    return {"ok": True, "id": rec.get("id")}
+
+
+def call_claude(model, system, messages):
     body = json.dumps({
-        "model": ANTHROPIC_MODEL,
-        "max_tokens": 600,
+        "model": model,
+        "max_tokens": 1500,
         "system": system,
-        "messages": [{"role": "user", "content": user_message}],
+        "tools": TOOLS,
+        "messages": messages,
     }).encode()
     req = urllib.request.Request(
         "https://api.anthropic.com/v1/messages",
@@ -58,10 +132,57 @@ def call_claude(user_message, context):
         },
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=25) as r:
-        data = json.loads(r.read().decode())
-    chunks = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
-    return "".join(chunks) or "(sin respuesta)"
+    with urllib.request.urlopen(req, timeout=90) as r:
+        return json.loads(r.read().decode())
+
+
+def converse(history, context):
+    system = system_prompt(context)
+    messages = list(history)
+    actions = []
+    model = MODEL
+    for _ in range(MAX_TOOL_ROUNDS):
+        try:
+            data = call_claude(model, system, messages)
+        except urllib.error.HTTPError as e:
+            if model != FALLBACK_MODEL and e.code in (400, 404):
+                model = FALLBACK_MODEL  # configured model not available for this key
+                data = call_claude(model, system, messages)
+            else:
+                raise
+        content = data.get("content", [])
+        uses = [b for b in content if b.get("type") == "tool_use"]
+        if data.get("stop_reason") != "tool_use" or not uses:
+            text = "".join(b.get("text", "") for b in content if b.get("type") == "text")
+            return text or "(sin respuesta)", actions
+        messages.append({"role": "assistant", "content": content})
+        results = []
+        for u in uses:
+            res = run_tool(u.get("name"), u.get("input") or {})
+            actions.append({"herramienta": u.get("name"), "tabla": (u.get("input") or {}).get("table"), **res})
+            results.append({"type": "tool_result", "tool_use_id": u["id"],
+                            "content": json.dumps(res, ensure_ascii=False)})
+        messages.append({"role": "user", "content": results})
+    return "He llegado al límite de acciones seguidas en esta petición. Revise el panel.", actions
+
+
+def parse_history(payload):
+    raw = payload.get("messages")
+    if not isinstance(raw, list):
+        msg = (payload.get("message") or "").strip()
+        raw = [{"role": "user", "content": msg}] if msg else []
+    history = []
+    for m in raw[-MAX_HISTORY:]:
+        if not isinstance(m, dict) or m.get("role") not in ("user", "assistant"):
+            continue
+        text = str(m.get("content") or "").strip()[:4000]
+        if text:
+            history.append({"role": m["role"], "content": text})
+    while history and history[0]["role"] != "user":
+        history.pop(0)
+    if not history or history[-1]["role"] != "user":
+        return None
+    return history
 
 
 class handler(BaseHTTPRequestHandler):
@@ -72,29 +193,27 @@ class handler(BaseHTTPRequestHandler):
         if not ANTHROPIC_API_KEY:
             self._json(503, {"error": "chat_not_configured", "detail": "Falta ANTHROPIC_API_KEY"})
             return
-
         length = int(self.headers.get("Content-Length", 0) or 0)
+        if length > 200_000:
+            self._json(413, {"error": "body_too_large"})
+            return
         raw = self.rfile.read(length) if length else b"{}"
         try:
             payload = json.loads(raw.decode() or "{}")
-        except Exception:
+        except Exception:  # noqa: BLE001
             self._json(400, {"error": "invalid_body"})
             return
-
-        message = (payload.get("message") or "").strip()
-        if not message:
+        history = parse_history(payload if isinstance(payload, dict) else {})
+        if not history:
             self._json(400, {"error": "message_required"})
             return
-
-        context = build_context() if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operacion disponibles)"
-
+        context = build_context() if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
         try:
-            reply = call_claude(message, context)
+            reply, actions = converse(history, context)
         except Exception as e:  # noqa: BLE001
-            self._json(502, {"error": "llm_call_failed", "detail": str(e)})
+            self._json(502, {"error": "llm_call_failed", "detail": str(e)[:300]})
             return
-
-        self._json(200, {"reply": reply})
+        self._json(200, {"reply": reply, "actions": actions})
 
     def _json(self, status, payload):
         body = json.dumps(payload).encode()

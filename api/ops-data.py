@@ -4,16 +4,15 @@ import json
 import os
 import sys
 import datetime
-import urllib.request
-import urllib.parse
 import urllib.error
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "growmaster_lib"))
 from session_check import has_valid_session  # noqa: E402
 
-AIRTABLE_API_KEY = os.environ.get("AIRTABLE_GROWMASTER_API_KEY", "")
-BASE_ID = os.environ.get("AIRTABLE_OPS_BASE_ID", "")
+from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, clean_fields as _clean_fields  # noqa: E402
+from ops_tables import airtable as _airtable, list_all as _list_all  # noqa: E402
+
 _SESSION_SECRET = os.environ.get("ADMIN_KEY") or os.environ.get("ACCESS_SECRET") or ""
 # Key the IoT gateway sends in X-Ingest-Key. Explicit env var wins; otherwise it
 # is derived from the session secret, so no secret ever has to be pasted around.
@@ -21,72 +20,6 @@ _SESSION_SECRET = os.environ.get("ADMIN_KEY") or os.environ.get("ACCESS_SECRET")
 INGEST_KEY = os.environ.get("INGEST_KEY") or (
     hmac.new(_SESSION_SECRET.encode(), b"plantguard-ingest-v1", hashlib.sha256).hexdigest() if _SESSION_SECRET else "")
 
-# table key (used by the panel) -> Airtable table name, and the only fields
-# the panel may write. Anything not listed here is rejected.
-TABLES = {
-    "zonas": ("Zonas", ["Nombre", "Tipo", "Fase", "Plantas", "Estado"]),
-    "sensores": ("Sensores", ["Zona", "Tipo", "Valor", "Unidad", "Actualizado"]),
-    "alertas_ipm": ("AlertasIPM", ["Zona", "Plaga", "Severidad", "Protocolo", "Estado", "Creada"]),
-    "automation_rules": ("AutomationRules", ["Zona", "Nombre", "Condicion", "Accion", "Activa"]),
-    "nutricion": ("Nutricion", ["Zona", "N", "P", "K", "Ca", "Mg", "CE", "pH", "Micronutrientes"]),
-    "personal": ("PersonalCampo", ["Nombre", "Rol", "Calificacion", "Especialidad", "ZonaActual",
-                                   "TareaActual", "Prioridad", "DispositivoEmpresa", "EnTurno"]),
-    "ciclos": ("Ciclos", ["Nombre", "Variedad", "Fase", "SemanaActual", "SemanaTotal", "FechaInicio",
-                          "FechaCosechaEstimada", "Plantas", "Zona", "Estado"]),
-    "drones": ("Drones", ["Nombre", "Sector", "Estado", "BateriaPct", "UltimaDeteccion"]),
-    "dispositivos": ("Dispositivos", ["Nombre", "Tipo", "Espectro", "Zona", "Protocolo", "Direccion",
-                                      "Endpoint", "Estado", "UltimaLectura", "UltimaLecturaEn", "Notas"]),
-    "agua": ("TratamientoAgua", ["Etapa", "Orden", "pH", "EC_TDS", "CaudalLmin", "Estado", "Notas"]),
-    "mediciones_agua": ("MedicionesAgua", ["Zona", "Fecha", "pH_prefiltrado", "EC_prefiltrado", "pH_filtrado",
-                                           "EC_filtrado", "pH_final", "EC_final", "Notas"]),
-    "tareas": ("Tareas", ["Tarea", "Zona", "Tecnico", "Fecha", "Estado", "Prioridad", "Notas"]),
-    "trampas": ("Trampas", ["Zona", "Plaga", "Recuento", "Umbral", "Fecha"]),
-    "liberaciones": ("Liberaciones", ["Agente", "PlagaObjetivo", "Zona", "Dosis", "Fecha"]),
-    "riegos": ("Riegos", ["Zona", "Hora", "VolumenLm2", "Formula", "Estado"]),
-    "conocimiento": ("BaseConocimiento", ["Titulo", "Categoria", "Contenido", "Fuente"]),
-}
-
-
-def _airtable(method, table_name, path="", body=None, query=None):
-    url = f"https://api.airtable.com/v0/{BASE_ID}/{urllib.parse.quote(table_name)}{path}"
-    if query:
-        url += "?" + urllib.parse.urlencode(query)
-    data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method, headers={
-        "Authorization": f"Bearer {AIRTABLE_API_KEY}",
-        "Content-Type": "application/json",
-    })
-    with urllib.request.urlopen(req, timeout=10) as r:
-        return json.loads(r.read().decode())
-
-
-def _list_all(table_name):
-    out, offset = [], None
-    while True:
-        q = {"pageSize": 100}
-        if offset:
-            q["offset"] = offset
-        data = _airtable("GET", table_name, query=q)
-        for rec in data.get("records", []):
-            row = dict(rec.get("fields", {}))
-            row["_id"] = rec["id"]
-            out.append(row)
-        offset = data.get("offset")
-        if not offset:
-            return out
-
-
-def _clean_fields(allowed, fields):
-    if not isinstance(fields, dict):
-        return None
-    clean = {}
-    for k, v in fields.items():
-        if k not in allowed:
-            return None
-        if v == "":
-            v = None
-        clean[k] = v
-    return clean
 
 
 class handler(BaseHTTPRequestHandler):

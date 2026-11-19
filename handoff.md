@@ -90,6 +90,19 @@ refrigeración, calefacción, riego, CO2, eléctrico, estación meteorológica).
 Vistas aún de ejemplo llevan aviso amarillo. Tablas nuevas en Airtable:
 Tareas, Trampas, Liberaciones, Riegos, MedicionesAgua, BaseConocimiento.
 
+## Grow Agent (19-nov-2026)
+
+Botón verde de arriba a la izquierda → panel del Grow Agent
+(`public/grow-agent.js`): chat escrito + conversación por voz (reconocimiento y
+voz del propio navegador, es-ES; Chrome/Edge/Safari). `api/gm-chat/index.py`
+recibe el historial, lee TODAS las tablas de Airtable como contexto y puede
+`crear_registro` / `actualizar_registro` (misma lista blanca que el panel,
+`growmaster_lib/ops_tables.py`, compartida con ops-data). No borra. Modelo:
+env `ANTHROPIC_MODEL` o `claude-sonnet-5-5`, con respaldo a Haiku 4.5 si la
+clave no tiene acceso. `vercel.json`: micrófono permitido solo para el propio
+sitio. Pendiente (pedido por Rodrigo, después): roles — administrador
+general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
+
 ## Pendiente / próximos pasos
 
 - Conectar hardware real (sensores, filtros de agua, drones) a
