@@ -973,64 +973,63 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <!-- DISPOSITIVOS -->
     <div class="view" id="view-dispositivos">
       <div class="section-title">🔌 Gestión de dispositivos</div>
+      <p style="font-size:12px;color:var(--fg2);line-height:1.6;margin-bottom:12px">
+        Registro central de todo lo que Growmaster debe poder gestionar: sensores
+        (temperatura, humedad, CO₂, CE/pH, PPFD), climatización/HVAC, calefacción,
+        ventilación, iluminación, riego y drones. Dar de alta un dispositivo aquí
+        no lo conecta solo — queda en <strong>"Pendiente de conectar"</strong> con su
+        canal (WiFi, Bluetooth, Zigbee, LoRa, Modbus, MQTT, BACnet, DMX512, MAVLink)
+        listo para que, cuando exista el hardware real, se cablee a este registro.
+      </p>
 
-      <!-- SENSORES -->
       <div class="card" style="margin-bottom:16px">
         <div class="card-header">
-          <div><div class="card-title">Sensores conectados</div><div class="card-subtitle">Protocolo: TCP/IP · Modbus RTU · MQTT</div></div>
-          <div class="btn btn-sm btn-green" onclick="document.getElementById('modal-sensor').style.display='flex'">+ Conectar sensor</div>
+          <div><div class="card-title">Dispositivos registrados</div><div class="card-subtitle" id="device-count">Cargando…</div></div>
+          <div class="btn btn-sm btn-green" onclick="document.getElementById('device-form-card').style.display='block'">+ Registrar dispositivo</div>
         </div>
-        <table>
-          <thead><tr><th>ID</th><th>Tipo</th><th>Zona</th><th>Dirección</th><th>Protocolo</th><th>Última lectura</th><th>Estado</th><th></th></tr></thead>
-          <tbody>
-            <tr><td style="font-family:monospace;font-size:11px">SEN-A1-01</td><td>T° + HR</td><td>A1</td><td style="font-family:monospace;font-size:11px">192.168.1.21</td><td><span class="badge badge-blue">MQTT</span></td><td style="font-family:monospace;font-size:11px">09:41:12</td><td><span class="badge badge-green">OK</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">SEN-A1-02</td><td>CO₂ + PPFD</td><td>A1</td><td style="font-family:monospace;font-size:11px">192.168.1.22</td><td><span class="badge badge-blue">MQTT</span></td><td style="font-family:monospace;font-size:11px">09:41:08</td><td><span class="badge badge-green">OK</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">SEN-A1-03</td><td>CE + pH</td><td>A1</td><td style="font-family:monospace;font-size:11px">192.168.1.23</td><td><span class="badge badge-blue">Modbus</span></td><td style="font-family:monospace;font-size:11px">09:41:05</td><td><span class="badge badge-amber">CE alta</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">SEN-A2-01</td><td>T° + HR</td><td>A2</td><td style="font-family:monospace;font-size:11px">192.168.1.31</td><td><span class="badge badge-blue">MQTT</span></td><td style="font-family:monospace;font-size:11px">09:41:11</td><td><span class="badge badge-green">OK</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">SEN-B3-01</td><td>T° + HR + CO₂</td><td>B3</td><td style="font-family:monospace;font-size:11px">192.168.1.51</td><td><span class="badge badge-blue">MQTT</span></td><td style="font-family:monospace;font-size:11px">09:41:09</td><td><span class="badge badge-red">Alerta</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">SEN-C1-01</td><td>aw (actividad agua)</td><td>C1</td><td style="font-family:monospace;font-size:11px">192.168.1.71</td><td><span class="badge badge-gray">BLE</span></td><td style="font-family:monospace;font-size:11px">09:38:44</td><td><span class="badge badge-green">0.61 aw</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr style="opacity:.5"><td style="font-family:monospace;font-size:11px">SEN-B2-01</td><td>T° + HR</td><td>B2</td><td style="font-family:monospace;font-size:11px">—</td><td><span class="badge badge-gray">—</span></td><td style="font-family:monospace;font-size:11px">Sin señal</td><td><span class="badge badge-gray">Offline</span></td><td><span class="btn btn-sm">Reconectar</span></td></tr>
-          </tbody>
-        </table>
+        <div id="devices-table-wrap"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
       </div>
 
-      <!-- DRONES -->
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-header">
-          <div><div class="card-title">Drones registrados</div><div class="card-subtitle">Protocolo: MAVLink · WiFi 5GHz · Control manual fallback</div></div>
-          <div class="btn btn-sm btn-green" onclick="document.getElementById('modal-drone').style.display='flex'">+ Registrar dron</div>
+      <div class="card" id="device-form-card" style="display:none">
+        <div class="card-header"><div class="card-title">Registrar dispositivo nuevo</div></div>
+        <div class="form-row"><label>Nombre</label><input type="text" id="dev-nombre" placeholder="ej. Sensor T/HR zona A1"></div>
+        <div class="form-row"><label>Tipo</label>
+          <select id="dev-tipo">
+            <option>Sensor temperatura/humedad</option>
+            <option>Sensor CO2</option>
+            <option>Sensor CE/pH</option>
+            <option>Sensor PPFD/luz</option>
+            <option>Climatizacion / HVAC</option>
+            <option>Calefaccion</option>
+            <option>Ventilacion</option>
+            <option>Iluminacion</option>
+            <option>Riego</option>
+            <option>Dron</option>
+            <option>Otro</option>
+          </select>
         </div>
-        <table>
-          <thead><tr><th>ID</th><th>Modelo</th><th>IP / MAC</th><th>Cámara</th><th>Batería</th><th>Estado</th><th></th></tr></thead>
-          <tbody>
-            <tr><td style="font-family:monospace;font-size:11px">D1</td><td>DJI Mavic 3T</td><td style="font-family:monospace;font-size:11px">192.168.2.11</td><td>RGB + IR</td><td><span style="color:var(--green)">🔋 78%</span></td><td><span class="badge badge-green">En vuelo · A</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">D2</td><td>DJI Mavic 3T</td><td style="font-family:monospace;font-size:11px">192.168.2.12</td><td>RGB + IR</td><td><span style="color:var(--amber)">🔋 61%</span></td><td><span class="badge badge-amber">Alerta IR · B</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">D3</td><td>Autel EVO II</td><td style="font-family:monospace;font-size:11px">192.168.2.13</td><td>IR 640</td><td><span style="color:var(--amber)">🔋 45%</span></td><td><span class="badge badge-red">Alerta · B3</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-            <tr><td style="font-family:monospace;font-size:11px">D4</td><td>Parrot Anafi USA</td><td style="font-family:monospace;font-size:11px">192.168.2.14</td><td>RGB + zoom</td><td><span style="color:var(--green)">🔋 100%</span></td><td><span class="badge badge-gray">En base</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- OTROS DISPOSITIVOS -->
-      <div class="grid grid-3">
-        <div class="device-card connected">
-          <div class="device-header"><strong>Sistema riego auto</strong><span class="badge badge-green">Conectado</span></div>
-          <div class="device-info">192.168.1.100 · Modbus TCP</div>
-          <div class="device-info">Zonas: A1, A2, B1, B3 · 4 válvulas</div>
-          <div class="device-actions"><span class="btn btn-sm">Config</span><span class="btn btn-sm">Test</span></div>
+        <div class="form-row"><label>Zona</label><input type="text" id="dev-zona" placeholder="ej. A1, B3+B4, Toda la nave…"></div>
+        <div class="form-row"><label>Canal / Protocolo</label>
+          <select id="dev-protocolo">
+            <option>WiFi</option>
+            <option>Bluetooth / BLE</option>
+            <option>Zigbee</option>
+            <option>LoRa</option>
+            <option>Modbus</option>
+            <option>MQTT</option>
+            <option>BACnet</option>
+            <option>DMX512</option>
+            <option>MAVLink</option>
+            <option>Otro</option>
+          </select>
         </div>
-        <div class="device-card connected">
-          <div class="device-header"><strong>Control HVAC</strong><span class="badge badge-green">Conectado</span></div>
-          <div class="device-info">192.168.1.101 · BACnet</div>
-          <div class="device-info">Ventilación + temperatura centralizada</div>
-          <div class="device-actions"><span class="btn btn-sm">Config</span><span class="btn btn-sm">Override</span></div>
+        <div class="form-row"><label>Dirección / ID (IP, MAC, serial…)</label><input type="text" id="dev-direccion" placeholder="opcional, se completa al conectar el hardware"></div>
+        <div class="form-row"><label>Notas</label><input type="text" id="dev-notas" placeholder="opcional"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <div class="btn btn-green" onclick="submitDevice()">Guardar</div>
+          <div class="btn btn-sm" onclick="document.getElementById('device-form-card').style.display='none'">Cancelar</div>
         </div>
-        <div class="device-card warning">
-          <div class="device-header"><strong>Iluminación LED</strong><span class="badge badge-amber">Advertencia</span></div>
-          <div class="device-info">192.168.1.102 · DMX512</div>
-          <div class="device-info">Canal 3 (B3) sin respuesta</div>
-          <div class="device-actions"><span class="btn btn-sm">Diagnóstico</span></div>
-        </div>
+        <div id="dev-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
       </div>
     </div>
 
@@ -2555,6 +2554,7 @@ async function loadOpsData() {
     renderCiclosReal();
     renderDronesReal();
     renderZoneTabs();
+    renderDevicesReal();
   } catch (e) {
     console.warn('ops-data fetch failed', e);
   }
@@ -2686,6 +2686,71 @@ function renderDronesReal() {
       <div style="font-size:11px;color:var(--fg2)">${escapeHtml(dr.UltimaDeteccion||'Sin deteccion registrada')}</div>
     </div>`;
   }).join('') + '</div>';
+}
+
+function renderDevicesReal() {
+  const d = window.OPS_DATA;
+  const wrap = document.getElementById('devices-table-wrap');
+  const countEl = document.getElementById('device-count');
+  if (!d || !wrap) return;
+  const devices = d.dispositivos || [];
+  if (countEl) countEl.textContent = devices.length + ' dispositivo(s) registrado(s)';
+  if (!devices.length) {
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--fg3)">Todavia no hay dispositivos registrados. Usa "+ Registrar dispositivo" para dar de alta sensores, HVAC, calefaccion, ventilacion, iluminacion, riego o drones.</div>';
+    return;
+  }
+  const cls = s => s === 'Conectado' ? 'badge-green' : (s === 'Error' ? 'badge-red' : (s === 'Desconectado' ? 'badge-gray' : 'badge-amber'));
+  wrap.innerHTML = `<table>
+    <thead><tr><th>Nombre</th><th>Tipo</th><th>Zona</th><th>Canal</th><th>Direccion</th><th>Estado</th></tr></thead>
+    <tbody>${devices.map(dv => `
+      <tr>
+        <td>${escapeHtml(dv.Nombre)}</td>
+        <td>${escapeHtml(dv.Tipo||'—')}</td>
+        <td>${escapeHtml(dv.Zona||'—')}</td>
+        <td><span class="badge badge-blue">${escapeHtml(dv.Protocolo||'—')}</span></td>
+        <td style="font-family:monospace;font-size:11px">${escapeHtml(dv.Direccion||'—')}</td>
+        <td><span class="badge ${cls(dv.Estado)}">${escapeHtml(dv.Estado||'—')}</span></td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
+}
+
+async function submitDevice() {
+  const errorEl = document.getElementById('dev-error');
+  errorEl.style.display = 'none';
+  const nombre = document.getElementById('dev-nombre').value.trim();
+  if (!nombre) {
+    errorEl.textContent = 'Falta el nombre.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  const payload = {
+    nombre,
+    tipo: document.getElementById('dev-tipo').value,
+    zona: document.getElementById('dev-zona').value.trim(),
+    protocolo: document.getElementById('dev-protocolo').value,
+    direccion: document.getElementById('dev-direccion').value.trim(),
+    notas: document.getElementById('dev-notas').value.trim(),
+  };
+  try {
+    const r = await fetch('/api/gm-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      errorEl.textContent = data.detail || data.error || ('Error ' + r.status);
+      errorEl.style.display = 'block';
+      return;
+    }
+    document.getElementById('device-form-card').style.display = 'none';
+    ['dev-nombre','dev-zona','dev-direccion','dev-notas'].forEach(id => document.getElementById(id).value = '');
+    await loadOpsData();
+  } catch (e) {
+    errorEl.textContent = 'Error de red.';
+    errorEl.style.display = 'block';
+  }
 }
 
 loadOpsData();

@@ -20,6 +20,7 @@ TABLES = {
     "personal": "PersonalCampo",
     "ciclos": "Ciclos",
     "drones": "Drones",
+    "dispositivos": "Dispositivos",
 }
 
 
