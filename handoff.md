@@ -84,6 +84,21 @@ puede completar bien y fallar recién al desplegar.
   sistema de recordatorios automático. Si se quiere implementar, es
   trabajo nuevo real.
 
+## Revisión de seguridad 2026-11-19
+
+Corregido:
+- XSS almacenado en las pestañas de Zonas (nombre de zona dentro de un `onclick`).
+- `gm-upload-photo` subía como "public" a un store privado → fallaba siempre. Ahora privado + nombre de archivo saneado.
+- Login: 1,5 s de espera tras PIN incorrecto (frena fuerza bruta, no la impide).
+- Cabeceras: X-Frame-Options, nosniff, HSTS, Referrer-Policy, Permissions-Policy.
+
+Pendiente (decisión de Rodrigo / panel de Vercel):
+1. **Regla de Firewall en Vercel** que limite `/api/access` por IP (el retardo no basta contra intentos en paralelo).
+2. **`VERCEL_API_TOKEN`** es un token de cuenta completa dentro de `change-pin.js`: quien tenga sesión puede rotar el PIN, y si se filtra el token afecta a todos los proyectos. Valorar quitar esa función o usar un token de alcance mínimo.
+3. **`BLOB_READ_WRITE_TOKEN`** aparece en Vercel como "readable-secret": recrearla como tipo *Sensitive*.
+4. Un mismo PAT de Airtable sirve a dos bases; idealmente uno por base con permisos mínimos.
+5. Sin CSP (el panel es todo JS inline); requiere refactor.
+
 ## Nota sobre commits "Unverified" en GitHub
 
 Algunos commits (incluido uno legítimo de Rodrigo, `a6d983a`) aparecen
