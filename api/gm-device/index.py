@@ -16,11 +16,14 @@ TABLE = "Dispositivos"
 VALID_TIPOS = {
     "Sensor temperatura/humedad", "Sensor CO2", "Sensor CE/pH", "Sensor PPFD/luz",
     "Climatizacion / HVAC", "Calefaccion", "Ventilacion", "Iluminacion",
-    "Riego", "Dron", "Otro",
+    "Riego", "Dron", "Inyeccion CO2", "Estacion meteorologica", "Otro",
 }
 VALID_PROTOCOLOS = {
     "WiFi", "Bluetooth / BLE", "Zigbee", "LoRa", "Modbus", "MQTT",
     "BACnet", "DMX512", "MAVLink", "Otro",
+}
+VALID_ESPECTROS = {
+    "UV", "Azul", "Verde", "Rojo", "Rojo lejano", "Infrarrojo", "Blanco (full spectrum)",
 }
 
 
@@ -47,6 +50,7 @@ class handler(BaseHTTPRequestHandler):
         protocolo = payload.get("protocolo") or ""
         direccion = (payload.get("direccion") or "").strip()
         notas = (payload.get("notas") or "").strip()
+        espectro = payload.get("espectro") or ""
 
         if not nombre:
             self._json(400, {"error": "nombre_required"})
@@ -56,6 +60,9 @@ class handler(BaseHTTPRequestHandler):
             return
         if protocolo not in VALID_PROTOCOLOS:
             self._json(400, {"error": "protocolo_invalid", "allowed": sorted(VALID_PROTOCOLOS)})
+            return
+        if espectro and espectro not in VALID_ESPECTROS:
+            self._json(400, {"error": "espectro_invalid", "allowed": sorted(VALID_ESPECTROS)})
             return
 
         fields = {
@@ -68,6 +75,8 @@ class handler(BaseHTTPRequestHandler):
             "Notas": notas,
             "CreadoEl": datetime.datetime.utcnow().isoformat() + "Z",
         }
+        if espectro:
+            fields["Espectro"] = espectro
 
         url = f"https://api.airtable.com/v0/{BASE_ID}/{TABLE}"
         body = json.dumps({"fields": fields}).encode()

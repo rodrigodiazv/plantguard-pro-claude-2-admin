@@ -1014,7 +1014,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         <div class="card-header"><div class="card-title">Registrar dispositivo nuevo</div></div>
         <div class="form-row"><label>Nombre</label><input type="text" id="dev-nombre" placeholder="ej. Sensor T/HR zona A1"></div>
         <div class="form-row"><label>Tipo</label>
-          <select id="dev-tipo">
+          <select id="dev-tipo" onchange="document.getElementById('dev-espectro-row').style.display = this.value==='Iluminacion' ? 'flex' : 'none'">
             <option>Sensor temperatura/humedad</option>
             <option>Sensor CO2</option>
             <option>Sensor CE/pH</option>
@@ -1025,7 +1025,21 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
             <option>Iluminacion</option>
             <option>Riego</option>
             <option>Dron</option>
+            <option>Inyeccion CO2</option>
+            <option>Estacion meteorologica</option>
             <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-row" id="dev-espectro-row" style="display:none"><label>Espectro de luz</label>
+          <select id="dev-espectro">
+            <option value="">—</option>
+            <option>UV</option>
+            <option>Azul</option>
+            <option>Verde</option>
+            <option>Rojo</option>
+            <option>Rojo lejano</option>
+            <option>Infrarrojo</option>
+            <option>Blanco (full spectrum)</option>
           </select>
         </div>
         <div class="form-row"><label>Zona</label><input type="text" id="dev-zona" placeholder="ej. A1, B3+B4, Toda la nave…"></div>
@@ -2746,11 +2760,12 @@ function renderDevicesReal() {
   }
   const cls = s => s === 'Conectado' ? 'badge-green' : (s === 'Error' ? 'badge-red' : (s === 'Desconectado' ? 'badge-gray' : 'badge-amber'));
   wrap.innerHTML = `<table>
-    <thead><tr><th>Nombre</th><th>Tipo</th><th>Zona</th><th>Canal</th><th>Direccion</th><th>Estado</th></tr></thead>
+    <thead><tr><th>Nombre</th><th>Tipo</th><th>Espectro</th><th>Zona</th><th>Canal</th><th>Direccion</th><th>Estado</th></tr></thead>
     <tbody>${devices.map(dv => `
       <tr>
         <td>${escapeHtml(dv.Nombre)}</td>
         <td>${escapeHtml(dv.Tipo||'—')}</td>
+        <td>${escapeHtml(dv.Espectro||'—')}</td>
         <td>${escapeHtml(dv.Zona||'—')}</td>
         <td><span class="badge badge-blue">${escapeHtml(dv.Protocolo||'—')}</span></td>
         <td style="font-family:monospace;font-size:11px">${escapeHtml(dv.Direccion||'—')}</td>
@@ -2772,6 +2787,7 @@ async function submitDevice() {
   const payload = {
     nombre,
     tipo: document.getElementById('dev-tipo').value,
+    espectro: document.getElementById('dev-espectro').value,
     zona: document.getElementById('dev-zona').value.trim(),
     protocolo: document.getElementById('dev-protocolo').value,
     direccion: document.getElementById('dev-direccion').value.trim(),
@@ -2790,7 +2806,8 @@ async function submitDevice() {
       return;
     }
     document.getElementById('device-form-card').style.display = 'none';
-    ['dev-nombre','dev-zona','dev-direccion','dev-notas'].forEach(id => document.getElementById(id).value = '');
+    ['dev-nombre','dev-zona','dev-direccion','dev-notas','dev-espectro'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('dev-espectro-row').style.display = 'none';
     await loadOpsData();
   } catch (e) {
     errorEl.textContent = 'Error de red.';
