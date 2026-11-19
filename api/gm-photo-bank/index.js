@@ -1,8 +1,10 @@
 // api/gm-photo-bank/index.js - Serves the foundational field-photo bank
 // (growmaster_lib/banco_fotos) from Vercel Blob instead of leaving the
-// images as unauthenticated static files under public/. First call seeds
-// the blob store from the files bundled in the deployment; later calls
-// just list what's already there.
+// images as unauthenticated static files under public/. The blob store
+// (growmaster-photos) is private, so uploads use access: "private" and
+// the list response returns filenames only (no direct blob URL - those
+// require the store token to fetch). The browser gets each image's bytes
+// through file.js, which is session-gated like this endpoint.
 const fs = require("fs");
 const path = require("path");
 const { put, list } = require("@vercel/blob");
@@ -35,7 +37,7 @@ async function seedIfEmpty() {
   const uploaded = [];
   for (const file of files) {
     const buf = fs.readFileSync(path.join(fotosDir, file));
-    const blob = await put(PREFIX + file, buf, { access: "public", addRandomSuffix: false });
+    const blob = await put(PREFIX + file, buf, { access: "private", addRandomSuffix: false });
     uploaded.push(blob);
   }
   return uploaded;
@@ -54,7 +56,7 @@ module.exports = async function handler(req, res) {
     blobs = await seedIfEmpty();
   } catch (e) {
     console.error("gm-photo-bank: seed/list failed", e);
-    return res.status(502).json({ error: "blob_list_failed" });
+    return res.status(502).json({ error: "blob_list_failed", detail: e.message });
   }
 
   let manifest = {};
@@ -64,7 +66,6 @@ module.exports = async function handler(req, res) {
     const filename = b.pathname.replace(PREFIX, "");
     const meta = manifest[filename] || {};
     return {
-      url: b.url,
       filename,
       entorno: meta.entorno || "",
       fase: meta.fase || "",

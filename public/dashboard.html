@@ -573,12 +573,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
     <!-- ZONAS -->
     <div class="view" id="view-zonas">
-      <div class="zone-tabs">
-        <div class="zone-tab active" onclick="selectZone(this,'A1')">A1 — Genética</div>
-        <div class="zone-tab" onclick="selectZone(this,'A2')">A2 — CBD-01</div>
-        <div class="zone-tab" onclick="selectZone(this,'B1')">B1 — Clones</div>
-        <div class="zone-tab" onclick="selectZone(this,'B3')">B3 — THC-low ⚠️</div>
-        <div class="zone-tab" onclick="selectZone(this,'C1')">C1 — Secado</div>
+      <div class="zone-tabs" id="zone-tabs">
+        <div class="zone-tab active" onclick="selectZone(this,'A1')">A1</div>
       </div>
 
       <div class="grid grid-2" style="margin-bottom:16px">
@@ -2171,7 +2167,7 @@ async function loadPhotoBank() {
     grid.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">' +
       data.photos.map(p => `
         <div>
-          <img src="${p.url}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          <img src="/api/gm-photo-bank/file?name=${encodeURIComponent(p.filename)}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
           <div style="font-size:10px;color:var(--fg3);margin-top:4px">${escapeHtml(p.entorno)} · ${escapeHtml(p.fase)} · ${escapeHtml(p.fecha)}</div>
         </div>
       `).join('') + '</div>';
@@ -2180,30 +2176,38 @@ async function loadPhotoBank() {
   }
 }
 
-const ZONE_FALLBACK = {
-  A1:{title:'Zona A1 — Sala Genética',badge:'CE alta',badgeClass:'badge-amber',temp:'24.1°C',hr:'58%',co2:'1180 ppm',ce:'2.8 mS',ph:'6.1',ppfd:'620 µmol',tempC:'up',ceC:'warn'},
-  A2:{title:'Zona A2 — Floración CBD',badge:'OK',badgeClass:'badge-green',temp:'24.8°C',hr:'52%',co2:'1250 ppm',ce:'2.1 mS',ph:'6.0',ppfd:'900 µmol',tempC:'up',ceC:'up'},
-  B1:{title:'Zona B1 — Clones',badge:'OK',badgeClass:'badge-green',temp:'26.0°C',hr:'72%',co2:'900 ppm',ce:'0.8 mS',ph:'5.8',ppfd:'250 µmol',tempC:'warn',ceC:'up'},
-  B3:{title:'Zona B3 — THC-low',badge:'IPM ⚠️',badgeClass:'badge-red',temp:'23.5°C',hr:'55%',co2:'1100 ppm',ce:'2.0 mS',ph:'6.2',ppfd:'850 µmol',tempC:'up',ceC:'up'},
-  C1:{title:'Zona C1 — Secado/Curado',badge:'aw 0.61 ✓',badgeClass:'badge-green',temp:'18.0°C',hr:'50%',co2:'600 ppm',ce:'—',ph:'—',ppfd:'0 µmol',tempC:'up',ceC:'up'},
-};
+function renderZoneTabs() {
+  const d = window.OPS_DATA;
+  const tabs = document.getElementById('zone-tabs');
+  if (!d || !tabs) return;
+  const zonas = d.zonas || [];
+  if (!zonas.length) return;
+  tabs.innerHTML = zonas.map((z, i) => {
+    const warn = z.Estado === 'Alerta' ? ' ⚠️' : '';
+    return `<div class="zone-tab${i===0?' active':''}" onclick="selectZone(this,'${z.Nombre}')">${escapeHtml(z.Nombre)}${warn}</div>`;
+  }).join('');
+  selectZone(tabs.querySelector('.zone-tab'), zonas[0].Nombre);
+}
 
 function buildZoneData(zone) {
-  const fb = ZONE_FALLBACK[zone] || {title:'Zona '+zone,badge:'Sin datos',badgeClass:'badge-gray',temp:'—',hr:'—',co2:'—',ce:'—',ph:'—',ppfd:'—',tempC:'',ceC:''};
-  if (!window.OPS_DATA) return fb;
+  const empty = {title:'Zona '+zone,badge:'Sin datos',badgeClass:'badge-gray',temp:'—',hr:'—',co2:'—',ce:'—',ph:'—',ppfd:'—',tempC:'',ceC:''};
+  if (!window.OPS_DATA) return empty;
   const sensores = (window.OPS_DATA.sensores || []).filter(s => s.Zona === zone);
   const byType = {};
   sensores.forEach(s => { byType[s.Tipo] = s; });
   const zonaRec = (window.OPS_DATA.zonas || []).find(z => z.Nombre === zone);
-  const out = Object.assign({}, fb);
+  const out = Object.assign({}, empty);
   if (zonaRec) {
+    out.title = 'Zona ' + zonaRec.Nombre + (zonaRec.Fase ? (' — ' + zonaRec.Fase) : '');
     out.badge = zonaRec.Estado === 'Alerta' ? 'Alerta' : (zonaRec.Estado === 'Aviso' ? 'Aviso' : 'OK');
     out.badgeClass = zonaRec.Estado === 'Alerta' ? 'badge-red' : (zonaRec.Estado === 'Aviso' ? 'badge-amber' : 'badge-green');
   }
   if (byType['Temperatura']) { out.temp = byType['Temperatura'].Valor + (byType['Temperatura'].Unidad || ''); out.tempC = 'up'; }
   if (byType['Humedad']) { out.hr = byType['Humedad'].Valor + (byType['Humedad'].Unidad || ''); }
+  if (byType['CO2']) { out.co2 = byType['CO2'].Valor + ' ' + (byType['CO2'].Unidad || ''); }
   if (byType['CE']) { out.ce = byType['CE'].Valor + ' ' + (byType['CE'].Unidad || ''); out.ceC = byType['CE'].Valor > 2.5 ? 'warn' : 'up'; }
   if (byType['pH']) { out.ph = String(byType['pH'].Valor); }
+  if (!sensores.length) { out.note = 'Sin sensores reportados para esta zona todavia.'; }
   return out;
 }
 
@@ -2550,6 +2554,7 @@ async function loadOpsData() {
     renderPersonalReal();
     renderCiclosReal();
     renderDronesReal();
+    renderZoneTabs();
   } catch (e) {
     console.warn('ops-data fetch failed', e);
   }
