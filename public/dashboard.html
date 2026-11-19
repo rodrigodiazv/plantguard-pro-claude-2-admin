@@ -623,73 +623,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
     <!-- DRONES -->
     <div class="view" id="view-drones">
-      <div class="alert-banner alert-banner-red" style="margin-bottom:16px">🚨 Dron D3 — Anomalía térmica zona B3: posible foco de Botrytis. Revisión manual recomendada.</div>
-
-      <div class="grid grid-2" style="margin-bottom:16px">
-        <div class="drone-card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>D1 — Sector A</strong> <span class="badge badge-green" style="margin-left:6px">En vuelo</span></div>
-            <span style="font-size:11px;color:var(--fg2)">🔋 78%</span>
-          </div>
-          <div class="drone-cam">
-            <div class="drone-heat"></div>
-            <span class="badge badge-blue drone-cam-label">RGB</span>
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#3fb950" stroke-width="1.5"><circle cx="24" cy="20" r="10"/><path d="M24 30 L20 44 L28 44Z"/></svg>
-          </div>
-          <div style="font-size:11px;color:var(--fg2)">Cobertura: 340 m² · Vuelo 23 de hoy · Última detección: OK</div>
-        </div>
-
-        <div class="drone-card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>D2 — Sector B</strong> <span class="badge badge-green" style="margin-left:6px">En vuelo</span></div>
-            <span style="font-size:11px;color:var(--fg2)">🔋 61%</span>
-          </div>
-          <div class="drone-cam">
-            <span class="badge badge-amber drone-cam-label">IR</span>
-            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a0a00,#3a1a00,#2a1500);opacity:.8"></div>
-            <div style="position:absolute;top:30%;left:40%;width:60px;height:40px;background:radial-gradient(circle,rgba(255,150,0,.7) 0%,transparent 70%);border-radius:50%"></div>
-          </div>
-          <div style="font-size:11px;color:var(--amber)">⚠️ Zona caliente detectada en cuadrante NE — pendiente análisis</div>
-        </div>
-
-        <div class="drone-card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>D3 — Sector B3</strong> <span class="badge badge-red" style="margin-left:6px">Alerta</span></div>
-            <span style="font-size:11px;color:var(--fg2)">🔋 45%</span>
-          </div>
-          <div class="drone-cam">
-            <span class="badge badge-red drone-cam-label">IR + RGB</span>
-            <div style="position:absolute;inset:0;background:linear-gradient(160deg,#2a0000,#1a0000);"></div>
-            <div style="position:absolute;top:20%;left:25%;width:80px;height:60px;background:radial-gradient(circle,rgba(255,50,0,.8) 0%,transparent 70%);border-radius:50%"></div>
-            <div style="position:absolute;top:50%;left:55%;width:50px;height:40px;background:radial-gradient(circle,rgba(255,100,0,.6) 0%,transparent 70%);border-radius:50%"></div>
-          </div>
-          <div style="font-size:11px;color:var(--red)">🚨 Firma térmica anómala (2 focos) — Botrytis probable · Acción: revisión manual inmediata</div>
-        </div>
-
-        <div class="drone-card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>D4 — Sector C</strong> <span class="badge badge-gray" style="margin-left:6px">En base</span></div>
-            <span style="font-size:11px;color:var(--fg2)">🔋 100%</span>
-          </div>
-          <div class="drone-cam" style="background:var(--bg4)">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--fg3)" stroke-width="1.5"><path d="M24 8 L28 20 L40 20 L30 28 L34 40 L24 32 L14 40 L18 28 L8 20 L20 20Z"/></svg>
-          </div>
-          <div style="font-size:11px;color:var(--fg2)">Próximo vuelo programado: 14:00 · Sector Secado C</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header"><div class="card-title">Análisis IA — Historial drones</div></div>
-        <table>
-          <thead><tr><th>Hora</th><th>Dron</th><th>Zona</th><th>Tipo</th><th>Resultado IA</th><th>Acción</th></tr></thead>
-          <tbody>
-            <tr><td>09:41</td><td>D3</td><td>B3</td><td>IR</td><td><span class="badge badge-red">Botrytis probable</span></td><td><span class="btn btn-sm">Ver detalle</span></td></tr>
-            <tr><td>09:15</td><td>D2</td><td>B2</td><td>IR+RGB</td><td><span class="badge badge-amber">Zona caliente NE</span></td><td><span class="btn btn-sm">Ver detalle</span></td></tr>
-            <tr><td>08:30</td><td>D1</td><td>A1</td><td>RGB</td><td><span class="badge badge-green">Sin anomalías</span></td><td>—</td></tr>
-            <tr><td>07:00</td><td>D1</td><td>A2</td><td>IR</td><td><span class="badge badge-green">Perfil térmico OK</span></td><td>—</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="drones-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
     </div>
 
     <!-- IPM -->
@@ -1388,80 +1322,18 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 <!-- ===== CICLOS ===== -->
   <div class="view" id="view-ciclos">
     <div class="section-title">🔄 Planificación de ciclos de cultivo</div>
-    <div class="kpi-grid">
-      <div class="kpi-tile"><div class="kpi-num">3</div><div class="kpi-label">Ciclos activos</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--amber)">22</div><div class="kpi-label">Días al cosecha más próxima</div></div>
-      <div class="kpi-tile"><div class="kpi-num">8</div><div class="kpi-label">Semanas floración actual</div></div>
-      <div class="kpi-tile"><div class="kpi-num">512</div><div class="kpi-label">Plantas activas</div></div>
+    <div class="kpi-grid" id="ciclos-kpi">
+      <div class="kpi-tile"><div class="kpi-num">—</div><div class="kpi-label">Ciclos activos</div></div>
+      <div class="kpi-tile"><div class="kpi-num">—</div><div class="kpi-label">Días al cosecha más próxima</div></div>
+      <div class="kpi-tile"><div class="kpi-num">—</div><div class="kpi-label">Semana actual (ciclo más avanzado)</div></div>
+      <div class="kpi-tile"><div class="kpi-num">—</div><div class="kpi-label">Plantas activas</div></div>
     </div>
 
-    <!-- Active cycle cards -->
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-header"><div class="card-title">Ciclo A — CBD Carmagnola · Floración sem. 4/8</div><span class="badge badge-green">En curso</span></div>
-      <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Inicio: 15/09/2026 · Cosecha estimada: 30/11/2026 · Variedad: CBD Carmagnola · 180 plantas · Zona A1+A2</div>
-      <div class="gantt-row">
-        <div class="gantt-phase done" style="width:5%">GER</div>
-        <div class="gantt-phase done" style="width:15%">VEG</div>
-        <div class="gantt-phase done" style="width:8%">PRE</div>
-        <div class="gantt-phase flo" style="width:30%;font-size:10px">FLORACIÓN ← semana 4/8</div>
-        <div class="gantt-phase" style="width:20%;background:var(--bg3);color:var(--fg3)">FLO 5-8</div>
-        <div class="gantt-phase" style="width:12%;background:var(--bg3);color:var(--fg3)">COSECHA</div>
-        <div class="gantt-phase" style="width:10%;background:var(--bg3);color:var(--fg3)">SECADO</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg2);margin-top:4px">
-        <span>15 Sep</span><span>→ Hoy</span><span>30 Nov</span>
-      </div>
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-        <span class="phase-pill" style="color:var(--amber);border-color:var(--amber)">📊 Floración activa</span>
-        <span class="phase-pill" style="color:var(--green);border-color:var(--green)">EC 2.0 mS/cm</span>
-        <span class="phase-pill" style="color:var(--green);border-color:var(--green)">pH 6.1</span>
-        <span class="phase-pill" style="color:var(--blue);border-color:var(--blue)">12/12h fotoperiodo</span>
-      </div>
-    </div>
+    <div id="ciclos-real"><div style="font-size:12px;color:var(--fg3)">Cargando ciclos…</div></div>
 
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-header"><div class="card-title">Ciclo B — THC-low Fedora · Vegetativa sem. 3/4</div><span class="badge badge-amber">Transición próxima</span></div>
-      <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Inicio: 20/10/2026 · Cosecha estimada: 25/01/2027 · 192 plantas · Zona B3+B4</div>
-      <div class="gantt-row">
-        <div class="gantt-phase done" style="width:5%">GER</div>
-        <div class="gantt-phase veg" style="width:25%;font-size:10px">VEGETATIVA ← 3/4</div>
-        <div class="gantt-phase" style="width:10%;background:var(--bg3);color:var(--fg3)">PRE</div>
-        <div class="gantt-phase" style="width:28%;background:var(--bg3);color:var(--fg3)">FLORACIÓN</div>
-        <div class="gantt-phase" style="width:12%;background:var(--bg3);color:var(--fg3)">COSECHA</div>
-        <div class="gantt-phase" style="width:20%;background:var(--bg3);color:var(--fg3)">SECADO/CURADO</div>
-      </div>
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-        <span class="phase-pill" style="color:var(--green);border-color:var(--green)">🌿 Vegetativa activa</span>
-        <span class="phase-pill" style="color:var(--green);border-color:var(--green)">18/6h fotoperiodo</span>
-        <span class="phase-pill" style="color:var(--amber);border-color:var(--amber)">Transición a 12/12 en 7 días</span>
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-header"><div class="card-title">Ciclo C — CBD-01 (nueva variedad) · Clonación</div><span class="badge">Propagación</span></div>
-      <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Inicio: 02/11/2026 · Cosecha estimada: 20/02/2027 · 140 plantas previstas · Zona A3 (reservada)</div>
-      <div class="gantt-row">
-        <div class="gantt-phase germ" style="width:5%">GER</div>
-        <div class="gantt-phase" style="width:5%;background:var(--bg3);color:var(--fg3)">CLO</div>
-        <div class="gantt-phase" style="width:20%;background:var(--bg3);color:var(--fg3)">VEG</div>
-        <div class="gantt-phase" style="width:28%;background:var(--bg3);color:var(--fg3)">FLORACIÓN</div>
-        <div class="gantt-phase" style="width:12%;background:var(--bg3);color:var(--fg3)">COSECHA</div>
-        <div class="gantt-phase" style="width:30%;background:var(--bg3);color:var(--fg3)">SEC/CUR</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><div class="card-title">Próximos hitos (MG-forecast)</div></div>
-      <table style="font-size:12px">
-        <thead><tr><th>Fecha</th><th>Ciclo</th><th>Hito</th><th>Acción requerida</th></tr></thead>
-        <tbody>
-          <tr><td>15/11</td><td>B</td><td>Cambio fotoperiodo 12/12h</td><td><span class="badge badge-amber">Autorización admin</span></td></tr>
-          <tr><td>22/11</td><td>A</td><td>Floración sem.6 — control terpenos</td><td><span class="badge">Muestra analítica</span></td></tr>
-          <tr><td>30/11</td><td>A</td><td>Cosecha CBD Carmagnola</td><td><span class="badge badge-amber">Programar personal extra</span></td></tr>
-          <tr><td>05/12</td><td>A</td><td>Entrada sala secado Lote #A-2026-11</td><td><span class="badge">Preparar sala</span></td></tr>
-          <tr><td>15/12</td><td>C</td><td>Clones CBD-01 listos para trasplante</td><td><span class="badge">Verificar enraizamiento</span></td></tr>
-        </tbody>
-      </table>
+    <div class="card" style="margin-top:12px">
+      <div class="card-header"><div class="card-title">Próximos hitos</div></div>
+      <div style="font-size:12px;color:var(--fg3)">Pendiente de implementar — hoy no hay un sistema de recordatorios/hitos automático conectado. Los hitos reales se calculan a mano a partir de las fechas de cada ciclo de arriba.</div>
     </div>
   </div><!-- /view-ciclos -->
 
@@ -2418,19 +2290,24 @@ function sendMgMsg() {
   const typId = 'typ-'+Date.now();
   appendMsg('chat-mg-messages', `<div class="msg" id="${typId}"><div class="msg-avatar">🧠</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`);
   document.getElementById('chat-mg-messages').scrollTop = 999999;
-  const responses = [
-    'Entendido. Basándome en los datos actuales de la zona y la base de conocimiento GACP, mi recomendación es: revisa primero el drenaje y la CE del sustrato antes de intervenir. ¿Puedes enviarme una foto para confirmar?',
-    'Pregunta registrada. Este patrón lo hemos visto antes en floración semana 5-6 con alta HR. El protocolo preventivo estándar es reducir HR 5% y aplicar <em>Bacillus subtilis</em> foliar.',
-    'Sin foto es difícil dar un diagnóstico definitivo al 95%. Lo que describes puede ser <strong>Mg deficiency</strong> (clorosis intervenal) o inicio de <strong>Botrytis</strong>. Adjunta imagen para confirmarlo.',
-    'Anotado en el registro de la zona. ¿Quieres que programe una revisión de dron para las próximas 2 horas?',
-    'Según los datos históricos de esta variedad, esto es normal en día 30-40 de floración. No requiere acción salvo que empeore. Te aviso si los sensores detectan cambio.',
-  ];
-  setTimeout(()=>{
+  fetch('/api/gm-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: txt }),
+  }).then(async r => {
+    const data = await r.json().catch(() => ({}));
     const el = document.getElementById(typId); if(el) el.remove();
-    const r = responses[Math.floor(Math.random()*responses.length)];
     const ts2 = new Date().getHours()+':'+String(new Date().getMinutes()).padStart(2,'0');
-    appendMsg('chat-mg-messages', `<div class="msg"><div class="msg-avatar">🧠</div><div><div class="msg-bubble">${r}</div><div class="msg-meta">Master Grower · ${ts2}</div></div></div>`);
-  }, 1800);
+    const r2 = r.ok
+      ? (data.reply || '(sin respuesta)')
+      : (data.error === 'chat_not_configured'
+          ? 'El chat con IA todavía no está configurado (falta la clave de Anthropic en el servidor). Avisa al administrador.'
+          : 'No se pudo contactar al Master Grower (' + (data.error || r.status) + ').');
+    appendMsg('chat-mg-messages', `<div class="msg"><div class="msg-avatar">🧠</div><div><div class="msg-bubble">${escapeHtml(r2)}</div><div class="msg-meta">Master Grower · ${ts2}</div></div></div>`);
+  }).catch(() => {
+    const el = document.getElementById(typId); if(el) el.remove();
+    appendMsg('chat-mg-messages', `<div class="msg"><div class="msg-avatar">🧠</div><div><div class="msg-bubble">Error de red contactando al Master Grower.</div></div></div>`);
+  });
 }
 
 function sendEqMsg() {
@@ -2639,6 +2516,8 @@ async function loadOpsData() {
     renderIpmReal();
     renderNutricionReal();
     renderPersonalReal();
+    renderCiclosReal();
+    renderDronesReal();
   } catch (e) {
     console.warn('ops-data fetch failed', e);
   }
@@ -2711,6 +2590,65 @@ function renderPersonalReal() {
       return `<tr><td>${escapeHtml(p.Nombre)}</td><td>${escapeHtml(p.TareaActual||'—')}</td><td>${escapeHtml(p.ZonaActual||'—')}</td><td><span class="badge ${cls}">${escapeHtml(p.Prioridad||'Normal')}</span></td></tr>`;
     }).join('')
   }</tbody></table>` : '<div style="color:var(--fg3);font-size:12px">Sin personal asignado.</div>';
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function renderCiclosReal() {
+  const d = window.OPS_DATA;
+  const box = document.getElementById('ciclos-real');
+  const kpiBox = document.getElementById('ciclos-kpi');
+  if (!d || !box) return;
+  const ciclos = d.ciclos || [];
+  const done = c => (c.Fase === 'Secado' || c.Fase === 'Curado');
+  const activos = ciclos.filter(c => !done(c));
+  if (kpiBox) {
+    const plantas = ciclos.reduce((s,c)=> s + (c.Plantas||0), 0);
+    const diasList = ciclos.map(c => daysUntil(c.FechaCosechaEstimada)).filter(x => x != null && x >= 0);
+    const minDias = diasList.length ? Math.min(...diasList) : null;
+    const semanas = ciclos.map(c => c.SemanaActual).filter(x => x != null);
+    const semMax = semanas.length ? Math.max(...semanas) : null;
+    const tiles = kpiBox.querySelectorAll('.kpi-num');
+    if (tiles[0]) tiles[0].textContent = activos.length;
+    if (tiles[1]) tiles[1].textContent = minDias != null ? minDias : '—';
+    if (tiles[2]) tiles[2].textContent = semMax != null ? semMax : '—';
+    if (tiles[3]) tiles[3].textContent = plantas;
+  }
+  box.innerHTML = ciclos.length ? ciclos.map(c => {
+    const pct = (c.SemanaActual && c.SemanaTotal) ? Math.round(100*c.SemanaActual/c.SemanaTotal) : 0;
+    const dias = daysUntil(c.FechaCosechaEstimada);
+    return `<div class="card" style="margin-bottom:12px">
+      <div class="card-header"><div class="card-title">${escapeHtml(c.Nombre)} — ${escapeHtml(c.Variedad||'')} · ${escapeHtml(c.Fase||'')}${c.SemanaActual?(' sem. '+c.SemanaActual+'/'+(c.SemanaTotal||'?')):''}</div><span class="badge">${escapeHtml(c.Estado||'')}</span></div>
+      <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Inicio: ${escapeHtml(c.FechaInicio||'—')} · Cosecha estimada: ${escapeHtml(c.FechaCosechaEstimada||'—')}${dias!=null?(' ('+dias+' dias)'):''} · ${c.Plantas||0} plantas · Zona ${escapeHtml(c.Zona||'—')}</div>
+      ${pct ? `<div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:var(--green)"></div></div>` : ''}
+    </div>`;
+  }).join('') : '<div style="color:var(--fg3);font-size:12px">Sin ciclos registrados.</div>';
+}
+
+function renderDronesReal() {
+  const d = window.OPS_DATA;
+  const box = document.getElementById('drones-real');
+  if (!d || !box) return;
+  const drones = d.drones || [];
+  if (!drones.length) {
+    box.innerHTML = '<div class="card"><div style="font-size:13px;color:var(--fg2)">Sin drones conectados todavia. Esta seccion esta lista para recibir telemetria real (bateria, sector, estado) en cuanto se conecte hardware — hoy no hay vuelos ni deteccion automatica funcionando.</div></div>';
+    return;
+  }
+  box.innerHTML = '<div class="grid grid-2">' + drones.map(dr => {
+    const cls = dr.Estado === 'Alerta' ? 'badge-red' : (dr.Estado === 'En vuelo' ? 'badge-green' : 'badge-gray');
+    return `<div class="drone-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>${escapeHtml(dr.Nombre)}</strong> ${dr.Sector?('— '+escapeHtml(dr.Sector)):''} <span class="badge ${cls}" style="margin-left:6px">${escapeHtml(dr.Estado||'—')}</span></div>
+        <span style="font-size:11px;color:var(--fg2)">🔋 ${dr.BateriaPct ?? '—'}%</span>
+      </div>
+      <div style="font-size:11px;color:var(--fg2)">${escapeHtml(dr.UltimaDeteccion||'Sin deteccion registrada')}</div>
+    </div>`;
+  }).join('') + '</div>';
 }
 
 loadOpsData();

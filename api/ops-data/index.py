@@ -18,6 +18,8 @@ TABLES = {
     "automation_rules": "AutomationRules",
     "nutricion": "Nutricion",
     "personal": "PersonalCampo",
+    "ciclos": "Ciclos",
+    "drones": "Drones",
 }
 
 
