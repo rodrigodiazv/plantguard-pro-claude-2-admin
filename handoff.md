@@ -40,9 +40,13 @@ mayoría de Dispositivos quedan honestamente en "Sin sensor conectado" /
 - `api/gm-photo-bank.js` — banco de fotos fundacional, servido desde el
   Blob Store **privado** `growmaster-photos` (nunca público). GET sin
   query = lista; GET `?name=<archivo>` = streamea esa foto.
-- `api/ops-data.py` — GET devuelve TODAS las tablas de Airtable de una;
-  POST crea un dispositivo nuevo (antes era `api/gm-device` separado,
-  se fusionó).
+- `api/ops-data.py` — CRUD genérico de todas las tablas: GET (todas, cada
+  fila con `_id`), POST `{table, fields}`, PATCH `{table, id, fields}`,
+  DELETE `{table, id}`; campos en lista blanca por tabla. POST
+  `{action:"ingest", device_id, valor, unidad, tipo_sensor?}` con cabecera
+  `X-Ingest-Key` = lectura real de un gateway IoT (marca el equipo
+  "Conectado"). La clave se deriva de ADMIN_KEY/ACCESS_SECRET (o env
+  `INGEST_KEY`) y se ve solo en el panel: Sistemas → "Mostrar clave".
 - `api/gm-chat/index.py` — chat real del Master Grower, llama a la
   Anthropic API con el estado actual de Airtable como contexto. Necesita
   `ANTHROPIC_API_KEY` en Vercel (ya configurada).
@@ -71,6 +75,20 @@ puede completar bien y fallar recién al desplegar.
 - `ANTHROPIC_API_KEY` — chat real del Master Grower.
 - `VERCEL_API_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID` — usados por
   `api/change-pin.js` para rotar el PIN vía API de Vercel.
+
+## Edición completa (19-nov-2026)
+
+`public/panel-crud.js`: cualquier `<div class="crud" data-table="…">` es una
+tabla real con Añadir / Editar / Borrar. Está en Zonas (zonas, sensores,
+tareas), Ciclos, Drones, IPM (alertas, trampas, liberaciones), Nutrición
+(fórmulas, riegos), Agua (etapas + mediciones por zona con evaluación pH/EC
+contra la fórmula), Dispositivos, Personal (ficha: rol, calificación,
+especialidad, zona/tarea asignada, dispositivo de empresa, en turno) y
+Growmaster (base de conocimiento). Nueva vista **Sistemas** con un apartado
+por sistema (sensores, drones, ventilación, iluminación, climatización/
+refrigeración, calefacción, riego, CO2, eléctrico, estación meteorológica).
+Vistas aún de ejemplo llevan aviso amarillo. Tablas nuevas en Airtable:
+Tareas, Trampas, Liberaciones, Riegos, MedicionesAgua, BaseConocimiento.
 
 ## Pendiente / próximos pasos
 

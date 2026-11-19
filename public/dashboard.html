@@ -456,6 +456,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="1"/><line x1="5" y1="4" x2="5" y2="2"/><line x1="11" y1="4" x2="11" y2="2"/><circle cx="8" cy="8" r="1.5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="11" y1="8" x2="14" y2="8"/></svg>
       Dispositivos
     </div>
+    <div class="nav-item" onclick="showView('sistemas')" id="nav-sistemas">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1.5L3.5 9H8l-1 5.5L12.5 7H8z"/></svg>
+      Sistemas
+    </div>
     <div class="nav-item" onclick="showView('personal')" id="nav-personal">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13 C1 10 3 8.5 6 8.5 C9 8.5 11 10 11 13"/><circle cx="12" cy="6" r="2"/><path d="M11 13 C11 11 11.5 10 13 9.5 C14 9.5 15 10 15 12"/></svg>
       Personal
@@ -483,7 +487,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
   <div class="topbar">
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-actions">
-      <div class="btn btn-sm" id="weather-badge">☁️ 18°C · 62% HR ext.</div>
+      <div class="btn btn-sm" id="weather-badge" onclick="showView('sistemas')">☁️ Estación meteorológica: sin conectar</div>
       <div class="btn btn-sm" onclick="document.getElementById('modal-settings').style.display='flex'">⚙️ Ajustes</div>
       <div class="btn btn-sm btn-green" onclick="alert('Informe PDF generado por el Cerebro')">+ Informe</div>
     </div>
@@ -566,113 +570,47 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <div class="grid grid-2" style="margin-bottom:16px">
         <div class="card">
           <div class="card-header">
-            <div><div class="card-title" id="zone-title">Zona A1 — Sala Genética</div><div class="card-subtitle">Sub-agente: ZA1-01 · Vegetativa · Día 28</div></div>
+            <div><div class="card-title" id="zone-title">Zona A1 — Sala Genética</div><div class="card-subtitle" id="zone-subtitle"></div></div>
             <span class="badge badge-amber" id="zone-badge">CE alta</span>
           </div>
           <div id="zone-sensors">
-            <div class="sensor-row"><span class="sensor-label">Temperatura</span><span class="sensor-val up" id="s-temp">24.1°C</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:60%;background:var(--green)"></div></div><span class="sensor-range">18–28°C</span></div>
-            <div class="sensor-row"><span class="sensor-label">HR</span><span class="sensor-val up" id="s-hr">58%</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:58%;background:var(--green)"></div></div><span class="sensor-range">40–70%</span></div>
-            <div class="sensor-row"><span class="sensor-label">CO₂</span><span class="sensor-val" id="s-co2">1180 ppm</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:59%;background:var(--blue)"></div></div><span class="sensor-range">800–2000</span></div>
-            <div class="sensor-row"><span class="sensor-label">CE</span><span class="sensor-val warn" id="s-ce">2.8 mS</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:85%;background:var(--amber)"></div></div><span class="sensor-range">0.6–2.5</span></div>
-            <div class="sensor-row"><span class="sensor-label">pH</span><span class="sensor-val up" id="s-ph">6.1</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:55%;background:var(--green)"></div></div><span class="sensor-range">5.8–6.5</span></div>
-            <div class="sensor-row"><span class="sensor-label">PPFD</span><span class="sensor-val" id="s-ppfd">620 µmol</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:62%;background:var(--blue)"></div></div><span class="sensor-range">400–1200</span></div>
+            <div class="sensor-row"><span class="sensor-label">Temperatura</span><span class="sensor-val up" id="s-temp">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--green)"></div></div><span class="sensor-range">18–28°C</span></div>
+            <div class="sensor-row"><span class="sensor-label">HR</span><span class="sensor-val up" id="s-hr">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--green)"></div></div><span class="sensor-range">40–70%</span></div>
+            <div class="sensor-row"><span class="sensor-label">CO₂</span><span class="sensor-val" id="s-co2">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--blue)"></div></div><span class="sensor-range">800–2000</span></div>
+            <div class="sensor-row"><span class="sensor-label">CE</span><span class="sensor-val warn" id="s-ce">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--amber)"></div></div><span class="sensor-range">0.6–2.5</span></div>
+            <div class="sensor-row"><span class="sensor-label">pH</span><span class="sensor-val up" id="s-ph">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--green)"></div></div><span class="sensor-range">5.8–6.5</span></div>
+            <div class="sensor-row"><span class="sensor-label">PPFD</span><span class="sensor-val" id="s-ppfd">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--blue)"></div></div><span class="sensor-range">400–1200</span></div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><div class="card-title">Acciones IA — Recomendaciones</div></div>
-          <div class="timeline" id="zone-actions">
-            <div class="tl-item"><div class="tl-dot-col"><div class="dot dot-amber"></div><div class="tl-line"></div></div><div><div style="font-size:12px;font-weight:600;color:var(--amber)">⚠️ CE alta — Acción recomendada</div><div style="font-size:11px;color:var(--fg2);margin-top:2px">Reducir nutrientes 15% próximo riego. CE objetivo: 2.0–2.3 mS/cm</div><div style="font-size:10px;color:var(--fg3);margin-top:4px">Hoy 09:14 · Master Grower ZA1-01</div></div></div>
-            <div class="tl-item"><div class="tl-dot-col"><div class="dot dot-blue"></div><div class="tl-line"></div></div><div><div style="font-size:12px;font-weight:600;color:var(--blue)">ℹ️ Ajuste fotoperiodo</div><div style="font-size:11px;color:var(--fg2);margin-top:2px">En 4 días iniciar transición a 12/12 según protocolo variedad A1-CBD</div><div style="font-size:10px;color:var(--fg3);margin-top:4px">Hoy 07:30 · Programa automático</div></div></div>
-            <div class="tl-item"><div class="tl-dot-col"><div class="dot dot-green"></div></div><div><div style="font-size:12px;font-weight:600;color:var(--green)">✓ Riego ejecutado</div><div style="font-size:11px;color:var(--fg2);margin-top:2px">3.2 L/m² · pH entrada 6.0 · Duración 18 min</div><div style="font-size:10px;color:var(--fg3);margin-top:4px">Hoy 06:00 · Automático</div></div></div>
-          </div>
+          <div class="card-header"><div class="card-title">Alertas y tareas abiertas de la zona</div></div>
+          <div class="timeline" id="zone-actions"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header"><div class="card-title">Registro de tareas</div><div class="btn btn-sm btn-green" onclick="document.getElementById('task-modal').style.display='flex'">+ Tarea</div></div>
-        <table>
-          <thead><tr><th>Fecha</th><th>Técnico</th><th>Tarea</th><th>Zona</th><th>Estado</th></tr></thead>
-          <tbody>
-            <tr><td>07/11</td><td>M. García</td><td>Ajuste CE solución nutritiva</td><td>A1</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
-            <tr><td>06/11</td><td>R. Díaz</td><td>Revisión raíces — hydroponía</td><td>A2</td><td><span class="badge badge-green">Hecho</span></td></tr>
-            <tr><td>06/11</td><td>Auto</td><td>Aplicación Beauveria bassiana</td><td>B3</td><td><span class="badge badge-green">Hecho</span></td></tr>
-            <tr><td>05/11</td><td>M. García</td><td>Medición aw — lote curado</td><td>C1</td><td><span class="badge badge-green">0.61 aw ✓</span></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="crud" data-table="tareas" data-title="Registro de tareas"></div>
+      <div class="crud" data-table="zonas" data-title="Zonas de cultivo — alta y edición"></div>
+      <div class="crud" data-table="sensores" data-title="Lecturas de sensores por zona"></div>
     </div>
 
     <!-- DRONES -->
     <div class="view" id="view-drones">
       <div id="drones-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
+      <div class="crud" data-table="drones" data-title="Flota de drones — alta y edición" style="margin-top:16px"></div>
     </div>
 
     <!-- IPM -->
     <div class="view" id="view-ipm">
       <div id="ipm-real-alerts"><div style="font-size:12px;color:var(--fg3)">Cargando alertas…</div></div>
 
-      <div class="grid grid-2" style="margin-bottom:16px;margin-top:16px">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Conteo de trampas — Semana 45</div></div>
-          <table>
-            <thead><tr><th>Zona</th><th>Plaga</th><th>Recuento</th><th>Umbral</th><th>Presión</th></tr></thead>
-            <tbody>
-              <tr><td>B3</td><td>Trips</td><td><strong style="color:var(--red)">42</strong></td><td>15</td><td><span class="badge badge-red">Alta</span></td></tr>
-              <tr><td>A1</td><td>Fungus gnats</td><td><strong style="color:var(--amber)">8</strong></td><td>10</td><td><span class="badge badge-amber">Media</span></td></tr>
-              <tr><td>A2</td><td>Ácaros</td><td><strong style="color:var(--amber)">3</strong></td><td>5</td><td><span class="badge badge-amber">Baja-media</span></td></tr>
-              <tr><td>Todas</td><td>Pulgones</td><td>0</td><td>5</td><td><span class="badge badge-green">Negativo</span></td></tr>
-              <tr><td>Todas</td><td>Mosca blanca</td><td>0</td><td>3</td><td><span class="badge badge-green">Negativo</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><div class="card-title">Control biológico — Liberaciones</div><span class="btn btn-sm btn-green" onclick="document.getElementById('bio-modal').style.display='flex'">+ Liberación</span></div>
-          <table>
-            <thead><tr><th>Agente</th><th>Plaga objetivo</th><th>Zona</th><th>Última lib.</th></tr></thead>
-            <tbody>
-              <tr><td><em>Amblyseius cucumeris</em></td><td>Trips</td><td>B3</td><td>05/11</td></tr>
-              <tr><td><em>Steinernema feltiae</em></td><td>Fungus gnats</td><td>A1</td><td>03/11</td></tr>
-              <tr><td><em>Phytoseiulus persimilis</em></td><td>Ácaros</td><td>A2</td><td>04/11</td></tr>
-              <tr><td><em>Beauveria bassiana</em></td><td>General</td><td>B3</td><td>06/11</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
+      <div style="margin-top:16px"></div>
+      <div class="crud" data-table="alertas_ipm" data-title="Alertas IPM — alta, edición y cierre"></div>
+      <div class="crud" data-table="trampas" data-title="Conteo de trampas"></div>
+      <div class="crud" data-table="liberaciones" data-title="Control biológico — Liberaciones"></div>
       <div class="card">
-        <div class="card-header"><div class="card-title">Protocolo IPM — Recomendación Cerebro</div></div>
-        <div class="grid grid-3">
-          <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
-            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">🚨 B3 — Acción urgente</div>
-            <div style="font-size:11px;color:var(--fg2);line-height:1.6">
-              1. Liberar <em>A. cucumeris</em> 50/m² hoy<br>
-              2. Aplicar <em>Beauveria bassiana</em> foliar (tarde)<br>
-              3. Revisar con dron mañana AM<br>
-              4. Registrar en trazabilidad GACP<br>
-              <span style="color:var(--fg3);font-size:10px">Umbral crítico — Sin biocidas sintéticos (GACP)</span>
-            </div>
-          </div>
-          <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
-            <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px">⚠️ A1 — Preventivo</div>
-            <div style="font-size:11px;color:var(--fg2);line-height:1.6">
-              1. Verificar drenaje (mesas)<br>
-              2. Colocar trampas adhesivas amarillas<br>
-              3. <em>Steinernema feltiae</em> riego preventivo<br>
-              4. Monitoreo semanal
-            </div>
-          </div>
-          <div style="background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border)">
-            <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px">ℹ️ Preventivo general</div>
-            <div style="font-size:11px;color:var(--fg2);line-height:1.6">
-              Extracto de cola de caballo (semanal)<br>
-              Aceite de neem preventivo (foliar)<br>
-              Próxima app: 10/11<br>
-              <span style="color:var(--fg3);font-size:10px">GACP-compliant · Sin residuos</span>
-            </div>
-          </div>
-        </div>
+        <div class="card-header"><div class="card-title">📷 Foto de plaga o enfermedad</div><span class="btn btn-sm btn-green" onclick="showView('growmaster')">Subir foto</span></div>
+        <div style="font-size:12px;color:var(--fg2)">Las fotos (desde el teléfono, la tablet o un archivo del ordenador) se suben en Growmaster y quedan archivadas para su revisión. Para un protocolo, pregunte a Master Grower en "Campo"; responde con los datos reales de estas tablas.</div>
       </div>
     </div>
 
@@ -691,6 +629,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         <div class="card-header"><div class="card-title">Etapas del tratamiento</div></div>
         <div id="agua-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
       </div>
+      <div class="crud" data-table="agua" data-title="Etapas del tratamiento — edición" style="margin-top:16px"></div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div><div class="card-title">Evaluación de pH/EC por zona</div><div class="card-subtitle">Prefiltrado → filtrado → solución final, comparada con la fórmula de Nutrición</div></div></div>
+        <div id="agua-eval"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
+      </div>
+      <div class="crud" data-table="mediciones_agua" data-title="Mediciones de agua por zona"></div>
     </div>
 
     <div class="view" id="view-nutricion">
@@ -699,62 +643,22 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         Gestión Nutricional
       </div>
 
-      <div class="grid grid-2" style="margin-bottom:16px">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Fórmula activa — Zona A2 (Floración)</div></div>
-          <div class="npk-row"><span class="npk-label" style="color:#3fb950">N</span><span class="npk-val">180 mg/L</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:60%;background:var(--green)"></div></div></div>
-          <div class="npk-row"><span class="npk-label" style="color:#58a6ff">P</span><span class="npk-val">60 mg/L</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:40%;background:var(--blue)"></div></div></div>
-          <div class="npk-row"><span class="npk-label" style="color:#d29922">K</span><span class="npk-val">240 mg/L</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:80%;background:var(--amber)"></div></div></div>
-          <div class="npk-row"><span class="npk-label" style="color:var(--fg2)">Ca</span><span class="npk-val">150 mg/L</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:50%;background:var(--fg2)"></div></div></div>
-          <div class="npk-row"><span class="npk-label" style="color:var(--fg2)">Mg</span><span class="npk-val">45 mg/L</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:30%;background:var(--fg2)"></div></div></div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:16px">
-            <div><div style="font-size:10px;color:var(--fg2)">CE solución</div><div style="font-family:monospace;font-weight:700;color:var(--green)">2.1 mS/cm</div></div>
-            <div><div style="font-size:10px;color:var(--fg2)">pH</div><div style="font-family:monospace;font-weight:700;color:var(--green)">6.0</div></div>
-            <div><div style="font-size:10px;color:var(--fg2)">Temp. agua</div><div style="font-family:monospace;font-weight:700">20°C</div></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><div class="card-title">Próximos riegos</div><span class="btn btn-sm btn-green">Ajustar</span></div>
-          <table>
-            <thead><tr><th>Zona</th><th>Hora</th><th>Vol.</th><th>Fórmula</th></tr></thead>
-            <tbody>
-              <tr><td>A1</td><td>12:00</td><td>3.2 L/m²</td><td><span class="badge badge-amber">Veg -15% CE</span></td></tr>
-              <tr><td>A2</td><td>12:30</td><td>4.0 L/m²</td><td><span class="badge badge-green">Flor-42d</span></td></tr>
-              <tr><td>B1</td><td>13:00</td><td>1.5 L/m²</td><td><span class="badge badge-blue">Clone</span></td></tr>
-              <tr><td>B3</td><td>13:30</td><td>3.8 L/m²</td><td><span class="badge badge-green">Flor-35d</span></td></tr>
-            </tbody>
-          </table>
-          <div style="margin-top:12px;font-size:11px;color:var(--fg2)">🧠 Master Grower ajusta volúmenes según VPD y temp. exterior (18°C/62% HR hoy)</div>
-        </div>
-      </div>
-
+      <div class="crud" data-table="nutricion" data-title="Fórmulas por zona — alta y edición"></div>
+      <div class="crud" data-table="riegos" data-title="Próximos riegos"></div>
       <div class="card" style="margin-bottom:16px">
         <div class="card-header"><div class="card-title">Fórmulas por zona — datos reales</div></div>
         <div id="nutri-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
       </div>
 
       <div class="card">
-        <div class="card-header"><div class="card-title">Detección de deficiencias — IA</div></div>
-        <div class="grid grid-3">
-          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:12px">
-            <div style="font-size:12px;font-weight:600;color:var(--green)">✓ Sin deficiencias — A2</div>
-            <div style="font-size:11px;color:var(--fg2);margin-top:4px">Análisis foliar IA: color óptimo, sin clorosis ni necrosis. Confianza: 94%</div>
-          </div>
-          <div style="background:var(--amber-dim);border:1px solid var(--amber);border-radius:8px;padding:12px">
-            <div style="font-size:12px;font-weight:600;color:var(--amber)">⚠️ Posible Mg — B3</div>
-            <div style="font-size:11px;color:var(--fg2);margin-top:4px">Clorosis intervenal hoja media detectada. Ajustar MgSO₄ +20 mg/L próximo riego.</div>
-          </div>
-          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px">
-            <div style="font-size:12px;font-weight:600;color:var(--fg2)">Sin datos — C1</div>
-            <div style="font-size:11px;color:var(--fg3);margin-top:4px">Zona en secado — sin riego activo</div>
-          </div>
-        </div>
+        <div class="card-header"><div class="card-title">Detección de deficiencias</div></div>
+        <div style="font-size:12px;color:var(--fg2)">Todavía no hay análisis foliar automático conectado. Suba fotos en Growmaster y registre lo observado en "Alertas IPM" o en las notas de la fórmula.</div>
       </div>
     </div>
 
     <!-- INFORMES -->
     <div class="view" id="view-informes">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
       <div class="section-title">Informes IA & Trazabilidad GACP</div>
 
       <div class="grid grid-2" style="margin-bottom:16px">
@@ -808,6 +712,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
     <!-- CAMPO & CHAT -->
     <div class="view" id="view-campo">
+      <div class="card" style="margin-bottom:12px"><div style="font-size:12px;color:var(--fg2)">El chat con Master Grower es real (Claude + datos de Airtable). La pestaña "Equipo" es de ejemplo.</div></div>
       <div class="chat-wrap">
         <div class="chat-tabs">
           <div class="chat-tab active" onclick="switchChatTab('mg',this)">🧠 Master Grower IA</div>
@@ -892,7 +797,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
           <div class="chat-input-area">
             <label class="chat-btn" title="Adjuntar foto" style="cursor:pointer">
-              📷<input type="file" accept="image/*" capture="environment" style="display:none" onchange="simulatePhotoUpload(this)">
+              📷<input type="file" accept="image/*" style="display:none" onchange="simulatePhotoUpload(this)">
             </label>
             <textarea class="chat-input" id="mg-input" placeholder="Pregunta al Master Grower… o adjunta una foto" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMgMsg();}"></textarea>
             <div class="chat-btn chat-btn-send" onclick="sendMgMsg()" title="Enviar">➤</div>
@@ -964,7 +869,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
           </div>
 
           <div class="chat-input-area">
-            <label class="chat-btn" title="Adjuntar foto" style="cursor:pointer">📷<input type="file" accept="image/*" capture="environment" style="display:none"></label>
+            <label class="chat-btn" title="Adjuntar foto" style="cursor:pointer">📷<input type="file" accept="image/*" style="display:none"></label>
             <textarea class="chat-input" id="eq-input" placeholder="Escribe al equipo… @MasterGrower para incluir la IA" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendEqMsg();}"></textarea>
             <div class="chat-btn chat-btn-send" onclick="sendEqMsg()" title="Enviar">➤</div>
           </div>
@@ -984,68 +889,32 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         listo para que, cuando exista el hardware real, se cablee a este registro.
       </p>
 
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-header">
-          <div><div class="card-title">Dispositivos registrados</div><div class="card-subtitle" id="device-count">Cargando…</div></div>
-          <div class="btn btn-sm btn-green" onclick="document.getElementById('device-form-card').style.display='block'">+ Registrar dispositivo</div>
-        </div>
-        <div id="devices-table-wrap"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
-      </div>
+      <div class="crud" data-table="dispositivos" data-title="Todos los dispositivos registrados"></div>
+      <div style="font-size:12px;color:var(--fg2)">Para verlos por sistema (ventilación, iluminación, riego…) use la sección <span class="btn btn-sm" onclick="showView('sistemas')">Sistemas</span>.</div>
+    </div>
 
-      <div class="card" id="device-form-card" style="display:none">
-        <div class="card-header"><div class="card-title">Registrar dispositivo nuevo</div></div>
-        <div class="form-row"><label>Nombre</label><input type="text" id="dev-nombre" placeholder="ej. Sensor T/HR zona A1"></div>
-        <div class="form-row"><label>Tipo</label>
-          <select id="dev-tipo" onchange="document.getElementById('dev-espectro-row').style.display = this.value==='Iluminacion' ? 'flex' : 'none'">
-            <option>Sensor temperatura/humedad</option>
-            <option>Sensor CO2</option>
-            <option>Sensor CE/pH</option>
-            <option>Sensor PPFD/luz</option>
-            <option>Climatizacion / HVAC</option>
-            <option>Calefaccion</option>
-            <option>Ventilacion</option>
-            <option>Iluminacion</option>
-            <option>Riego</option>
-            <option>Dron</option>
-            <option>Inyeccion CO2</option>
-            <option>Estacion meteorologica</option>
-            <option>Otro</option>
-          </select>
+    <!-- SISTEMAS -->
+    <div class="view" id="view-sistemas">
+      <div class="section-title">⚡ Sistemas de la instalación</div>
+      <p style="font-size:12px;color:var(--fg2);line-height:1.6;margin-bottom:12px">
+        Un apartado por sistema. En cada uno se dan de alta los equipos con su canal de conexión
+        (WiFi, Bluetooth/BLE, Zigbee, LoRa, Modbus, MQTT, BACnet, DMX512, MAVLink). Un equipo queda
+        en <strong>"Pendiente de conectar"</strong> hasta que su gateway envíe la primera lectura real;
+        entonces pasa solo a <strong>"Conectado"</strong> y muestra su última lectura.
+      </p>
+      <div class="zone-tabs" id="sys-tabs" style="flex-wrap:wrap"></div>
+      <div id="sys-body"></div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔗 Cómo se conecta un equipo (lectura en vivo)</div></div>
+        <div style="font-size:12px;color:var(--fg2);line-height:1.7;overflow-wrap:anywhere">
+          El gateway IoT de la instalación (p. ej. un broker MQTT o un controlador Modbus/BACnet) envía cada lectura a
+          <code>POST /api/ops-data</code> con la cabecera <code>X-Ingest-Key</code> (clave guardada en Vercel, nunca en el panel) y el cuerpo:<br>
+          <code>{"action":"ingest","device_id":"&lt;ID para el gateway&gt;","valor":24.1,"unidad":"°C","tipo_sensor":"Temperatura"}</code><br>
+          El "ID para el gateway" aparece en la tabla de cada equipo. Con <code>tipo_sensor</code> y zona, la lectura también se guarda en el histórico de sensores de esa zona.
+          El control físico (encender, regular) requiere ese gateway: el panel registra y lee; no inventa estados.
         </div>
-        <div class="form-row" id="dev-espectro-row" style="display:none"><label>Espectro de luz</label>
-          <select id="dev-espectro">
-            <option value="">—</option>
-            <option>UV</option>
-            <option>Azul</option>
-            <option>Verde</option>
-            <option>Rojo</option>
-            <option>Rojo lejano</option>
-            <option>Infrarrojo</option>
-            <option>Blanco (full spectrum)</option>
-          </select>
-        </div>
-        <div class="form-row"><label>Zona</label><input type="text" id="dev-zona" placeholder="ej. A1, B3+B4, Toda la nave…"></div>
-        <div class="form-row"><label>Canal / Protocolo</label>
-          <select id="dev-protocolo">
-            <option>WiFi</option>
-            <option>Bluetooth / BLE</option>
-            <option>Zigbee</option>
-            <option>LoRa</option>
-            <option>Modbus</option>
-            <option>MQTT</option>
-            <option>BACnet</option>
-            <option>DMX512</option>
-            <option>MAVLink</option>
-            <option>Otro</option>
-          </select>
-        </div>
-        <div class="form-row"><label>Dirección / ID (IP, MAC, serial…)</label><input type="text" id="dev-direccion" placeholder="opcional, se completa al conectar el hardware"></div>
-        <div class="form-row"><label>Notas</label><input type="text" id="dev-notas" placeholder="opcional"></div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <div class="btn btn-green" onclick="submitDevice()">Guardar</div>
-          <div class="btn btn-sm" onclick="document.getElementById('device-form-card').style.display='none'">Cancelar</div>
-        </div>
-        <div id="dev-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
+        <div style="margin-top:10px"><span class="btn btn-sm" onclick="showIngestKey(this)">🔑 Mostrar clave del gateway</span>
+          <code id="ingest-key-box" style="display:none;margin-left:8px;overflow-wrap:anywhere"></code></div>
       </div>
     </div>
 
@@ -1053,31 +922,16 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="view" id="view-personal">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div class="section-title" style="margin-bottom:0">👥 Personal en campo — En vivo</div>
-        <span class="badge badge-green"><div class="brain-pulse" style="display:inline-block"></div>&nbsp; Actualizado hace 12 s</span>
+        <span class="badge badge-green" id="personal-updated">Cargando…</span>
       </div>
 
       <div class="grid grid-2" style="margin-bottom:16px">
         <!-- MAPA DE ZONAS -->
         <div class="card">
           <div class="card-header"><div class="card-title">Mapa de zonas — Presencia</div></div>
-          <div class="zone-map">
-            <div class="zone-cell occupied" title="A1 — M. García">A1<div class="staff-dot" style="background:var(--blue)"></div></div>
-            <div class="zone-cell" title="A2">A2</div>
-            <div class="zone-cell warn" title="A3 — alerta CE">A3</div>
-            <div class="zone-cell" title="A4">A4</div>
-            <div class="zone-cell" title="B1">B1</div>
-            <div class="zone-cell" title="B2">B2</div>
-            <div class="zone-cell alert" title="B3 — alerta IPM · J. Müller">B3<div class="staff-dot" style="background:var(--purple)"></div></div>
-            <div class="zone-cell" title="B4">B4</div>
-            <div class="zone-cell" title="C1">C1</div>
-            <div class="zone-cell" title="C2">C2</div>
-            <div class="zone-cell" title="Almacén">ALM</div>
-            <div class="zone-cell" title="Lab">LAB</div>
-          </div>
+          <div class="zone-map" id="personal-map"></div>
           <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--fg2)">
-            <span><span style="color:var(--blue)">●</span> M. García</span>
-            <span><span style="color:var(--purple)">●</span> J. Müller</span>
-            <span><span style="color:var(--green)">■</span> Zona OK</span>
+            <span><span style="color:var(--blue)">●</span> Personal en turno</span>
             <span><span style="color:var(--red)">■</span> Alerta</span>
             <span><span style="color:var(--amber)">■</span> Aviso</span>
           </div>
@@ -1085,99 +939,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
         <!-- ACTIVIDAD MASTER GROWER -->
         <div class="card">
-          <div class="card-header"><div class="card-title">Asignaciones Master Grower</div><span class="btn btn-sm btn-green" onclick="document.getElementById('modal-task-mg').style.display='flex'">+ Asignar tarea</span></div>
+          <div class="card-header"><div class="card-title">Asignaciones Master Grower</div><span class="btn btn-sm btn-green" onclick="openCrudForm('tareas')">+ Asignar tarea</span></div>
           <div id="personal-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
-          <div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--fg2)">
-            🧠 <strong style="color:var(--green)">Master Grower:</strong> J. Müller está en B3 — idóneo para aplicar protocolo IPM ahora. M. García más cerca de A1 — asignar CE. Eficiencia optimizada.
-          </div>
         </div>
       </div>
 
       <!-- TARJETAS DE PERSONAL -->
-      <div class="personnel-grid">
-        <div class="staff-card active">
-          <div style="display:flex;gap:10px;align-items:center">
-            <div class="staff-avatar-lg" style="border-color:var(--blue)">👨‍🌾</div>
-            <div>
-              <div class="staff-name">M. García</div>
-              <span class="badge badge-green">En campo</span>
-            </div>
-          </div>
-          <div class="staff-zone"><div class="dot dot-blue"></div> Zona A1 — Sala Genética</div>
-          <div class="staff-task">🔧 Ajustando CE solución nutritiva · 09:38</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <span class="badge badge-blue">Senior Técnico</span>
-            <span class="badge badge-gray">Zonas A</span>
-          </div>
-          <div class="staff-time" id="timer-garcia">↑ En campo: 3h 12m</div>
-          <div style="display:flex;gap:6px;margin-top:4px">
-            <span class="btn btn-sm" onclick="chatWithStaff('M. García')">Chat</span>
-            <span class="btn btn-sm" onclick="document.getElementById('modal-task-mg').style.display='flex'">Asignar</span>
-          </div>
-        </div>
-
-        <div class="staff-card active">
-          <div style="display:flex;gap:10px;align-items:center">
-            <div class="staff-avatar-lg" style="border-color:var(--purple)">👨‍🔬</div>
-            <div>
-              <div class="staff-name">J. Müller</div>
-              <span class="badge badge-red">Zona alerta</span>
-            </div>
-          </div>
-          <div class="staff-zone"><div class="dot" style="background:var(--purple)"></div> Zona B3 — THC-low (IPM activo)</div>
-          <div class="staff-task">🐛 Aplicando A. cucumeris — protocolo IPM trips · 09:41</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <span class="badge badge-blue">Técnico IPM</span>
-            <span class="badge badge-gray">Zonas B, C</span>
-          </div>
-          <div class="staff-time" id="timer-muller">↑ En campo: 2h 05m</div>
-          <div style="display:flex;gap:6px;margin-top:4px">
-            <span class="btn btn-sm" onclick="chatWithStaff('J. Müller')">Chat</span>
-            <span class="btn btn-sm">Asignar</span>
-          </div>
-        </div>
-
-        <div class="staff-card">
-          <div style="display:flex;gap:10px;align-items:center">
-            <div class="staff-avatar-lg">👩‍💼</div>
-            <div>
-              <div class="staff-name">R. Díaz</div>
-              <span class="badge badge-blue">Admin / Remoto</span>
-            </div>
-          </div>
-          <div class="staff-zone"><div class="dot dot-blue"></div> Oficina central — Acceso remoto</div>
-          <div class="staff-task">📊 Revisando informe semana 45 · 09:30</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <span class="badge badge-blue">Master Grower Admin</span>
-            <span class="badge badge-gray">Todas las zonas</span>
-          </div>
-          <div class="staff-time">↑ Sesión activa: 1h 48m</div>
-          <div style="display:flex;gap:6px;margin-top:4px">
-            <span class="btn btn-sm">Chat</span>
-            <span class="btn btn-sm">Asignar</span>
-          </div>
-        </div>
-
-        <div class="staff-card" style="opacity:.6">
-          <div style="display:flex;gap:10px;align-items:center">
-            <div class="staff-avatar-lg">👷</div>
-            <div>
-              <div class="staff-name">K. Favre</div>
-              <span class="badge badge-gray">Fuera de turno</span>
-            </div>
-          </div>
-          <div class="staff-zone"><div class="dot dot-gray"></div> Sin actividad</div>
-          <div class="staff-task" style="color:var(--fg3)">Turno desde 14:00</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <span class="badge badge-gray">Técnico junior</span>
-            <span class="badge badge-gray">Zonas C</span>
-          </div>
-          <div class="staff-time">Próx. turno: 14:00</div>
-          <div style="display:flex;gap:6px;margin-top:4px">
-            <span class="btn btn-sm">Chat</span>
-          </div>
-        </div>
-      </div>
+      <div class="personnel-grid" id="personal-cards"></div>
+      <div style="margin-top:16px"></div>
+      <div class="crud" data-table="personal" data-title="Fichas de empleados — tipo, calificación, especialidad, asignación"></div>
     </div>
 
     <!-- MODAL SENSOR -->
@@ -1237,6 +1007,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
     <!-- CONFIG (Admin) -->
     <div class="view" id="view-config">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
       <div class="section-title">⚙️ Configuración del sistema</div>
 
       <div class="grid grid-2" style="margin-bottom:16px">
@@ -1341,6 +1112,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     </div>
 
     <div id="ciclos-real"><div style="font-size:12px;color:var(--fg3)">Cargando ciclos…</div></div>
+    <div class="crud" data-table="ciclos" data-title="Ciclos — alta y edición" style="margin-top:12px"></div>
 
     <div class="card" style="margin-top:12px">
       <div class="card-header"><div class="card-title">Próximos hitos</div></div>
@@ -1350,6 +1122,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
   <!-- ===== GERMINACIÓN ===== -->
   <div class="view" id="view-germinacion">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
     <div class="section-title">🌱 Germinación · Propagación</div>
     <div class="kpi-grid">
       <div class="kpi-tile"><div class="kpi-num">3</div><div class="kpi-label">Bandejas activas</div></div>
@@ -1440,6 +1213,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
   <!-- ===== SECADO Y CURADO ===== -->
   <div class="view" id="view-secado">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
     <div class="section-title">💧 Secado · Curado · Control de calidad</div>
     <div class="kpi-grid">
       <div class="kpi-tile"><div class="kpi-num">2</div><div class="kpi-label">Salas de secado activas</div></div>
@@ -1514,6 +1288,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
   <!-- ===== ESTADÍSTICAS ===== -->
   <div class="view" id="view-estadisticas">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
     <div class="section-title">📊 Estadísticas de producción · Analytics</div>
     <div class="kpi-grid">
       <div class="kpi-tile"><div class="kpi-num">2.4 kg</div><div class="kpi-label">Producción total 2026</div></div>
@@ -1577,6 +1352,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
   <!-- ===== PROTOCOLOS ===== -->
   <div class="view" id="view-protocolos">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
     <div class="section-title">📋 Protocolos · Decisiones · Validación</div>
 
     <div class="filter-tabs">
@@ -1708,6 +1484,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
 <!-- ===== PLAN DEL DÍA ===== -->
   <div class="view" id="view-plan">
+      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
     <div class="section-title">📋 Plan del día — Master Grower</div>
 
     <!-- Proposal card -->
@@ -1979,13 +1756,13 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="card" style="margin-top:12px">
       <div class="card-header"><div class="card-title">📷 Foto de campo (plaga / enfermedad)</div></div>
       <p style="font-size:11px;color:var(--fg3);margin-bottom:8px">
-        Desde el celular o tablet, toca el botón para abrir la cámara directo.
+        Desde el teléfono, la tablet o el ordenador: el botón deja elegir entre la cámara, la galería o un archivo.
         La foto se guarda y se cataloga para que Growmaster siempre tenga
         acceso a ella — esto no reconoce plagas automáticamente todavía, solo
         mide cobertura verde y la archiva para revisión.
       </p>
-      <input type="file" id="gm-photo-input" accept="image/*" capture="environment" style="display:none" onchange="onGmPhotoSelected(event)">
-      <div class="btn btn-sm" onclick="document.getElementById('gm-photo-input').click()">Tomar / elegir foto</div>
+      <input type="file" id="gm-photo-input" accept="image/*" style="display:none" onchange="onGmPhotoSelected(event)">
+      <div class="btn btn-sm" onclick="document.getElementById('gm-photo-input').click()">📷 Tomar foto o elegir archivo</div>
       <img id="gm-photo-preview" style="display:none;max-width:200px;border-radius:8px;margin-top:10px" />
       <div class="form-row" style="margin-top:10px"><label>Zona</label><input type="text" id="gm-photo-zone" placeholder="ej. A1"></div>
       <div class="form-row"><label>Técnico</label><input type="text" id="gm-photo-tech" placeholder="tu nombre"></div>
@@ -1994,11 +1771,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <div id="gm-photo-error" style="color:var(--red);font-size:12px;margin-top:8px;display:none"></div>
       <div id="gm-photo-success" style="color:var(--green);font-size:12px;margin-top:8px;display:none"></div>
     </div>
+    <div class="crud" data-table="conocimiento" data-title="🧠 Base de conocimiento de Growmaster — añadir y editar" style="margin-top:12px"></div>
   </div><!-- /view-growmaster -->
 
 <script>
-const views = ['dashboard','zonas','ciclos','germinacion','drones','growmaster','ipm','nutricion','agua','secado','informes','estadisticas','protocolos','campo','dispositivos','personal','plan','config'];
-const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',growmaster:'Growmaster API',ipm:'IPM — Control integrado',nutricion:'Nutrición',agua:'Tratamiento de agua',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',personal:'Personal en campo',plan:'Plan del día — Master Grower',config:'Configuración'};
+const views = ['dashboard','zonas','ciclos','germinacion','drones','growmaster','ipm','nutricion','agua','secado','informes','estadisticas','protocolos','campo','dispositivos','sistemas','personal','plan','config'];
+const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',growmaster:'Growmaster API',ipm:'IPM — Control integrado',nutricion:'Nutrición',agua:'Tratamiento de agua',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',sistemas:'Sistemas — equipos y conectividad',personal:'Personal en campo',plan:'Plan del día — Master Grower',config:'Configuración'};
 
 let growmasterLoaded = false;
 
@@ -2237,6 +2015,7 @@ function selectZone(el, zone) {
   document.getElementById('s-ce').textContent = d.ce; document.getElementById('s-ce').className = 'sensor-val '+d.ceC;
   document.getElementById('s-ph').textContent = d.ph;
   document.getElementById('s-ppfd').textContent = d.ppfd;
+  if (window.renderZoneActions) window.renderZoneActions(zone);
 }
 
 let role = 'tec';
@@ -2507,6 +2286,8 @@ async function loadOpsData() {
     renderZoneTabs();
     renderDevicesReal();
     renderAguaReal();
+    if (window.renderPanelExtras) window.renderPanelExtras();
+    if (window.renderAllCrud) window.renderAllCrud();
   } catch (e) {
     console.warn('ops-data fetch failed', e);
   }
@@ -2739,47 +2520,19 @@ function renderDevicesReal() {
   </table>`;
 }
 
-async function submitDevice() {
-  const errorEl = document.getElementById('dev-error');
-  errorEl.style.display = 'none';
-  const nombre = document.getElementById('dev-nombre').value.trim();
-  if (!nombre) {
-    errorEl.textContent = 'Falta el nombre.';
-    errorEl.style.display = 'block';
-    return;
-  }
-  const payload = {
-    nombre,
-    tipo: document.getElementById('dev-tipo').value,
-    espectro: document.getElementById('dev-espectro').value,
-    zona: document.getElementById('dev-zona').value.trim(),
-    protocolo: document.getElementById('dev-protocolo').value,
-    direccion: document.getElementById('dev-direccion').value.trim(),
-    notas: document.getElementById('dev-notas').value.trim(),
-  };
+async function showIngestKey(btn) {
+  const box = document.getElementById('ingest-key-box');
+  if (box.style.display !== 'none') { box.style.display = 'none'; box.textContent = ''; return; }
   try {
-    const r = await fetch('/api/ops-data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const data = await r.json();
-    if (!r.ok) {
-      errorEl.textContent = data.detail || data.error || ('Error ' + r.status);
-      errorEl.style.display = 'block';
-      return;
-    }
-    document.getElementById('device-form-card').style.display = 'none';
-    ['dev-nombre','dev-zona','dev-direccion','dev-notas','dev-espectro'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('dev-espectro-row').style.display = 'none';
-    await loadOpsData();
-  } catch (e) {
-    errorEl.textContent = 'Error de red.';
-    errorEl.style.display = 'block';
-  }
+    const r = await fetch('/api/ops-data?ingest_key=1');
+    const d = await r.json();
+    box.textContent = r.ok ? d.ingest_key : ('Error ' + r.status);
+  } catch (e) { box.textContent = 'Error de red.'; }
+  box.style.display = 'inline';
 }
 
 loadOpsData();
 </script>
+<script src="/panel-crud.js"></script>
 
 </body></html>

@@ -13,7 +13,7 @@ BASE_ID = os.environ.get("AIRTABLE_OPS_BASE_ID", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 
-CONTEXT_TABLES = ["Zonas", "AlertasIPM", "Nutricion", "Ciclos"]
+CONTEXT_TABLES = ["Zonas", "AlertasIPM", "Nutricion", "Ciclos", "MedicionesAgua", "Tareas", "BaseConocimiento"]
 
 
 def _airtable_list(table_name):
