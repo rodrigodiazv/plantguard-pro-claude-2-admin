@@ -2049,15 +2049,13 @@ async function loadGrowmasterStatus() {
   const el = document.getElementById('gm-status');
   el.textContent = 'Cargando...';
   try {
-    const [healthR, pbR] = await Promise.all([
-      fetch('/api/gm-health'),
-      fetch('/api/gm-photo-bank-check'),
-    ]);
+    const healthR = await fetch('/api/gm-health');
     if (!healthR.ok) {
       el.innerHTML = '<span style="color:var(--red)">La API de Growmaster no responde (HTTP ' + healthR.status + ').</span>';
       return;
     }
-    const pb = pbR.ok ? await pbR.json() : null;
+    const data = await healthR.json();
+    const pb = data.photo_bank || null;
     const pbLine = pb
       ? (pb.ok ? '<span style="color:var(--green)">Banco de fotos correcto (' + (pb.problems || []).length + ' problemas)</span>'
                : '<span style="color:var(--amber)">Banco de fotos con problemas: ' + escapeHtml((pb.problems || []).join('; ')) + '</span>')
@@ -2200,7 +2198,7 @@ async function loadPhotoBank() {
     grid.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">' +
       data.photos.map(p => `
         <div>
-          <img src="/api/gm-photo-bank/file?name=${encodeURIComponent(p.filename)}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          <img src="/api/gm-photo-bank?name=${encodeURIComponent(p.filename)}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
           <div style="font-size:10px;color:var(--fg3);margin-top:4px">${escapeHtml(p.entorno)} · ${escapeHtml(p.fase)} · ${escapeHtml(p.fecha)}</div>
         </div>
       `).join('') + '</div>';
@@ -2794,7 +2792,7 @@ async function submitDevice() {
     notas: document.getElementById('dev-notas').value.trim(),
   };
   try {
-    const r = await fetch('/api/gm-device', {
+    const r = await fetch('/api/ops-data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
