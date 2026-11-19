@@ -381,12 +381,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="sidebar-logo-text">PlantGuard Pro <span>Medicinal Cannabis SaaS</span></div>
   </div>
 
-  <div class="brain-status" onclick="showView('dashboard')">
+  <div class="brain-status" onclick="showView('campo')">
     <div class="brain-status-header">
-      <div class="brain-pulse"></div>
-      Master Grower IA — Activo
+      Master Grower — Chat con IA
     </div>
-    <div class="brain-uptime" id="brain-uptime">↑ 14h 32m · 847 análisis hoy</div>
+    <div class="brain-uptime" id="brain-uptime">Responde bajo demanda, sin monitoreo automático activo</div>
   </div>
 
   <nav>
@@ -398,7 +397,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="nav-item" onclick="showView('zonas')" id="nav-zonas">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M8 2v12M2 8h12"/></svg>
       Zonas
-      <span class="nav-badge amber">2</span>
+      <span class="nav-badge amber" id="nav-badge-zonas" style="display:none">0</span>
     </div>
     <div class="nav-item" onclick="showView('ciclos')" id="nav-ciclos">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 1.5"/><path d="M13.5 8A5.5 5.5 0 0 0 5 3.5"/><path d="M5 3.5L3.5 2M5 3.5L3.5 5"/></svg>
@@ -411,7 +410,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="nav-item" onclick="showView('drones')" id="nav-drones">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="8" cy="8" r="2.5"/><line x1="6" y1="4" x2="6.5" y2="6.5"/><line x1="10" y1="4" x2="9.5" y2="6.5"/><line x1="6" y1="12" x2="6.5" y2="9.5"/><line x1="10" y1="12" x2="9.5" y2="9.5"/></svg>
       Drones
-      <span class="nav-badge">1</span>
+      <span class="nav-badge" id="nav-badge-drones" style="display:none">0</span>
     </div>
     <div class="nav-section">Software</div>
     <div class="nav-item" onclick="showView('growmaster')" id="nav-growmaster">
@@ -422,7 +421,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="nav-item" onclick="showView('ipm')" id="nav-ipm">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
       IPM
-      <span class="nav-badge">3</span>
+      <span class="nav-badge" id="nav-badge-ipm" style="display:none">0</span>
     </div>
     <div class="nav-item" onclick="showView('nutricion')" id="nav-nutricion">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2 C4 2 2 5 2 8 C2 12 5 14 8 14 C11 14 14 12 14 8 C14 5 12 2 8 2Z"/><path d="M8 2 L8 14M5 5 L11 5M4 8 L12 8M5 11 L11 11"/></svg>
@@ -501,9 +500,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
           <div class="kpi-delta up" id="kpi-zonas-delta">—</div>
         </div>
         <div class="card kpi">
-          <div class="kpi-val" style="color:var(--blue)">4</div>
+          <div class="kpi-val" style="color:var(--blue)" id="kpi-drones">—</div>
           <div class="kpi-label">Drones en vuelo</div>
-          <div class="kpi-delta warn">1 revisión pendiente</div>
+          <div class="kpi-delta" id="kpi-drones-delta">—</div>
         </div>
         <div class="card kpi">
           <div class="kpi-val warn" id="kpi-ipm">—</div>
@@ -511,9 +510,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
           <div class="kpi-delta up">Datos reales</div>
         </div>
         <div class="card kpi">
-          <div class="kpi-val up">847</div>
-          <div class="kpi-label">Análisis IA / hoy</div>
-          <div class="kpi-delta up">Cerebro activo 14h+</div>
+          <div class="kpi-val up" id="kpi-dispositivos">—</div>
+          <div class="kpi-label">Dispositivos registrados</div>
+          <div class="kpi-delta" id="kpi-dispositivos-delta">—</div>
         </div>
       </div>
 
@@ -521,12 +520,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         <div class="card" style="grid-column:1">
           <div class="card-header">
             <div>
-              <div class="card-title">🧠 Master Grower — Log en vivo</div>
-              <div class="card-subtitle">Sub-agentes activos: 12 zonas · 4 drones · 3 procesos</div>
+              <div class="card-title">🧠 Master Grower — Actividad reciente</div>
+              <div class="card-subtitle">Alertas y eventos reales registrados</div>
             </div>
-            <span class="badge badge-green">EN LÍNEA</span>
           </div>
-          <div id="brain-log"></div>
+          <div id="brain-log"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
         </div>
 
         <div class="card">
@@ -547,30 +545,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
         </div>
       </div>
 
-      <div class="grid grid-3">
+      <div class="grid grid-2">
         <div class="card">
-          <div class="card-header"><div class="card-title">Progreso temporada</div></div>
-          <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span>Lote T-2024-CBD</span><span class="up">67%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:67%;background:var(--green)"></div></div></div>
-          <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span>Lote T-2024-THC</span><span style="color:var(--blue)">42%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:42%;background:var(--blue)"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span>Lote T-2025-Q1</span><span style="color:var(--amber)">18%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:18%;background:var(--amber)"></div></div></div>
+          <div class="card-header"><div class="card-title">Progreso de ciclos</div></div>
+          <div id="dash-progreso"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">Datos climaticos externos</div><span class="badge badge-blue">API Meteo</span></div>
-          <div class="sensor-row"><span class="sensor-label">Exterior</span><span class="sensor-val up">18°C</span></div>
-          <div class="sensor-row"><span class="sensor-label">HR ext.</span><span class="sensor-val">62%</span></div>
-          <div class="sensor-row"><span class="sensor-label">Presión</span><span class="sensor-val">1013 hPa</span></div>
-          <div class="sensor-row"><span class="sensor-label">Próx. 24h</span><span class="sensor-val warn">Lluvia</span></div>
-          <div style="font-size:10px;color:var(--fg3);margin-top:8px">Master Grower ajustará ventilación autom. a las 06:00</div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Propuesta IA — Variedad</div><span class="badge badge-blue">Temporada siguiente</span></div>
-          <div style="font-size:12px;line-height:1.6;color:var(--fg2)">
-            Basado en datos históricos de <strong style="color:var(--fg)">3 temporadas</strong> y clima de Vaud:<br><br>
-            🏆 <strong style="color:var(--green)">CBD Carmagnola</strong> — rendimiento +14% vs media<br>
-            🥈 <strong>Fedora 17</strong> — estabilidad GACP alta<br>
-            🥉 <strong>Finola</strong> — ciclo corto, baja VPD<br><br>
-            <span style="color:var(--fg3);font-size:10px">Confianza: 87% · Próxima rev. 15 dic</span>
-          </div>
+          <div class="card-header"><div class="card-title">Datos climáticos externos</div></div>
+          <div style="font-size:12px;color:var(--fg3)">Sin estación meteorológica conectada todavía. Registrala en "Dispositivos" (tipo "Estación meteorológica") cuando exista el hardware.</div>
         </div>
       </div>
     </div>
@@ -2268,71 +2250,8 @@ function setRole(r) {
   if (addBtn) addBtn.style.display = r==='adm' ? 'inline-flex' : 'none';
 }
 
-// Brain log
-const logs = [
-  ['INFO','ZA1-01','CE 2.8 mS/cm → recomendación enviada al técnico'],
-  ['OK','NUT-01','Riego A2 ejecutado — 4.0L/m² pH 6.0 CE 2.1'],
-  ['ALERTA','DD3-01','Firma IR anómala Zona B3 — 2 focos — Botrytis probable'],
-  ['OK','IPM-01','Beauveria bassiana aplicado B3 — registrado GACP'],
-  ['INFO','GAC-01','Lote T-2024-CBD: día 42/70 — trazabilidad OK'],
-  ['INFO','ZA2-01','CO₂ 1250 ppm · T 24.8°C · HR 52% — óptimo'],
-  ['OK','DD1-01','Vuelo sector A completado — 340m² sin anomalías'],
-  ['INFO','NUT-01','Ajuste fórmula B3: +20mg/L MgSO₄ aplicado'],
-  ['ALERTA','ZB3-01','Trips: 42 adultos/trampa · umbral 15 superado'],
-  ['OK','GAC-01','aw C1 = 0.61 — rango óptimo (0.55–0.65)'],
-  ['INFO','Meteo','Lluvia prevista mañana — ajuste ventilación programado 06:00'],
-  ['OK','NUT-01','Riego B1 (clones) — 1.5L/m² CE 0.8 pH 5.8'],
-  ['INFO','ZA1-01','Fotoperiodo: transición 12/12 en 4 días'],
-  ['ALERTA','DD2-01','Zona caliente NE sector B — pendiente análisis'],
-  ['OK','IPM-01','A. cucumeris liberado B3 — 50 uds/m²'],
-];
-let logIdx = 0;
-function addLog() {
-  const el = document.getElementById('brain-log');
-  if(!el) return;
-  const now = new Date();
-  const ts = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
-  const l = logs[logIdx % logs.length]; logIdx++;
-  const cls = {INFO:'tag-info',OK:'tag-ok',ALERTA:'tag-alert'}[l[0]]||'tag-info';
-  const row = document.createElement('div');
-  row.className = 'log-entry';
-  row.innerHTML = `<span class="log-ts">${ts}</span><span class="log-tag ${cls}">[${l[0]}]</span><span class="log-tag" style="color:var(--purple)">${l[1]}</span><span class="log-msg">${l[2]}</span>`;
-  el.insertBefore(row, el.firstChild);
-  while(el.children.length > 20) el.removeChild(el.lastChild);
-}
-
-// Brain uptime counter
-let startMs = Date.now() - (14*3600+32*60)*1000;
-let analyses = 847;
-function updateUptime() {
-  const diff = Math.floor((Date.now()-startMs)/1000);
-  const h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = diff%60;
-  analyses++;
-  const el = document.getElementById('brain-uptime');
-  if(el) el.textContent = `↑ ${h}h ${m}m ${s}s · ${analyses} análisis hoy`;
-}
-
-// Sensor jitter
-function jitter(base, range) { return (base + (Math.random()-0.5)*range).toFixed(1); }
-function updateSensors() {
-  if(document.getElementById('view-zonas').classList.contains('active')) {
-    const ce = document.getElementById('s-ce');
-    if(ce && ce.textContent.includes('mS')) {
-      const v = parseFloat(ce.textContent);
-      if(!isNaN(v)) {
-        const nv = Math.max(0.5, Math.min(3.5, v+(Math.random()-.5)*.05)).toFixed(2);
-        ce.textContent = nv+' mS';
-      }
-    }
-  }
-}
-
 // Init
 setRole('tec');
-for(let i=0;i<8;i++) addLog();
-setInterval(addLog, 2800);
-setInterval(updateUptime, 1000);
-setInterval(updateSensors, 3000);
 
 function switchChatTab(tab, el) {
   document.querySelectorAll('.chat-tab').forEach(t=>t.classList.remove('active'));
@@ -2607,6 +2526,53 @@ function renderDashboardReal() {
   }
   const ki = document.getElementById('kpi-ipm');
   if (ki) ki.textContent = alertas.length;
+
+  const setBadge = (id, n) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = n;
+    el.style.display = n > 0 ? '' : 'none';
+  };
+  setBadge('nav-badge-zonas', zonas.filter(z => z.Estado === 'Alerta' || z.Estado === 'Aviso').length);
+  setBadge('nav-badge-ipm', alertas.length);
+
+  const drones = d.drones || [];
+  setBadge('nav-badge-drones', drones.filter(dr => dr.Estado === 'Alerta').length);
+  const kd = document.getElementById('kpi-drones');
+  if (kd) kd.textContent = drones.filter(dr => dr.Estado === 'En vuelo').length;
+  const kdd = document.getElementById('kpi-drones-delta');
+  if (kdd) kdd.textContent = drones.length ? (drones.length + ' registrados') : 'Sin drones registrados';
+
+  const dispositivos = d.dispositivos || [];
+  const kdi = document.getElementById('kpi-dispositivos');
+  if (kdi) kdi.textContent = dispositivos.length;
+  const kdid = document.getElementById('kpi-dispositivos-delta');
+  if (kdid) {
+    const conectados = dispositivos.filter(dv => dv.Estado === 'Conectado').length;
+    kdid.textContent = conectados ? (conectados + ' conectados') : 'Ninguno conectado aún';
+  }
+
+  const progBox = document.getElementById('dash-progreso');
+  if (progBox) {
+    const ciclos = d.ciclos || [];
+    progBox.innerHTML = ciclos.length ? ciclos.map(c => {
+      const pct = (c.SemanaActual && c.SemanaTotal) ? Math.round(100 * c.SemanaActual / c.SemanaTotal) : 0;
+      return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span>${escapeHtml(c.Nombre)} — ${escapeHtml(c.Variedad||'')}</span><span>${pct}%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:var(--green)"></div></div></div>`;
+    }).join('') : '<div style="font-size:12px;color:var(--fg3)">Sin ciclos activos.</div>';
+  }
+
+  const logBox = document.getElementById('brain-log');
+  if (logBox) {
+    const events = [];
+    alertas.forEach(a => events.push({ ts: null, tag: 'ALERTA', msg: `Zona ${a.Zona} — ${a.Plaga} (${a.Severidad})` }));
+    dispositivos.filter(dv => dv.CreadoEl).forEach(dv => events.push({ ts: dv.CreadoEl, tag: 'INFO', msg: `Dispositivo registrado: ${dv.Nombre} (${dv.Tipo})` }));
+    events.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+    logBox.innerHTML = events.length ? events.slice(0, 20).map(e => {
+      const cls = e.tag === 'ALERTA' ? 'tag-alert' : 'tag-info';
+      const tsLabel = e.ts ? new Date(e.ts).toLocaleString() : '—';
+      return `<div class="log-entry"><span class="log-ts">${escapeHtml(tsLabel)}</span><span class="log-tag ${cls}">[${e.tag}]</span><span class="log-msg">${escapeHtml(e.msg)}</span></div>`;
+    }).join('') : '<div style="font-size:12px;color:var(--fg3)">Sin actividad registrada todavía.</div>';
+  }
 
   const alertsBox = document.getElementById('dash-alerts');
   if (alertsBox) {
