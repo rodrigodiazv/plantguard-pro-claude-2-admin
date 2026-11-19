@@ -27,6 +27,8 @@ module.exports = async function handler(req, res) {
   }
 
   if (!timingSafeEqual(pin, adminPin)) {
+    // Slows down PIN guessing; a real per-IP limit needs a Vercel Firewall rule.
+    await new Promise((r) => setTimeout(r, 1500));
     return res.status(401).json({ error: "pin_invalid" });
   }
 

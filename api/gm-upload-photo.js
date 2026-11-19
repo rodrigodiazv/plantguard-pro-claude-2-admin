@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
   if (!image_base64) {
     return res.status(400).json({ error: "image_base64_required" });
   }
-  const safeFilename = filename || "foto.jpg";
+  const safeFilename = String(filename || "foto.jpg").replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 100) || "foto.jpg";
 
   let buffer;
   try {
@@ -66,7 +66,7 @@ module.exports = async function handler(req, res) {
   const key = `field-photos/${Date.now()}-${safeFilename}`;
   let blob;
   try {
-    blob = await put(key, buffer, { access: "public", addRandomSuffix: true });
+    blob = await put(key, buffer, { access: "private", addRandomSuffix: true });
   } catch (e) {
     console.error("upload-photo: blob put failed", e);
     return res.status(502).json({ error: "blob_upload_failed" });

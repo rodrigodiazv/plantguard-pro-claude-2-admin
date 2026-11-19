@@ -2197,7 +2197,7 @@ function renderZoneTabs() {
   if (!zonas.length) return;
   tabs.innerHTML = zonas.map((z, i) => {
     const warn = z.Estado === 'Alerta' ? ' ⚠️' : '';
-    return `<div class="zone-tab${i===0?' active':''}" onclick="selectZone(this,'${z.Nombre}')">${escapeHtml(z.Nombre)}${warn}</div>`;
+    return `<div class="zone-tab${i===0?' active':''}" data-zone="${escapeHtml(z.Nombre)}" onclick="selectZone(this,this.dataset.zone)">${escapeHtml(z.Nombre)}${warn}</div>`;
   }).join('');
   selectZone(tabs.querySelector('.zone-tab'), zonas[0].Nombre);
 }
