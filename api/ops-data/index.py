@@ -21,6 +21,7 @@ TABLES = {
     "ciclos": "Ciclos",
     "drones": "Drones",
     "dispositivos": "Dispositivos",
+    "agua": "TratamientoAgua",
 }
 
 

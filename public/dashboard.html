@@ -428,6 +428,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2 C4 2 2 5 2 8 C2 12 5 14 8 14 C11 14 14 12 14 8 C14 5 12 2 8 2Z"/><path d="M8 2 L8 14M5 5 L11 5M4 8 L12 8M5 11 L11 11"/></svg>
       Nutrición
     </div>
+    <div class="nav-item" onclick="showView('agua')" id="nav-agua">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5 C8 1.5 3 7 3 10.5 C3 13 5.2 14.5 8 14.5 C10.8 14.5 13 13 13 10.5 C13 7 8 1.5 8 1.5Z"/></svg>
+      Agua
+    </div>
     <div class="nav-item" onclick="showView('secado')" id="nav-secado">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14 L4 8 C4 5 6 3 8 3 C10 3 12 5 12 8 L12 14"/><line x1="2" y1="14" x2="14" y2="14"/><path d="M6 7 C6 6 7 5.5 8 5.5 C9 5.5 10 6 10 7"/><line x1="8" y1="1" x2="8" y2="3"/></svg>
       Secado · Curado
@@ -691,6 +695,22 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     </div>
 
     <!-- NUTRICION -->
+    <!-- AGUA -->
+    <div class="view" id="view-agua">
+      <div class="section-title">💧 Tratamiento de agua — entrada al cultivo</div>
+      <p style="font-size:12px;color:var(--fg2);line-height:1.6;margin-bottom:12px">
+        El agua entra al tanque de acumulación, pasa por el filtro de ósmosis
+        inversa y el filtro de carbón activado, y debe salir pura: pH neutro,
+        EC/TDS casi cero. A partir de esa agua base se dosifican nutrientes y
+        micronutrientes por zona (ver "Nutrición") para llegar al pH/EC objetivo
+        de cada fase del cultivo.
+      </p>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Etapas del tratamiento</div></div>
+        <div id="agua-real"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
+      </div>
+    </div>
+
     <div class="view" id="view-nutricion">
       <div class="section-title">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--green)" stroke-width="1.5"><circle cx="9" cy="9" r="7"/></svg>
@@ -1981,8 +2001,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
   </div><!-- /view-growmaster -->
 
 <script>
-const views = ['dashboard','zonas','ciclos','germinacion','drones','growmaster','ipm','nutricion','secado','informes','estadisticas','protocolos','campo','dispositivos','personal','plan','config'];
-const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',growmaster:'Growmaster API',ipm:'IPM — Control integrado',nutricion:'Nutrición',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',personal:'Personal en campo',plan:'Plan del día — Master Grower',config:'Configuración'};
+const views = ['dashboard','zonas','ciclos','germinacion','drones','growmaster','ipm','nutricion','agua','secado','informes','estadisticas','protocolos','campo','dispositivos','personal','plan','config'];
+const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',growmaster:'Growmaster API',ipm:'IPM — Control integrado',nutricion:'Nutrición',agua:'Tratamiento de agua',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',personal:'Personal en campo',plan:'Plan del día — Master Grower',config:'Configuración'};
 
 let growmasterLoaded = false;
 
@@ -2555,6 +2575,7 @@ async function loadOpsData() {
     renderDronesReal();
     renderZoneTabs();
     renderDevicesReal();
+    renderAguaReal();
   } catch (e) {
     console.warn('ops-data fetch failed', e);
   }
@@ -2612,8 +2633,32 @@ function renderNutricionReal() {
   const rows = d.nutricion || [];
   box.innerHTML = rows.length ? rows.map(n => `
     <div class="sensor-row"><span class="sensor-label">Zona ${escapeHtml(n.Zona)}</span>
-    <span class="sensor-val">N ${n.N ?? '—'} · P ${n.P ?? '—'} · K ${n.K ?? '—'} · CE ${n.CE ?? '—'} · pH ${n.pH ?? '—'}</span></div>
+    <span class="sensor-val">N ${n.N ?? '—'} · P ${n.P ?? '—'} · K ${n.K ?? '—'} · Ca ${n.Ca ?? '—'} · Mg ${n.Mg ?? '—'} · CE ${n.CE ?? '—'} · pH ${n.pH ?? '—'}${n.Micronutrientes ? (' · ' + escapeHtml(n.Micronutrientes)) : ''}</span></div>
   `).join('') : '<div style="color:var(--fg3);font-size:12px">Sin datos de nutrición cargados.</div>';
+}
+
+function renderAguaReal() {
+  const d = window.OPS_DATA;
+  const box = document.getElementById('agua-real');
+  if (!d || !box) return;
+  const etapas = (d.agua || []).slice().sort((a,b) => (a.Orden||0)-(b.Orden||0));
+  if (!etapas.length) {
+    box.innerHTML = '<div style="color:var(--fg3);font-size:12px">Sin etapas registradas.</div>';
+    return;
+  }
+  const cls = s => s === 'OK' ? 'badge-green' : (s === 'Revisar' || s === 'Saturado' ? 'badge-red' : 'badge-gray');
+  box.innerHTML = `<table>
+    <thead><tr><th>Etapa</th><th>pH</th><th>EC/TDS</th><th>Caudal (L/min)</th><th>Estado</th></tr></thead>
+    <tbody>${etapas.map(e => `
+      <tr>
+        <td>${escapeHtml(e.Etapa)}</td>
+        <td>${e.pH ?? '—'}</td>
+        <td>${e.EC_TDS ?? '—'}</td>
+        <td>${e.CaudalLmin ?? '—'}</td>
+        <td><span class="badge ${cls(e.Estado)}">${escapeHtml(e.Estado||'—')}</span></td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
 }
 
 function renderPersonalReal() {
