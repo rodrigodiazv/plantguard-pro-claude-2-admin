@@ -1,5 +1,9 @@
 # handoff.md — plantguard-pro-claude-2-admin
 
+## Actualización 2026-11-19
+- Dependencias npm sincronizadas; `@vercel/blob` fijado en 2.4.0 para evitar las vulnerabilidades detectadas en sus dependencias.
+- El registro de Vercel termina en «Deploying outputs»; confirmar el estado del despliegue y probar la subida y consulta de fotos en Vercel.
+
 **Fecha:** 2026-11-11
 **Estado:** Implementación del login y seguridad completada; redeploy y verificación en Vercel pendientes
 
