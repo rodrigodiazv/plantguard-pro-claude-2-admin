@@ -1,7 +1,9 @@
 # handoff.md — plantguard-pro-claude-2-admin
 
 **Fecha:** 2026-11-19
-**Estado:** Panel real conectado a datos de Airtable. En producción, deploy OK.
+**Estado:** Panel real conectado a datos de Airtable. `@vercel/blob` actualizado
+a 2.4.0 (fix de Copilot, mergeado) para resolver alertas de dependencias.
+En producción, deploy OK.
 
 ## Qué es esto
 
