@@ -1946,6 +1946,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <div id="gm-status" style="font-size:12px;color:var(--fg2)">Cargando...</div>
     </div>
 
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-header"><div class="card-title">📷 Banco de fotos — fundacional</div><div class="btn btn-sm" onclick="loadPhotoBank()">Actualizar</div></div>
+      <div id="gm-photo-bank-grid" style="font-size:12px;color:var(--fg2)">Cargando…</div>
+    </div>
+
     <div class="card">
       <div class="card-header"><div class="card-title">Simular ruta de drones para un día</div></div>
       <p style="font-size:11px;color:var(--fg3);margin-bottom:8px">
@@ -2007,6 +2012,7 @@ function showView(v) {
     growmasterLoaded = true;
     document.getElementById('gm-plan-input').value = JSON.stringify(GM_SAMPLE_PLAN, null, 2);
     loadGrowmasterStatus();
+    loadPhotoBank();
   }
 }
 
@@ -2146,6 +2152,32 @@ async function submitGmPhoto() {
 
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadPhotoBank() {
+  const grid = document.getElementById('gm-photo-bank-grid');
+  grid.textContent = 'Cargando…';
+  try {
+    const r = await fetch('/api/gm-photo-bank');
+    const data = await r.json();
+    if (!r.ok) {
+      grid.innerHTML = '<span style="color:var(--red)">No se pudo cargar el banco de fotos (' + (data.error || r.status) + ').</span>';
+      return;
+    }
+    if (!data.photos || !data.photos.length) {
+      grid.innerHTML = '<span style="color:var(--fg3)">Banco de fotos vacío.</span>';
+      return;
+    }
+    grid.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">' +
+      data.photos.map(p => `
+        <div>
+          <img src="${p.url}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--fg3);margin-top:4px">${escapeHtml(p.entorno)} · ${escapeHtml(p.fase)} · ${escapeHtml(p.fecha)}</div>
+        </div>
+      `).join('') + '</div>';
+  } catch (e) {
+    grid.innerHTML = '<span style="color:var(--red)">Error de red.</span>';
+  }
 }
 
 const ZONE_FALLBACK = {
