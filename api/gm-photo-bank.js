@@ -9,7 +9,7 @@
 // 12-serverless-function-per-deployment limit.
 const fs = require("fs");
 const path = require("path");
-const { put, list } = require("@vercel/blob");
+const { put, list, get } = require("@vercel/blob");
 const { hasValidSession } = require("../lib/session.js");
 
 const PREFIX = "seed-photos/";
@@ -78,32 +78,24 @@ async function handleFile(req, res, filename) {
     return res.status(400).json({ error: "invalid_name" });
   }
 
-  let blobs;
+  let result;
   try {
-    blobs = (await list({ prefix: PREFIX })).blobs;
+    result = await get(PREFIX + filename, { access: "private" });
   } catch (e) {
-    console.error("gm-photo-bank/file: list failed", e);
-    return res.status(502).json({ error: "blob_list_failed" });
+    console.error("gm-photo-bank/file: get failed", e);
+    return res.status(502).json({ error: "blob_fetch_failed", detail: e.message });
   }
-
-  const match = blobs.find(b => b.pathname === PREFIX + filename);
-  if (!match) {
+  if (!result) {
     return res.status(404).json({ error: "not_found" });
   }
 
   try {
-    const r = await fetch(match.url, {
-      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
-    });
-    if (!r.ok) {
-      return res.status(502).json({ error: "blob_fetch_failed", status: r.status });
-    }
-    const buf = Buffer.from(await r.arrayBuffer());
-    res.setHeader("Content-Type", r.headers.get("content-type") || "application/octet-stream");
+    const buf = Buffer.from(await new Response(result.stream).arrayBuffer());
+    res.setHeader("Content-Type", result.blob.contentType || "application/octet-stream");
     res.setHeader("Cache-Control", "private, max-age=3600");
     return res.status(200).send(buf);
   } catch (e) {
-    console.error("gm-photo-bank/file: fetch failed", e);
+    console.error("gm-photo-bank/file: stream read failed", e);
     return res.status(502).json({ error: "blob_fetch_failed" });
   }
 }
