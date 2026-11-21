@@ -19,8 +19,8 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 FALLBACK_MODEL = "claude-haiku-4-5-20251001"
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
-# Voice "Master Grower — estilo Jarvis" designed in ElevenLabs (not secret).
-ELEVENLABS_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "lQjZMxc7cmeK9Vl5obtB")
+# Voice "Master Grower — estilo Jarvis 3" (chosen by Rodrigo) designed in ElevenLabs (not secret).
+ELEVENLABS_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "x9KrIDxDgLgpS9PEHqw8")
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY = 20
 CONTEXT_LIMIT = 60_000
