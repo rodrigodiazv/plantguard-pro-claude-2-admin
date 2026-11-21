@@ -244,6 +244,12 @@ class handler(BaseHTTPRequestHandler):
         context = build_context() if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
         try:
             reply, actions = converse(history, context)
+        except urllib.error.HTTPError as e:
+            if e.code in (401, 403):
+                detail = "La clave de Anthropic (ANTHROPIC_API_KEY) no es válida o fue revocada: cree una nueva y actualícela en Vercel."
+            else:
+                detail = f"Anthropic respondió {e.code}"
+            self._json(502, {"error": "llm_call_failed", "detail": detail})
         except Exception as e:  # noqa: BLE001
             self._json(502, {"error": "llm_call_failed", "detail": str(e)[:300]})
             return
