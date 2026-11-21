@@ -21,6 +21,8 @@ def _probe(req):
         try:
             body = json.loads(e.read().decode() or "{}")
             status = (body.get("detail") or {}).get("status") if isinstance(body.get("detail"), dict) else None
+            if not status and isinstance(body.get("error"), dict):
+                status = (str(body["error"].get("type", "")) + ": " + str(body["error"].get("message", ""))[:160])
         except Exception:  # noqa: BLE001
             status = None
         return f"{e.code} {status}" if status else e.code
