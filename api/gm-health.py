@@ -18,7 +18,12 @@ def _probe(req):
         with urllib.request.urlopen(req, timeout=20) as r:
             return r.status
     except urllib.error.HTTPError as e:
-        return e.code
+        try:
+            body = json.loads(e.read().decode() or "{}")
+            status = (body.get("detail") or {}).get("status") if isinstance(body.get("detail"), dict) else None
+        except Exception:  # noqa: BLE001
+            status = None
+        return f"{e.code} {status}" if status else e.code
     except Exception:  # noqa: BLE001
         return "network_error"
 
@@ -30,10 +35,11 @@ def key_status():
         "https://api.anthropic.com/v1/models", headers={"x-api-key": ak, "anthropic-version": "2023-06-01"}))
     ek = os.environ.get("ELEVENLABS_API_KEY", "")
     vid = os.environ.get("ELEVENLABS_VOICE_ID", "x9KrIDxDgLgpS9PEHqw8")
-    out["elevenlabs_tts"] = "missing" if not ek else _probe(urllib.request.Request(
-        f"https://api.elevenlabs.io/v1/text-to-speech/{vid}?output_format=mp3_22050_32",
-        data=json.dumps({"text": "Hola.", "model_id": "eleven_multilingual_v2"}).encode(), method="POST",
-        headers={"xi-api-key": ek, "Content-Type": "application/json"}))
+    for model in ("eleven_v3", "eleven_multilingual_v2"):
+        out["elevenlabs_" + model] = "missing" if not ek else _probe(urllib.request.Request(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{vid}?output_format=mp3_22050_32",
+            data=json.dumps({"text": "Hola.", "model_id": model}).encode(), method="POST",
+            headers={"xi-api-key": ek, "Content-Type": "application/json"}))
     return out
 
 
