@@ -117,6 +117,46 @@ def run_tool(name, args):
     return {"ok": True, "id": rec.get("id")}
 
 
+GATEWAY_URL = "https://ai-gateway.vercel.sh/v1/messages"
+GATEWAY_MODELS = [m for m in os.environ.get(
+    "AI_GATEWAY_MODELS", "anthropic/claude-sonnet-4.5,anthropic/claude-haiku-4.5").split(",") if m]
+_oidc = {"token": os.environ.get("VERCEL_OIDC_TOKEN", "")}
+
+
+def call_gateway(model, system, messages):
+    """Claude through Vercel AI Gateway, authenticated with the deployment's OIDC token (no API key)."""
+    body = json.dumps({"model": model, "max_tokens": 1500, "system": system,
+                       "tools": TOOLS, "messages": messages}).encode()
+    tok = _oidc["token"]
+    req = urllib.request.Request(GATEWAY_URL, data=body, method="POST", headers={
+        "Content-Type": "application/json", "anthropic-version": "2023-06-01",
+        "Authorization": f"Bearer {tok}", "x-api-key": tok})
+    with urllib.request.urlopen(req, timeout=90) as r:
+        return json.loads(r.read().decode())
+
+
+def call_llm(state, system, messages):
+    """Direct Anthropic first; if its key is rejected or missing, Vercel AI Gateway."""
+    if state["via"] == "anthropic":
+        try:
+            return call_claude(state["model"], system, messages)
+        except urllib.error.HTTPError as e:
+            if e.code in (400, 404) and state["model"] != FALLBACK_MODEL:
+                state["model"] = FALLBACK_MODEL
+                return call_llm(state, system, messages)
+            if e.code not in (401, 403):
+                raise
+        state["via"], state["gi"] = "gateway", 0
+    while True:
+        try:
+            return call_gateway(GATEWAY_MODELS[state["gi"]], system, messages)
+        except urllib.error.HTTPError as e:
+            if e.code in (400, 404) and state["gi"] + 1 < len(GATEWAY_MODELS):
+                state["gi"] += 1
+                continue
+            raise
+
+
 def call_claude(model, system, messages):
     body = json.dumps({
         "model": model,
@@ -143,16 +183,9 @@ def converse(history, context):
     system = system_prompt(context)
     messages = list(history)
     actions = []
-    model = MODEL
+    state = {"via": "anthropic" if ANTHROPIC_API_KEY else "gateway", "model": MODEL, "gi": 0}
     for _ in range(MAX_TOOL_ROUNDS):
-        try:
-            data = call_claude(model, system, messages)
-        except urllib.error.HTTPError as e:
-            if model != FALLBACK_MODEL and e.code in (400, 404):
-                model = FALLBACK_MODEL  # configured model not available for this key
-                data = call_claude(model, system, messages)
-            else:
-                raise
+        data = call_llm(state, system, messages)
         content = data.get("content", [])
         uses = [b for b in content if b.get("type") == "tool_use"]
         if data.get("stop_reason") != "tool_use" or not uses:
@@ -208,9 +241,7 @@ class handler(BaseHTTPRequestHandler):
         if not has_valid_session(self.headers.get("Cookie")):
             self._json(401, {"error": "unauthorized"})
             return
-        if not ANTHROPIC_API_KEY:
-            self._json(503, {"error": "chat_not_configured", "detail": "Falta ANTHROPIC_API_KEY"})
-            return
+        _oidc["token"] = self.headers.get("x-vercel-oidc-token") or os.environ.get("VERCEL_OIDC_TOKEN", "")
         length = int(self.headers.get("Content-Length", 0) or 0)
         if length > 200_000:
             self._json(413, {"error": "body_too_large"})
@@ -246,7 +277,7 @@ class handler(BaseHTTPRequestHandler):
             reply, actions = converse(history, context)
         except urllib.error.HTTPError as e:
             if e.code in (401, 403):
-                detail = "La clave de Anthropic (ANTHROPIC_API_KEY) no es válida o fue revocada: cree una nueva y actualícela en Vercel."
+                detail = "Ni la clave de Anthropic ni el acceso por Vercel AI Gateway funcionan (código %d)." % e.code
             else:
                 detail = f"Anthropic respondió {e.code}"
             self._json(502, {"error": "llm_call_failed", "detail": detail})

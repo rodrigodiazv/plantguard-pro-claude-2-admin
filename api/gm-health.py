@@ -28,8 +28,16 @@ def _probe(req):
         return "network_error"
 
 
-def key_status():
+def key_status(oidc=""):
     out = {}
+    tok = oidc or os.environ.get("VERCEL_OIDC_TOKEN", "")
+    out["oidc_token"] = bool(tok)
+    for m in ("anthropic/claude-sonnet-4.5", "anthropic/claude-haiku-4.5"):
+        out["gateway_" + m] = "no_token" if not tok else _probe(urllib.request.Request(
+            "https://ai-gateway.vercel.sh/v1/messages", method="POST",
+            data=json.dumps({"model": m, "max_tokens": 5, "messages": [{"role": "user", "content": "Hola"}]}).encode(),
+            headers={"Content-Type": "application/json", "anthropic-version": "2023-06-01",
+                     "Authorization": f"Bearer {tok}", "x-api-key": tok}))
     ak = os.environ.get("ANTHROPIC_API_KEY", "")
     out["anthropic"] = "missing" if not ak else _probe(urllib.request.Request(
         "https://api.anthropic.com/v1/models", headers={"x-api-key": ak, "anthropic-version": "2023-06-01"}))
@@ -47,7 +55,7 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if "keys=1" in (self.path or ""):
             # Diagnostic: status codes only (200 = key works). No secrets returned.
-            self._json(200, key_status())
+            self._json(200, key_status(self.headers.get("x-vercel-oidc-token", "")))
             return
         if not has_valid_session(self.headers.get("Cookie")):
             self._json(401, {"error": "unauthorized"})
