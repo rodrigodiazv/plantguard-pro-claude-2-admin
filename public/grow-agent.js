@@ -24,15 +24,12 @@
   .ga-u{align-self:flex-end;background:var(--green,#2ea043);color:#fff}
   .ga-a{align-self:flex-start;background:var(--bg3,#f3f3f3);color:var(--fg,#111)}
   .ga-act{align-self:flex-start;font-size:11px;color:var(--fg2,#555);background:var(--bg3,#f3f3f3);border:1px dashed var(--border,#ccc);border-radius:8px;padding:4px 8px}
-  #ga-orb{margin:6px auto 0;width:84px;height:84px;border-radius:50%;border:none;cursor:pointer;font-size:30px;color:#fff;
+  #ga-orb{margin:28px auto 0;width:150px;height:150px;font-size:54px !important;border-radius:50%;border:none;cursor:pointer;font-size:30px;color:#fff;
     background:radial-gradient(circle at 35% 35%,#5be08a,#1f7a3d);box-shadow:0 0 0 0 rgba(46,160,67,.6)}
   #ga-orb.live{animation:gaPulse 1.4s infinite}
   @keyframes gaPulse{0%{box-shadow:0 0 0 0 rgba(46,160,67,.6)}70%{box-shadow:0 0 0 18px rgba(46,160,67,0)}100%{box-shadow:0 0 0 0 rgba(46,160,67,0)}}
   #ga-state{text-align:center;font-size:11px;color:var(--fg2,#555);margin:6px 0 2px;min-height:15px}
-  #ga-foot{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border,#ddd)}
-  #ga-foot textarea{flex:1;resize:none;height:42px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--border,#ccc);background:var(--bg,#fff);color:var(--fg,#111)}
-  .ga-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 8px}
-  .ga-chip{font-size:11px;border:1px solid var(--border,#ccc);border-radius:999px;padding:3px 9px;cursor:pointer;color:var(--fg2,#555)}`;
+  #ga-hint{text-align:center;font-size:12px;color:var(--fg3,#777);margin-bottom:6px}`;
 
   function build() {
     const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -45,21 +42,14 @@
         <span class="btn btn-sm" id="ga-close">✕</span></div>
       <button id="ga-orb" title="Conversación por voz">🎙️</button>
       <div id="ga-state"></div>
-      <div class="ga-chips">
-        <span class="ga-chip">Póngame al día</span><span class="ga-chip">¿Qué alertas hay abiertas?</span>
-        <span class="ga-chip">Plan de hoy para el equipo</span><span class="ga-chip">Estado del agua por zona</span></div>
-      <div id="ga-msgs"></div>
-      <div id="ga-foot"><textarea id="ga-input" placeholder="Escriba una pregunta, orden o misión…"></textarea>
-        <span class="btn btn-green" id="ga-send">Enviar</span></div>`;
+      <div id="ga-hint">Pulse la esfera para hablar o para pausar</div>
+      <div id="ga-msgs"></div>`;
     document.body.appendChild(p);
     p.querySelector('#ga-close').onclick = close;
     p.querySelector('#ga-clear').onclick = () => { history = []; save(); renderHistory(); };
     p.querySelector('#ga-voice').onclick = e => { voiceOn = !voiceOn; e.target.textContent = voiceOn ? '🔊' : '🔇'; if (!voiceOn) hush(); };
-    p.querySelector('#ga-send').onclick = () => sendText();
-    p.querySelector('#ga-input').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendText(); } };
     p.querySelector('#ga-orb').onclick = toggleConvo;
-    p.querySelectorAll('.ga-chip').forEach(c => { c.onclick = () => send(c.textContent); });
-    if (!SR) p.querySelector('#ga-orb').title = 'Este navegador no reconoce voz: use Chrome, Edge o Safari, o escriba.';
+    if (!SR) p.querySelector('#ga-orb').title = 'Este navegador no reconoce voz: use Chrome, Edge o Safari.';
     renderHistory();
   }
 
@@ -74,13 +64,10 @@
 
   function renderHistory() {
     const box = document.getElementById('ga-msgs'); box.innerHTML = '';
-    if (!history.length) add('ga-a', 'Hola. Soy el Grow Agent. Pregúnteme por el cultivo, pídame un informe o deme una orden: puedo crear tareas, alertas, mediciones y entradas de conocimiento en el panel.');
+    if (!history.length) add('ga-a', 'Grow Agent en línea. Hable cuando quiera: estado del cultivo, órdenes, misiones o incidencias en su turno (goteras, plantas dañadas, averías). Le doy el protocolo paso a paso y lo registro en el panel.');
     history.forEach(m => add(m.role === 'user' ? 'ga-u' : 'ga-a', m.content));
   }
 
-  function sendText() {
-    const i = document.getElementById('ga-input'); const t = i.value.trim(); if (!t) return; i.value = ''; send(t);
-  }
 
   async function send(text) {
     if (busy) return;
@@ -155,13 +142,13 @@
 
   function setOrb() { const o = document.getElementById('ga-orb'); if (o) o.classList.toggle('live', convo); }
   function toggleConvo() {
-    if (!SR) { state('Este navegador no reconoce voz: use Chrome, Edge o Safari, o escriba.'); return; }
+    if (!SR) { state('Este navegador no reconoce voz: use Chrome, Edge o Safari.'); return; }
     hush();
     convo = !convo; setOrb();
     if (convo) listen(); else { stopListening(); state(''); }
   }
 
-  function open() { document.getElementById('ga-panel').classList.add('open'); document.getElementById('ga-input').focus(); }
+  function open() { document.getElementById('ga-panel').classList.add('open'); if (!convo) toggleConvo(); }
   function close() { convo = false; setOrb(); stopListening(); hush(); document.getElementById('ga-panel').classList.remove('open'); }
 
   build();

@@ -115,6 +115,20 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
   en Vercel, el panel usa la voz del navegador. `ELEVENLABS_API_KEY` creada por Rodrigo en Vercel (Sensitive,
   Production) el 21-nov-2026. Voz activa: muestra 3 ("estilo Jarvis 3").
 
+## Grow Agent solo voz + asistencia a operarios (21-nov-2026)
+
+- Sin chat escrito: el botón verde (y "Campo · Voz Grow Agent") abre el
+  panel y empieza a escuchar; la esfera pausa/reanuda. Se ve la
+  transcripción como subtítulos.
+- Prompt: atiende a administrador, encargado y operarios (dispositivo IoT de
+  empresa); ante incidencias da protocolo paso a paso (seguridad primero) y
+  las registra como alerta IPM o tarea para el administrador.
+- Cerebro: Anthropic directo (`ANTHROPIC_API_KEY`) y, si falla, Vercel AI
+  Gateway por OIDC (sin clave). Estado 21-nov: clave Anthropic inválida
+  (401) y AI Gateway pide tarjeta en Vercel → Rodrigo debe hacer una de las
+  dos. Voz ElevenLabs OK (200). Diagnóstico: `GET /api/gm-health?keys=1`
+  (solo códigos de estado, sin claves).
+
 ## Pendiente / próximos pasos
 
 - Conectar hardware real (sensores, filtros de agua, drones) a
