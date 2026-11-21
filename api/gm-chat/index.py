@@ -18,6 +18,9 @@ from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, airtable, clean_fields
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 FALLBACK_MODEL = "claude-haiku-4-5-20251001"
+ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
+# Voice "Master Grower — estilo Jarvis" designed in ElevenLabs (not secret).
+ELEVENLABS_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "lQjZMxc7cmeK9Vl5obtB")
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY = 20
 CONTEXT_LIMIT = 60_000
@@ -166,6 +169,21 @@ def converse(history, context):
     return "He llegado al límite de acciones seguidas en esta petición. Revise el panel.", actions
 
 
+def tts(text):
+    body = json.dumps({
+        "text": text[:2500],
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.8},
+    }).encode()
+    req = urllib.request.Request(
+        f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}?output_format=mp3_44100_64",
+        data=body, method="POST",
+        headers={"Content-Type": "application/json", "xi-api-key": ELEVENLABS_API_KEY, "Accept": "audio/mpeg"},
+    )
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+
 def parse_history(payload):
     raw = payload.get("messages")
     if not isinstance(raw, list):
@@ -202,6 +220,22 @@ class handler(BaseHTTPRequestHandler):
             payload = json.loads(raw.decode() or "{}")
         except Exception:  # noqa: BLE001
             self._json(400, {"error": "invalid_body"})
+            return
+        if isinstance(payload, dict) and payload.get("tts"):
+            # Voice of the Grow Agent: returns MP3 from ElevenLabs.
+            if not ELEVENLABS_API_KEY:
+                self._json(503, {"error": "tts_not_configured"})
+                return
+            try:
+                audio = tts(str(payload["tts"]))
+            except Exception as e:  # noqa: BLE001
+                self._json(502, {"error": "tts_failed", "detail": str(e)[:200]})
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/mpeg")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(audio)
             return
         history = parse_history(payload if isinstance(payload, dict) else {})
         if not history:

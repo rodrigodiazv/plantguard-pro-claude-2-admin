@@ -564,14 +564,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <!-- ZONAS -->
     <div class="view" id="view-zonas">
       <div class="zone-tabs" id="zone-tabs">
-        <div class="zone-tab active" onclick="selectZone(this,'A1')">A1</div>
+        
       </div>
 
       <div class="grid grid-2" style="margin-bottom:16px">
         <div class="card">
           <div class="card-header">
-            <div><div class="card-title" id="zone-title">Zona A1 — Sala Genética</div><div class="card-subtitle" id="zone-subtitle"></div></div>
-            <span class="badge badge-amber" id="zone-badge">CE alta</span>
+            <div><div class="card-title" id="zone-title">Sin zonas registradas</div><div class="card-subtitle" id="zone-subtitle"></div></div>
+            <span class="badge badge-gray" id="zone-badge">Sin datos</span>
           </div>
           <div id="zone-sensors">
             <div class="sensor-row"><span class="sensor-label">Temperatura</span><span class="sensor-val up" id="s-temp">—</span><div class="sensor-bar-wrap"><div class="sensor-bar" style="width:0%;background:var(--green)"></div></div><span class="sensor-range">18–28°C</span></div>
@@ -585,7 +585,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
         <div class="card">
           <div class="card-header"><div class="card-title">Alertas y tareas abiertas de la zona</div></div>
-          <div class="timeline" id="zone-actions"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
+          <div class="timeline" id="zone-actions"><div style="font-size:12px;color:var(--fg3)">Dé de alta una zona abajo para ver sus alertas y tareas.</div></div>
         </div>
       </div>
 
@@ -658,61 +658,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
     <!-- INFORMES -->
     <div class="view" id="view-informes">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
-      <div class="section-title">Informes IA & Trazabilidad GACP</div>
-
-      <div class="grid grid-2" style="margin-bottom:16px">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Informe semanal — Semana 45</div><span class="btn btn-sm">📄 PDF</span></div>
-          <div class="timeline">
-            <div class="tl-item"><div class="tl-dot-col"><div class="dot dot-green"></div><div class="tl-line"></div></div><div><div style="font-size:12px;font-weight:600">Floración — Lote CBD-2024</div><div style="font-size:11px;color:var(--fg2)">Día 42/70 · Trichomas: inicio ámbar (5%) · Sin intervención</div></div></div>
-            <div class="tl-item"><div class="tl-dot-col"><div class="dot dot-amber"></div><div class="tl-line"></div></div><div><div style="font-size:12px;font-weight:600;color:var(--amber)">IPM — Presión trips B3</div><div style="font-size:11px;color:var(--fg2)">Inicio protocolo biológico · Seguimiento dron programado</div></div></div>
-            <div class="tl-item"><div class="tl-dot-col"><div class="dot dot-blue"></div></div><div><div style="font-size:12px;font-weight:600;color:var(--blue)">Curado — aw 0.61 ✓</div><div style="font-size:11px;color:var(--fg2)">Lote T-2024-CBD-C1 en rango óptimo (0.55–0.65). Listo en ~12 días</div></div></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><div class="card-title">Trazabilidad — Bloque activo</div><span class="badge badge-blue">GACP</span></div>
-          <table>
-            <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
-            <tbody>
-              <tr><td>Lote ID</td><td><span style="font-family:monospace">T-2024-CBD-C1</span></td></tr>
-              <tr><td>Variedad</td><td>CBD Carmagnola (certificada)</td></tr>
-              <tr><td>Fecha siembra</td><td>12 ago 2024</td></tr>
-              <tr><td>Fase actual</td><td><span class="badge badge-blue">Curado (d.8)</span></td></tr>
-              <tr><td>Responsable</td><td>R. Díaz · M. García</td></tr>
-              <tr><td>Certificado BetmVV</td><td><span class="badge badge-green">Vigente</span></td></tr>
-              <tr><td>Próx. análisis lab.</td><td>15/11 · Swissmedic</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header"><div class="card-title">Predicción IA — Temporada 2025</div><span class="badge badge-blue">Basado en 3 temporadas</span></div>
-        <div class="grid grid-3">
-          <div style="text-align:center;padding:16px">
-            <div style="font-size:28px;font-weight:700;color:var(--green);font-family:monospace">+14%</div>
-            <div style="font-size:11px;color:var(--fg2);margin-top:4px">Rendimiento proyectado vs media histórica</div>
-          </div>
-          <div style="text-align:center;padding:16px">
-            <div style="font-size:28px;font-weight:700;color:var(--blue);font-family:monospace">87%</div>
-            <div style="font-size:11px;color:var(--fg2);margin-top:4px">Confianza variedad óptima: CBD Carmagnola</div>
-          </div>
-          <div style="text-align:center;padding:16px">
-            <div style="font-size:28px;font-weight:700;color:var(--amber);font-family:monospace">↓23%</div>
-            <div style="font-size:11px;color:var(--fg2);margin-top:4px">Reducción incidencia Botrytis (mejora HVAC)</div>
-          </div>
-        </div>
-        <div style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--fg2);line-height:1.6">
-          <strong style="color:var(--fg)">Resumen ejecutivo Master Grower:</strong> Con base en datos climáticos de los 36 meses previos en Vaud (CH), la variedad CBD Carmagnola muestra el mejor perfil de adaptación (ciclo, perfil cannabinoide, resistencia a patógenos). Se recomienda aumentar CO₂ a 1400 ppm en floración para compensar la reducción de rendimiento asociada a la defoliación programada. El Cerebro monitorizará VPD continuamente para optimizar el balance biomasa/concentración según el protocolo aprobado.
-        </div>
-      </div>
+      <div class="section-title">📄 Informes IA</div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin informes todavía. Pida un informe al Grow Agent (botón verde de arriba a la izquierda): lo redacta con los datos reales del panel.</div></div>
     </div>
 
     <!-- CAMPO & CHAT -->
     <div class="view" id="view-campo">
-      <div class="card" style="margin-bottom:12px"><div style="font-size:12px;color:var(--fg2)">El chat con Master Grower es real (Claude + datos de Airtable). La pestaña "Equipo" es de ejemplo.</div></div>
       <div class="chat-wrap">
         <div class="chat-tabs">
           <div class="chat-tab active" onclick="switchChatTab('mg',this)">🧠 Master Grower IA</div>
@@ -721,83 +672,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
         <!-- MASTER GROWER CHAT -->
         <div class="chat-pane active" id="chat-mg">
-          <div class="chat-messages" id="chat-mg-messages">
-
-            <div class="msg">
-              <div class="msg-avatar">🧠</div>
-              <div>
-                <div class="msg-bubble">
-                  Hola M. García. Estoy monitorizando las 12 zonas en tiempo real. Puedes preguntarme cualquier duda, enviarme una foto y te daré un diagnóstico y protocolo inmediato. ¿En qué te puedo ayudar?
-                </div>
-                <div class="msg-meta">Master Grower · 09:00</div>
-              </div>
-            </div>
-
-            <div class="msg outgoing">
-              <div class="msg-avatar">MG</div>
-              <div>
-                <div class="msg-bubble msg-photo">
-                  <div class="photo-placeholder" style="background:linear-gradient(135deg,#1a2a1a,#2a3a1a);display:flex;align-items:center;justify-content:center;font-size:32px">🌿</div>
-                </div>
-                <div class="msg-bubble" style="margin-top:6px">Zona B3, hoja media. Manchas amarillas con borde marrón. ¿Es deficiencia o plaga?</div>
-                <div class="msg-meta" style="text-align:right">M. García · 09:12</div>
-              </div>
-            </div>
-
-            <div class="msg">
-              <div class="msg-avatar">🧠</div>
-              <div>
-                <div class="msg-bubble">
-                  <div class="ai-analysis">
-                    <div class="ai-analysis-header">
-                      <div class="brain-pulse"></div>
-                      Analizando imagen… Confianza: 91%
-                    </div>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-                      <span class="badge badge-red">Botrytis cinerea</span>
-                      <span class="badge badge-amber">Ácaros T. urticae (secundario)</span>
-                    </div>
-                    <div style="font-size:11px;color:var(--fg2);margin-bottom:6px">
-                      Las manchas presentan halo clorótico con necrosis central — patrón característico de <em>Botrytis cinerea</em> en estadio inicial (Fase 1/4). Las picaduras de ácaro en el margen foliar son un factor facilitador.
-                    </div>
-                    <div class="ai-protocol">
-                      <strong style="color:var(--amber)">⚡ Protocolo inmediato (GACP):</strong><br>
-                      1. Retirar hojas afectadas con bolsa sellada — NO sacudir<br>
-                      2. Aplicar <em>Trichoderma harzianum</em> foliar esta tarde<br>
-                      3. Reducir HR zona B3 a &lt;50% (actual 55%)<br>
-                      4. Liberar <em>Phytoseiulus persimilis</em> para ácaros (50/m²)<br>
-                      5. Fotografiar en 48h para seguimiento<br>
-                      <span style="color:var(--fg3);font-size:10px">Registrar en trazabilidad · Lote T-2024-CBD</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="msg-meta">Master Grower · 09:12 · <span style="color:var(--green)">Registrado en IPM ✓</span></div>
-              </div>
-            </div>
-
-            <div class="msg outgoing">
-              <div class="msg-avatar">MG</div>
-              <div>
-                <div class="msg-bubble">¿Puedo aplicar neem oil hoy?</div>
-                <div class="msg-meta" style="text-align:right">M. García · 09:15</div>
-              </div>
-            </div>
-
-            <div class="msg">
-              <div class="msg-avatar">🧠</div>
-              <div>
-                <div class="msg-bubble">
-                  <strong style="color:var(--amber)">⚠️ No recomendado en floración día 35+.</strong> El aceite de neem puede dejar residuos en tricomas y afectar el perfil terpénico. Para este estadio, prioriza agentes biológicos. Si la presión de Botrytis sube a Fase 2, escalaré la alerta y valoraremos bicarbonato potásico (permitido GACP, sin residuos a las 72h).
-                </div>
-                <div class="msg-meta">Master Grower · 09:15</div>
-              </div>
-            </div>
-
-          </div>
+          <div class="chat-messages" id="chat-mg-messages"></div>
 
           <div class="chat-input-area">
             <label class="chat-btn" title="Adjuntar foto" style="cursor:pointer">
-              📷<input type="file" accept="image/*" style="display:none" onchange="simulatePhotoUpload(this)">
+              📷<input type="file" accept="image/*" style="display:none" onchange="simulatePhotoUpload()">
             </label>
             <textarea class="chat-input" id="mg-input" placeholder="Pregunta al Master Grower… o adjunta una foto" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMgMsg();}"></textarea>
             <div class="chat-btn chat-btn-send" onclick="sendMgMsg()" title="Enviar">➤</div>
@@ -806,73 +685,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
         <!-- EQUIPO CHAT -->
         <div class="chat-pane" id="chat-equipo">
-          <div class="chat-messages" id="chat-equipo-messages">
-
-            <div style="text-align:center;font-size:11px;color:var(--fg3);padding:4px 0">Hoy · 07 nov 2026</div>
-
-            <div class="msg">
-              <div class="msg-avatar">JM</div>
-              <div>
-                <div class="msg-bubble"><strong style="color:var(--blue)">J. Müller</strong><br>Buenos días. C1 secado OK, aw 0.61 esta mañana.</div>
-                <div class="msg-meta">J. Müller · 08:14</div>
-              </div>
-            </div>
-
-            <div class="msg outgoing">
-              <div class="msg-avatar">MG</div>
-              <div>
-                <div class="msg-bubble">Perfecto, en rango. ¿Programaste la medición de mañana?</div>
-                <div class="msg-meta" style="text-align:right">M. García · 08:17</div>
-              </div>
-            </div>
-
-            <div class="msg">
-              <div class="msg-avatar">🧠</div>
-              <div>
-                <div class="msg-bubble"><strong style="color:var(--green)">Master Grower</strong><br>📌 Recordatorio automático: revisión B3 trips programada para hoy 11:00. Asignar a J. Müller o M. García.</div>
-                <div class="msg-meta">Master Grower · 09:00 · Automático</div>
-              </div>
-            </div>
-
-            <div class="msg">
-              <div class="msg-avatar">JM</div>
-              <div>
-                <div class="msg-bubble">Yo lo hago. Estoy en B3 ahora mismo. <strong style="color:var(--red)">Confirmo trips alto</strong>, coincide con la alerta del dron D3.</div>
-                <div class="msg-meta">J. Müller · 09:08</div>
-              </div>
-            </div>
-
-            <div class="msg outgoing">
-              <div class="msg-avatar">MG</div>
-              <div>
-                <div class="msg-bubble">Le pregunté al Master Grower, Botrytis también en B3. Protocolo activo. ¿Tienes <em>A. cucumeris</em> en el almacén?</div>
-                <div class="msg-meta" style="text-align:right">M. García · 09:16</div>
-              </div>
-            </div>
-
-            <div class="msg">
-              <div class="msg-avatar">JM</div>
-              <div>
-                <div class="msg-bubble">Sí, tengo 2 bolsas. Las aplico ahora. ¿Las registro en la app?</div>
-                <div class="msg-meta">J. Müller · 09:18</div>
-              </div>
-            </div>
-
-            <div class="msg">
-              <div class="msg-avatar">🧠</div>
-              <div>
-                <div class="msg-bubble"><strong style="color:var(--green)">Master Grower</strong><br>Sí J. Müller — usa el botón "Liberación biológica" en la vista IPM o dime dosis y lote aquí y lo registro yo directamente. GACP requiere trazabilidad de cada liberación.</div>
-                <div class="msg-meta">Master Grower · 09:18</div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="chat-input-area">
-            <label class="chat-btn" title="Adjuntar foto" style="cursor:pointer">📷<input type="file" accept="image/*" style="display:none"></label>
-            <textarea class="chat-input" id="eq-input" placeholder="Escribe al equipo… @MasterGrower para incluir la IA" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendEqMsg();}"></textarea>
-            <div class="chat-btn chat-btn-send" onclick="sendEqMsg()" title="Enviar">➤</div>
-          </div>
+          <div style="padding:16px;font-size:13px;color:var(--fg2)">Chat de equipo: pendiente de conectar. De momento, asigne tareas desde Personal o pídaselo al Grow Agent.</div>
         </div>
       </div>
     </div>
@@ -951,155 +764,28 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     </div>
 
     <!-- MODAL SENSOR -->
-    <div id="modal-sensor" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-      <div class="card" style="width:460px;max-width:95vw">
-        <div class="card-header"><div class="card-title">Conectar nuevo sensor</div><div class="btn btn-sm" onclick="document.getElementById('modal-sensor').style.display='none'">✕</div></div>
-        <div class="form-row"><label>Tipo de sensor</label><select><option>Temperatura + Humedad relativa</option><option>CO₂ (NDIR)</option><option>PPFD / PAR</option><option>CE + pH (solución)</option><option>Actividad de agua (aw)</option><option>Oxígeno disuelto</option></select></div>
-        <div class="form-row"><label>Zona asignada</label><select><option>A1</option><option>A2</option><option>B1</option><option>B3</option><option>C1</option></select></div>
-        <div class="form-grid">
-          <div class="form-row"><label>Protocolo</label><select><option>MQTT (TCP/IP)</option><option>Modbus RTU</option><option>BLE (Bluetooth)</option><option>Zigbee</option><option>HTTP REST</option></select></div>
-          <div class="form-row"><label>Dirección IP / MAC</label><input type="text" placeholder="192.168.1.XX" /></div>
-        </div>
-        <div class="form-row"><label>Nombre identificador</label><input type="text" placeholder="SEN-XX-01" /></div>
-        <div class="form-row"><label>Intervalo de lectura</label><select><option>30 segundos</option><option>1 minuto</option><option>5 minutos</option></select></div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <div class="btn btn-green" onclick="document.getElementById('modal-sensor').style.display='none'">🔌 Conectar y verificar</div>
-          <div class="btn" onclick="document.getElementById('modal-sensor').style.display='none'">Cancelar</div>
-        </div>
-      </div>
-    </div>
+    
 
     <!-- MODAL DRONE -->
-    <div id="modal-drone" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-      <div class="card" style="width:460px;max-width:95vw">
-        <div class="card-header"><div class="card-title">Registrar dron</div><div class="btn btn-sm" onclick="document.getElementById('modal-drone').style.display='none'">✕</div></div>
-        <div class="form-grid">
-          <div class="form-row"><label>ID del dron</label><input type="text" placeholder="D5" /></div>
-          <div class="form-row"><label>Modelo</label><input type="text" placeholder="DJI / Autel / Parrot…" /></div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row"><label>IP de control</label><input type="text" placeholder="192.168.2.XX" /></div>
-          <div class="form-row"><label>Protocolo</label><select><option>MAVLink / WiFi</option><option>DJI SDK</option><option>Autel SDK</option></select></div>
-        </div>
-        <div class="form-row"><label>Tipo de cámara</label><select><option>RGB + IR termográfico</option><option>Solo RGB</option><option>Multispectral (NDVI)</option><option>IR 640 termográfico</option></select></div>
-        <div class="form-row"><label>Zonas asignadas</label><input type="text" placeholder="A1, A2, B1 (separadas por coma)" /></div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <div class="btn btn-green" onclick="document.getElementById('modal-drone').style.display='none'">✅ Registrar dron</div>
-          <div class="btn" onclick="document.getElementById('modal-drone').style.display='none'">Cancelar</div>
-        </div>
-      </div>
-    </div>
+    
 
     <!-- MODAL ASIGNAR TAREA MG -->
-    <div id="modal-task-mg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-      <div class="card" style="width:420px;max-width:95vw">
-        <div class="card-header"><div class="card-title">🧠 Asignar tarea — Master Grower</div><div class="btn btn-sm" onclick="document.getElementById('modal-task-mg').style.display='none'">✕</div></div>
-        <div class="form-row"><label>Técnico</label><select><option>M. García — Zona A1 (en campo)</option><option>J. Müller — Zona B3 (en campo)</option><option>K. Favre — Fuera de turno</option></select></div>
-        <div class="form-row"><label>Descripción de la tarea</label><textarea style="height:70px" placeholder="Ej: Revisar rama rota zona A2, aplicar pasta cicatrizante y registrar foto"></textarea></div>
-        <div class="form-grid">
-          <div class="form-row"><label>Zona</label><select><option>A1</option><option>A2</option><option>B3</option><option>C1</option></select></div>
-          <div class="form-row"><label>Prioridad</label><select><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
-        </div>
-        <div style="font-size:11px;color:var(--fg3);margin-bottom:8px">El técnico recibirá la tarea en su dispositivo con notificación push.</div>
-        <div style="display:flex;gap:8px"><div class="btn btn-green" onclick="document.getElementById('modal-task-mg').style.display='none'">Enviar tarea</div><div class="btn" onclick="document.getElementById('modal-task-mg').style.display='none'">Cancelar</div></div>
-      </div>
-    </div>
+    
 
     <!-- CONFIG (Admin) -->
     <div class="view" id="view-config">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
       <div class="section-title">⚙️ Configuración del sistema</div>
-
-      <div class="grid grid-2" style="margin-bottom:16px">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Sub-agentes activos</div><span class="btn btn-sm btn-green" id="add-agent-btn">+ Agente</span></div>
-          <table>
-            <thead><tr><th>ID</th><th>Tipo</th><th>Zona/Dispositivo</th><th>Estado</th></tr></thead>
-            <tbody>
-              <tr><td style="font-family:monospace;font-size:11px">ZA1-01</td><td>Sensor</td><td>Zona A1</td><td><span class="badge badge-green">Activo</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">ZA2-01</td><td>Sensor</td><td>Zona A2</td><td><span class="badge badge-green">Activo</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">ZB3-01</td><td>Sensor+IPM</td><td>Zona B3</td><td><span class="badge badge-red">Alerta</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">DD1-01</td><td>Dron</td><td>Dron D1</td><td><span class="badge badge-green">En vuelo</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">DD3-01</td><td>Dron IR</td><td>Dron D3</td><td><span class="badge badge-red">Alerta IR</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">IPM-01</td><td>Proceso</td><td>IPM global</td><td><span class="badge badge-green">Activo</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">NUT-01</td><td>Proceso</td><td>Nutrición</td><td><span class="badge badge-green">Activo</span></td></tr>
-              <tr><td style="font-family:monospace;font-size:11px">GAC-01</td><td>Proceso</td><td>Compliance GACP</td><td><span class="badge badge-green">Activo</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><div class="card-title">Umbrales de alerta</div></div>
-          <div class="form-row"><label>Temperatura máx. (°C)</label><input type="number" value="28" /></div>
-          <div class="form-row"><label>HR mínima (%)</label><input type="number" value="40" /></div>
-          <div class="form-row"><label>CO₂ mínimo (ppm)</label><input type="number" value="800" /></div>
-          <div class="form-row"><label>CE máxima (mS/cm)</label><input type="number" value="2.5" /></div>
-          <div class="form-row"><label>Umbral trips (adultos/trampa)</label><input type="number" value="15" /></div>
-          <div class="form-row"><label>Umbral aw — alerta secado</label><input type="number" step="0.01" value="0.65" /></div>
-          <div style="margin-top:8px"><div class="btn btn-green">Guardar umbrales</div></div>
-        </div>
-      </div>
-
-      <div class="grid grid-2" id="admin-only-section">
-        <div class="card">
-          <div class="card-header"><div class="card-title">🔒 Admin — Integraciones</div></div>
-          <table>
-            <thead><tr><th>Servicio</th><th>Estado</th><th>Acción</th></tr></thead>
-            <tbody>
-              <tr><td>Claude API (Cerebro)</td><td><span class="badge badge-green">Conectado</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-              <tr><td>Make.com (Orquestación)</td><td><span class="badge badge-green">Conectado</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-              <tr><td>Supabase (Datos)</td><td><span class="badge badge-green">Conectado</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-              <tr><td>Meteo API (Clima)</td><td><span class="badge badge-green">Activa</span></td><td><span class="btn btn-sm">Config</span></td></tr>
-              <tr><td>Swissmedic Reporting</td><td><span class="badge badge-amber">Pendiente</span></td><td><span class="btn btn-sm">Activar</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><div class="card-title">🔒 Admin — Usuarios</div></div>
-          <table>
-            <thead><tr><th>Usuario</th><th>Rol</th><th>Zonas</th><th>Estado</th></tr></thead>
-            <tbody>
-              <tr><td>R. Díaz</td><td><span class="badge badge-blue">Admin</span></td><td>Todas</td><td><span class="badge badge-green">Activo</span></td></tr>
-              <tr><td>M. García</td><td><span class="badge badge-gray">Técnico</span></td><td>A1, A2, B1</td><td><span class="badge badge-green">Activo</span></td></tr>
-              <tr><td>J. Müller</td><td><span class="badge badge-gray">Técnico</span></td><td>B3, C1</td><td><span class="badge badge-green">Activo</span></td></tr>
-            </tbody>
-          </table>
-          <div style="margin-top:10px"><div class="btn btn-sm btn-green">+ Invitar usuario</div></div>
-        </div>
-      </div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Cambio de PIN: botón "Ajustes" arriba a la derecha. Equipos y conectividad: sección Sistemas. Usuarios y roles: pendiente de implementar.</div></div>
     </div>
 
   </div><!-- /content -->
 </div><!-- /main -->
 
 <!-- TASK MODAL -->
-<div id="task-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-  <div class="card" style="width:420px;max-width:95vw">
-    <div class="card-header"><div class="card-title">Nueva tarea</div><div class="btn btn-sm" onclick="document.getElementById('task-modal').style.display='none'">✕</div></div>
-    <div class="form-row"><label>Zona</label><select><option>A1 — Genética</option><option>A2 — CBD-01</option><option>B3 — THC-low</option></select></div>
-    <div class="form-row"><label>Descripción</label><input type="text" placeholder="Ej: Ajustar CE solución nutritiva" /></div>
-    <div class="form-grid">
-      <div class="form-row"><label>Técnico</label><select><option>M. García</option><option>J. Müller</option></select></div>
-      <div class="form-row"><label>Prioridad</label><select><option>Normal</option><option>Alta</option><option>Urgente</option></select></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px"><div class="btn btn-green" onclick="document.getElementById('task-modal').style.display='none'">Crear tarea</div><div class="btn" onclick="document.getElementById('task-modal').style.display='none'">Cancelar</div></div>
-  </div>
-</div>
+
 
 <!-- BIO MODAL -->
-<div id="bio-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-  <div class="card" style="width:420px;max-width:95vw">
-    <div class="card-header"><div class="card-title">Registrar liberación biológica</div><div class="btn btn-sm" onclick="document.getElementById('bio-modal').style.display='none'">✕</div></div>
-    <div class="form-row"><label>Agente biológico</label><select><option>Amblyseius cucumeris</option><option>Steinernema feltiae</option><option>Phytoseiulus persimilis</option><option>Beauveria bassiana</option><option>Trichoderma harzianum</option></select></div>
-    <div class="form-row"><label>Zona</label><select><option>B3</option><option>A1</option><option>A2</option><option>Todas</option></select></div>
-    <div class="form-grid">
-      <div class="form-row"><label>Dosis (uds/m²)</label><input type="number" value="50" /></div>
-      <div class="form-row"><label>Lote proveedor</label><input type="text" placeholder="Lote #" /></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px"><div class="btn btn-green" onclick="document.getElementById('bio-modal').style.display='none'">Registrar (GACP)</div><div class="btn" onclick="document.getElementById('bio-modal').style.display='none'">Cancelar</div></div>
-  </div>
-</div>
+
 
 <!-- ===== CICLOS ===== -->
   <div class="view" id="view-ciclos">
@@ -1122,344 +808,27 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
   <!-- ===== GERMINACIÓN ===== -->
   <div class="view" id="view-germinacion">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
-    <div class="section-title">🌱 Germinación · Propagación</div>
-    <div class="kpi-grid">
-      <div class="kpi-tile"><div class="kpi-num">3</div><div class="kpi-label">Bandejas activas</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--green)">94%</div><div class="kpi-label">Tasa germinación media</div></div>
-      <div class="kpi-tile"><div class="kpi-num">28</div><div class="kpi-label">Clones en enraizamiento</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--amber)">6</div><div class="kpi-label">Días promedio a raíz visible</div></div>
-    </div>
-
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-header"><div class="card-title">Bandejas en propagación</div><div class="btn btn-sm btn-green" onclick="document.getElementById('modal-new-tray').style.display='flex'">+ Nueva bandeja</div></div>
-      <div style="overflow-x:auto">
-        <table style="font-size:12px">
-          <thead><tr><th>ID</th><th>Variedad</th><th>Tipo</th><th>Fecha inicio</th><th>Día</th><th>Fase</th><th>% éxito</th><th>T/HR</th><th>Estado</th></tr></thead>
-          <tbody>
-            <tr>
-              <td style="font-family:monospace">BAN-01</td><td>CBD Carmagnola</td><td>Semilla</td><td>28/10</td><td>11</td>
-              <td><span class="phase-pill" style="color:var(--green);border-color:var(--green);font-size:9px">Cotiledón</span></td>
-              <td><div style="display:flex;align-items:center;gap:6px"><div class="germ-progress"><div class="germ-progress-fill" style="width:95%"></div></div><span>95%</span></div></td>
-              <td style="font-family:monospace;font-size:11px">24°C / 70%</td>
-              <td><span class="badge badge-green">Óptimo</span></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace">BAN-02</td><td>THC-low Fedora</td><td>Clon</td><td>01/11</td><td>7</td>
-              <td><span class="phase-pill" style="color:var(--amber);border-color:var(--amber);font-size:9px">Enraizamiento</span></td>
-              <td><div style="display:flex;align-items:center;gap:6px"><div class="germ-progress"><div class="germ-progress-fill" style="width:78%"></div></div><span>78%</span></div></td>
-              <td style="font-family:monospace;font-size:11px">23°C / 75%</td>
-              <td><span class="badge badge-amber">En seguimiento</span></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace">BAN-03</td><td>CBD-01 (nueva)</td><td>Semilla</td><td>04/11</td><td>4</td>
-              <td><span class="phase-pill" style="color:var(--blue);border-color:var(--blue);font-size:9px">Pre-germinación</span></td>
-              <td><div style="display:flex;align-items:center;gap:6px"><div class="germ-progress"><div class="germ-progress-fill" style="width:40%"></div></div><span>40%</span></div></td>
-              <td style="font-family:monospace;font-size:11px">25°C / 68%</td>
-              <td><span class="badge">Día 4</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="grid grid-2">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Parámetros óptimos por fase</div>
-        <table style="font-size:12px">
-          <thead><tr><th>Fase</th><th>Temp</th><th>HR</th><th>Luz</th></tr></thead>
-          <tbody>
-            <tr><td>Pre-remojo</td><td>21–24°C</td><td>—</td><td>Oscuridad</td></tr>
-            <tr><td>Germinación</td><td>22–26°C</td><td>65–75%</td><td>18h (tenue)</td></tr>
-            <tr><td>Cotiledón</td><td>22–25°C</td><td>60–70%</td><td>18h</td></tr>
-            <tr><td>1ª hoja real</td><td>22–26°C</td><td>55–65%</td><td>18/6h</td></tr>
-            <tr><td>Enraizamiento clon</td><td>23–26°C</td><td>80–90%</td><td>18h (5000 lux)</td></tr>
-            <tr><td>Raíz visible</td><td>22–24°C</td><td>65–75%</td><td>18h</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card">
-        <div class="card-title" style="margin-bottom:10px">Recomendaciones Master Grower</div>
-        <div style="font-size:12px;display:flex;flex-direction:column;gap:8px">
-          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:6px;padding:8px">
-            <strong style="color:var(--green)">BAN-01</strong> — Trasplante recomendado en 3–4 días. Raíces visibles en 95% de alvéolos.
-          </div>
-          <div style="background:var(--amber-dim);border:1px solid var(--amber);border-radius:6px;padding:8px">
-            <strong style="color:var(--amber)">BAN-02</strong> — Revisar humedad sustrato clones 7, 12 y 18. Enraizamiento desigual detectado.
-          </div>
-          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px">
-            <strong>BAN-03</strong> — Normal para día 4. Mantener temperatura 25°C. Revisar en 48h.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal new tray -->
-    <div id="modal-new-tray" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center">
-      <div class="card" style="width:min(360px,90vw);padding:20px">
-        <div class="card-title" style="margin-bottom:12px">Nueva bandeja de propagación</div>
-        <div class="form-row"><label>Variedad</label><input type="text" placeholder="Nombre variedad"/></div>
-        <div class="form-row"><label>Tipo</label><select><option>Semilla</option><option>Clon</option><option>Plántula injerto</option></select></div>
-        <div class="form-row"><label>Nº alvéolos</label><input type="number" value="40"/></div>
-        <div class="form-row"><label>Sustrato</label><select><option>Rockwool</option><option>Coco prensado</option><option>Turba/perlita</option><option>Aeropónico</option></select></div>
-        <div class="form-row"><label>Técnico asignado</label><select><option>M. García</option><option>T. Müller</option></select></div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <div class="btn btn-green" onclick="document.getElementById('modal-new-tray').style.display='none'">Crear bandeja</div>
-          <div class="btn" onclick="document.getElementById('modal-new-tray').style.display='none'">Cancelar</div>
-        </div>
-      </div>
-    </div>
-  </div><!-- /view-germinacion -->
+      <div class="section-title">🌱 Germinación · Propagación</div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin datos todavía. Registre los lotes de germinación como ciclos (fase "Germinacion" o "Propagacion") en la sección Ciclos.</div></div>
+    </div><!-- /view-germinacion -->
 
   <!-- ===== SECADO Y CURADO ===== -->
   <div class="view" id="view-secado">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
-    <div class="section-title">💧 Secado · Curado · Control de calidad</div>
-    <div class="kpi-grid">
-      <div class="kpi-tile"><div class="kpi-num">2</div><div class="kpi-label">Salas de secado activas</div></div>
-      <div class="kpi-tile"><div class="kpi-num">3</div><div class="kpi-label">Lotes en curado</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--green)">0.58</div><div class="kpi-label">aw media actual</div></div>
-      <div class="kpi-tile"><div class="kpi-num">14</div><div class="kpi-label">Días curado lote más antiguo</div></div>
-    </div>
-
-    <!-- Drying rooms -->
-    <div class="grid grid-2" style="margin-bottom:12px">
-      <div class="dryroom ok">
-        <div class="card-header" style="margin-bottom:0"><div class="card-title">Sala Secado S1</div><span class="badge badge-green">OK</span></div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Lote B-2026-10 · CBD Carmagnola · Cosecha 25/10/2026</div>
-        <div class="grid grid-2" style="gap:8px;font-size:12px">
-          <div><div class="kpi-label">Temperatura</div><strong style="font-family:monospace">19.4°C</strong> <span style="font-size:10px;color:var(--green)">✓ 18–21°C</span></div>
-          <div><div class="kpi-label">Humedad relativa</div><strong style="font-family:monospace">48%</strong> <span style="font-size:10px;color:var(--green)">✓ 45–55%</span></div>
-          <div><div class="kpi-label">Día de secado</div><strong style="font-family:monospace">9 / 14</strong></div>
-          <div><div class="kpi-label">aw estimada</div><strong style="font-family:monospace">0.62</strong></div>
-        </div>
-        <div style="font-size:10px;color:var(--fg2);margin-top:8px">aw objetivo Ph. Helv. 11.3: 0.55–0.65</div>
-        <div class="aw-gauge"><div class="aw-fill" style="width:100%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--fg3)"><span>0.3</span><span>0.55</span><span>0.65</span><span>1.0</span></div>
-        <div style="font-size:10px;color:var(--fg2);margin-top:2px">▼ Posición aw actual: 0.62</div>
-      </div>
-
-      <div class="dryroom warn">
-        <div class="card-header" style="margin-bottom:0"><div class="card-title">Sala Secado S2</div><span class="badge badge-amber">HR alta</span></div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Lote A-2026-10 · THC-low Fedora · Cosecha 29/10/2026</div>
-        <div class="grid grid-2" style="gap:8px;font-size:12px">
-          <div><div class="kpi-label">Temperatura</div><strong style="font-family:monospace">20.1°C</strong> <span style="font-size:10px;color:var(--green)">✓</span></div>
-          <div><div class="kpi-label">Humedad relativa</div><strong style="font-family:monospace">58%</strong> <span style="font-size:10px;color:var(--red)">⚠ &gt;55%</span></div>
-          <div><div class="kpi-label">Día de secado</div><strong style="font-family:monospace">5 / 14</strong></div>
-          <div><div class="kpi-label">aw estimada</div><strong style="font-family:monospace">0.72</strong></div>
-        </div>
-        <div style="background:var(--amber-dim);border:1px solid var(--amber);border-radius:6px;padding:6px;margin-top:8px;font-size:11px;color:var(--amber)">
-          ⚠ MG recomienda reducir HR 5% — aumentar renovación de aire sala S2.
-        </div>
-      </div>
-    </div>
-
-    <!-- Cure log -->
-    <div class="card">
-      <div class="card-header"><div class="card-title">Registro de curado</div><div class="btn btn-sm btn-green">+ Apertura de frasco</div></div>
-      <table style="font-size:12px">
-        <thead><tr><th>Lote</th><th>Variedad</th><th>Entrada curado</th><th>Días</th><th>aw</th><th>Apertura diaria</th><th>Estado</th></tr></thead>
-        <tbody>
-          <tr>
-            <td style="font-family:monospace">C-2026-09A</td><td>CBD Carmagnola</td><td>22/10/2026</td><td>17</td>
-            <td><strong style="color:var(--green)">0.60</strong></td>
-            <td><span class="badge badge-green">Completada</span></td>
-            <td><span class="badge badge-green">Listo para análisis</span></td>
-          </tr>
-          <tr>
-            <td style="font-family:monospace">C-2026-09B</td><td>THC-low Fedora</td><td>25/10/2026</td><td>14</td>
-            <td><strong style="color:var(--green)">0.61</strong></td>
-            <td><span class="badge badge-amber">⏳ Pendiente</span></td>
-            <td><span class="badge badge-amber">En curado</span></td>
-          </tr>
-          <tr>
-            <td style="font-family:monospace">C-2026-10A</td><td>CBD Carmagnola</td><td>03/11/2026</td><td>5</td>
-            <td><strong>0.68</strong></td>
-            <td><span class="badge">Apertura en curso</span></td>
-            <td><span class="badge">Semana 1</span></td>
-          </tr>
-        </tbody>
-      </table>
-      <div style="margin-top:10px;font-size:11px;color:var(--fg2)">
-        🧠 MG: Lote C-2026-09A con aw 0.60 estable 3 días consecutivos — autorizar muestra para análisis GACP. Lote C-2026-09B necesita 1–2 días más.
-      </div>
-    </div>
-  </div><!-- /view-secado -->
+      <div class="section-title">🍂 Secado · Curado</div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin datos todavía. Registre los lotes en secado o curado como ciclos (fase "Secado" o "Curado") en la sección Ciclos.</div></div>
+    </div><!-- /view-secado -->
 
   <!-- ===== ESTADÍSTICAS ===== -->
   <div class="view" id="view-estadisticas">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
-    <div class="section-title">📊 Estadísticas de producción · Analytics</div>
-    <div class="kpi-grid">
-      <div class="kpi-tile"><div class="kpi-num">2.4 kg</div><div class="kpi-label">Producción total 2026</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--green)">88</div><div class="kpi-label">g/m² promedio ciclo</div></div>
-      <div class="kpi-tile"><div class="kpi-num">3</div><div class="kpi-label">Ciclos completados</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--amber)">94%</div><div class="kpi-label">Tasa germinación media</div></div>
-      <div class="kpi-tile"><div class="kpi-num">99.2%</div><div class="kpi-label">Conformidad GACP</div></div>
-      <div class="kpi-tile"><div class="kpi-num" style="color:var(--green)">+12%</div><div class="kpi-label">vs ciclo anterior</div></div>
-    </div>
-
-    <div class="grid grid-2" style="margin-bottom:12px">
-      <!-- Production by month -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Producción mensual (g/m²)</div>
-        <div class="chart-row"><div class="chart-lbl">Ago 2026</div><div class="chart-track"><div class="chart-fill" style="width:62%"></div></div><div class="chart-num">62 g/m²</div></div>
-        <div class="chart-row"><div class="chart-lbl">Sep 2026</div><div class="chart-track"><div class="chart-fill" style="width:78%"></div></div><div class="chart-num">78 g/m²</div></div>
-        <div class="chart-row"><div class="chart-lbl">Oct 2026</div><div class="chart-track"><div class="chart-fill" style="width:88%"></div></div><div class="chart-num">88 g/m²</div></div>
-        <div class="chart-row"><div class="chart-lbl">Nov 2026*</div><div class="chart-track"><div class="chart-fill amber" style="width:92%"></div></div><div class="chart-num">~92 g/m²</div></div>
-        <div style="font-size:10px;color:var(--fg3);margin-top:4px">* Estimación MG basada en stress index actual</div>
-      </div>
-
-      <!-- Yield by variety -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Rendimiento por variedad (g/m²)</div>
-        <div class="chart-row"><div class="chart-lbl">CBD Carmagnola</div><div class="chart-track"><div class="chart-fill" style="width:92%"></div></div><div class="chart-num">92 g/m²</div></div>
-        <div class="chart-row"><div class="chart-lbl">THC-low Fedora</div><div class="chart-track"><div class="chart-fill amber" style="width:77%"></div></div><div class="chart-num">77 g/m²</div></div>
-        <div class="chart-row"><div class="chart-lbl">CBD-01 nueva*</div><div class="chart-track"><div class="chart-fill" style="width:0%;transition:width 1s"></div></div><div class="chart-num">—</div></div>
-        <div style="font-size:10px;color:var(--fg3);margin-top:4px">* CBD-01: en propagación, sin datos de rendimiento todavía</div>
-      </div>
-    </div>
-
-    <div class="grid grid-2" style="margin-bottom:12px">
-      <!-- Environmental compliance -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Conformidad ambiental (últimas 4 semanas)</div>
-        <div class="chart-row"><div class="chart-lbl">Temperatura</div><div class="chart-track"><div class="chart-fill" style="width:97%"></div></div><div class="chart-num">97.1%</div></div>
-        <div class="chart-row"><div class="chart-lbl">Humedad rel.</div><div class="chart-track"><div class="chart-fill" style="width:93%"></div></div><div class="chart-num">93.4%</div></div>
-        <div class="chart-row"><div class="chart-lbl">CO₂ (ppm)</div><div class="chart-track"><div class="chart-fill" style="width:98%"></div></div><div class="chart-num">98.0%</div></div>
-        <div class="chart-row"><div class="chart-lbl">pH solución</div><div class="chart-track"><div class="chart-fill" style="width:95%"></div></div><div class="chart-num">95.2%</div></div>
-        <div class="chart-row"><div class="chart-lbl">EC solución</div><div class="chart-track"><div class="chart-fill amber" style="width:88%"></div></div><div class="chart-num">88.5%</div></div>
-      </div>
-
-      <!-- IPM & plagas -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Control de plagas — incidencias por mes</div>
-        <div class="chart-row"><div class="chart-lbl">Agosto</div><div class="chart-track"><div class="chart-fill red" style="width:40%"></div></div><div class="chart-num">4 eventos</div></div>
-        <div class="chart-row"><div class="chart-lbl">Septiembre</div><div class="chart-track"><div class="chart-fill amber" style="width:20%"></div></div><div class="chart-num">2 eventos</div></div>
-        <div class="chart-row"><div class="chart-lbl">Octubre</div><div class="chart-track"><div class="chart-fill" style="width:10%"></div></div><div class="chart-num">1 evento</div></div>
-        <div class="chart-row"><div class="chart-lbl">Noviembre</div><div class="chart-track"><div class="chart-fill red" style="width:20%"></div></div><div class="chart-num">2 eventos</div></div>
-        <div style="font-size:11px;color:var(--fg2);margin-top:8px">Botrytis cinerea (nov.) — trip californiano (ago.).</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><div class="card-title">Informe ejecutivo MG — semana 44/2026</div><div class="btn btn-sm">Exportar PDF</div></div>
-      <div style="font-size:12px;color:var(--fg2);line-height:1.7">
-        La campaña 2026 acumula <strong style="color:var(--fg)">2.4 kg</strong> de flor seca en 3 ciclos completados, con una mejora del <strong style="color:var(--green)">+12%</strong> en g/m² respecto al ejercicio anterior. La variedad CBD Carmagnola mantiene el liderazgo en rendimiento (92 g/m²). Se registran <strong>2 incidencias</strong> activas en noviembre (Botrytis B3). La conformidad GACP se sitúa en <strong style="color:var(--green)">99.2%</strong>, con un único desvío menor en CE (semana 41). El ciclo C (CBD-01) está en propagación sin datos de rendimiento previos — confianza estadística <strong style="color:var(--amber)">62%</strong> hasta cosecha.
-      </div>
-    </div>
-  </div><!-- /view-estadisticas -->
+      <div class="section-title">📊 Estadísticas de producción</div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin datos todavía. Las estadísticas aparecerán cuando haya ciclos y cosechas registrados.</div></div>
+    </div><!-- /view-estadisticas -->
 
   <!-- ===== PROTOCOLOS ===== -->
   <div class="view" id="view-protocolos">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
-    <div class="section-title">📋 Protocolos · Decisiones · Validación</div>
-
-    <div class="filter-tabs">
-      <div class="ftab active" onclick="filterProto(this,'all')">Todos</div>
-      <div class="ftab" onclick="filterProto(this,'ipm')">IPM</div>
-      <div class="ftab" onclick="filterProto(this,'nutricion')">Nutrición</div>
-      <div class="ftab" onclick="filterProto(this,'emergencia')">Emergencia</div>
-      <div class="ftab" onclick="filterProto(this,'gacp')">GACP</div>
-      <div class="ftab" onclick="filterProto(this,'cosecha')">Cosecha</div>
-    </div>
-
-    <!-- Active confirmation waiting -->
-    <div class="card" style="border-left:3px solid var(--blue);margin-bottom:14px">
-      <div class="card-header"><div class="card-title" style="color:var(--blue)">🔵 Protocolo activo — Esperando confirmación técnico</div><span class="badge" style="background:var(--blue-dim);color:var(--blue)">En ejecución</span></div>
-      <div style="font-size:12px;margin-bottom:10px"><strong>PRO-IPM-003:</strong> Aplicación <em>Amblyseius cucumeris</em> Zona B3 — MG envió instrucciones a M. García a las 10:02. Esperando confirmación de aplicación.</div>
-      <div style="display:flex;gap:8px">
-        <div class="btn btn-sm btn-green" onclick="confirmProto('PRO-IPM-003')">✓ Confirmar aplicación</div>
-        <div class="btn btn-sm" onclick="showView('campo')">📱 Consultar técnico</div>
-      </div>
-    </div>
-
-    <!-- Protocol library -->
-    <div id="proto-list">
-      <div class="proto-card" data-cat="ipm">
-        <div class="card-header" style="margin-bottom:6px">
-          <div class="proto-title">PRO-IPM-001 — Detección y contención Botrytis cinerea</div>
-          <div style="display:flex;gap:6px"><span class="badge badge-red">Emergencia</span><span class="badge">GACP</span></div>
-        </div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Trigger: imagen IR dron o inspección visual → manchas grises/pardo en tallo/cálices · Autorización: supervisor</div>
-        <ol class="proto-steps">
-          <li>Aislar plantas afectadas inmediatamente. Colocar en bolsa sellada.</li>
-          <li>Fotografiar y registrar en GACP: fecha, zona, nº plantas, lote.</li>
-          <li>Aplicar <em>Bacillus subtilis</em> preventivo en plantas adyacentes (1 m radio).</li>
-          <li>Reducir HR sala ≤50% y aumentar flujo de aire.</li>
-          <li>Revisión dron 24h post-contención para confirmar ausencia de expansión.</li>
-          <li>Informe GACP cerrado en ≤48h con resultado y trazabilidad de materiales.</li>
-        </ol>
-        <div class="btn btn-sm" style="margin-top:8px" onclick="activateProto(this,'PRO-IPM-001')">▶ Activar protocolo</div>
-      </div>
-
-      <div class="proto-card" data-cat="ipm">
-        <div class="card-header" style="margin-bottom:6px">
-          <div class="proto-title">PRO-IPM-002 — Control trips (Frankliniella occidentalis)</div>
-          <div style="display:flex;gap:6px"><span class="badge badge-amber">Preventivo</span><span class="badge">IPM</span></div>
-        </div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Trigger: &gt;15 adultos/trampa azul o daño foliar visible · Umbral acción: 15 adultos/trampa</div>
-        <ol class="proto-steps">
-          <li>Verificar trampas cromáticas azules — contar individuos.</li>
-          <li>Si ≥15 adultos/trampa: introducir <em>Amblyseius cucumeris</em> 50 uds/m².</li>
-          <li>Si ≥30: añadir <em>Steinernema feltiae</em> en sustrato (500 millones/100 m²).</li>
-          <li>Revisar a los 5 días — si no hay reducción, escalar a supervisor.</li>
-          <li>Registrar lote proveedor y fecha en trazabilidad GACP.</li>
-        </ol>
-        <div class="btn btn-sm" style="margin-top:8px" onclick="activateProto(this,'PRO-IPM-002')">▶ Activar protocolo</div>
-      </div>
-
-      <div class="proto-card" data-cat="nutricion">
-        <div class="card-header" style="margin-bottom:6px">
-          <div class="proto-title">PRO-NUT-001 — Ajuste CE en floración semana 4–6</div>
-          <div style="display:flex;gap:6px"><span class="badge badge-green">Rutina</span><span class="badge">Nutrición</span></div>
-        </div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Trigger: inicio semana 4 de floración · Autorización: técnico senior</div>
-        <ol class="proto-steps">
-          <li>Leer CE solución nutritiva (objetivo semana 4: 2.0–2.2 mS/cm).</li>
-          <li>Si CE &gt;2.3: diluir con agua RO hasta objetivo. Verificar pH 5.9–6.2.</li>
-          <li>Aumentar fósforo y potasio (ratio N-P-K → 1:3:2).</li>
-          <li>Registrar ajuste en hoja de nutrición GACP.</li>
-          <li>Revisar respuesta foliar en 48h (amarillamiento = reducir N; hojas oscuras = correcto).</li>
-        </ol>
-        <div class="btn btn-sm" style="margin-top:8px" onclick="activateProto(this,'PRO-NUT-001')">▶ Activar protocolo</div>
-      </div>
-
-      <div class="proto-card" data-cat="gacp cosecha">
-        <div class="card-header" style="margin-bottom:6px">
-          <div class="proto-title">PRO-COS-001 — Protocolo de cosecha GACP</div>
-          <div style="display:flex;gap:6px"><span class="badge badge-amber">Autorización supervisor</span><span class="badge">GACP</span></div>
-        </div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Trigger: trichomas 70% ambarinos + aw hojas &lt;0.70 · Autorización: responsable de producción</div>
-        <ol class="proto-steps">
-          <li>Verificar madurez por trichoma (lupa 60x): ≥70% ámbar = cosecha.</li>
-          <li>24h antes: eliminar riego (lavado raíces solo si es hidropónico).</li>
-          <li>Preparar sala secado: T 18–21°C, HR 45–55%, oscuridad total.</li>
-          <li>Cortar plantas enteras o por ramas. Registrar peso húmedo por zona/lote.</li>
-          <li>Colgar o extender en rejilla. No solapamiento de ramas.</li>
-          <li>Muestreo GACP: 3 plantas por lote → análisis cannabinoides y microbiología.</li>
-          <li>Registrar: fecha, zona, lote, peso húmedo, operario, condiciones sala.</li>
-        </ol>
-        <div class="btn btn-sm admin-only-section" style="margin-top:8px" onclick="activateProto(this,'PRO-COS-001')">▶ Activar protocolo (requiere admin)</div>
-      </div>
-
-      <div class="proto-card" data-cat="emergencia">
-        <div class="card-header" style="margin-bottom:6px">
-          <div class="proto-title">PRO-EMG-001 — Fallo de sensor crítico en zona activa</div>
-          <div style="display:flex;gap:6px"><span class="badge badge-red">Emergencia</span></div>
-        </div>
-        <div style="font-size:11px;color:var(--fg2);margin-bottom:8px">Trigger: pérdida de señal sensor &gt;15 min o lectura fuera de rango ±30%</div>
-        <ol class="proto-steps">
-          <li>MG alerta técnico asignado a zona — confirmar presencia física en ≤10 min.</li>
-          <li>Lectura manual de temperatura, HR y CO₂ con instrumentos portátiles.</li>
-          <li>Si parámetros críticos (T &gt;32°C o HR &gt;75%): activar ventilación de emergencia.</li>
-          <li>Registrar incidencia con hora inicio, zona y valores manuales.</li>
-          <li>Sustituir o reconectar sensor en ≤2h. Si no es posible, usar sensor de respaldo.</li>
-        </ol>
-        <div class="btn btn-sm" style="margin-top:8px;border-color:var(--red);color:var(--red)" onclick="activateProto(this,'PRO-EMG-001')">🚨 Activar protocolo emergencia</div>
-      </div>
-    </div><!-- /proto-list -->
-  </div><!-- /view-protocolos -->
+      <div class="section-title">📋 Protocolos · Decisiones</div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin protocolos registrados. Añádalos en la Base de conocimiento de Growmaster (categoría "Protocolos GACP").</div></div>
+    </div><!-- /view-protocolos -->
 
 <!-- ===== SETTINGS MODAL ===== -->
 <div id="modal-settings" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
@@ -1484,239 +853,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
 
 <!-- ===== PLAN DEL DÍA ===== -->
   <div class="view" id="view-plan">
-      <div class="card" style="margin-bottom:12px;border-color:var(--amber)"><div style="font-size:12px;color:var(--amber)">⚠️ Contenido de ejemplo: esta sección todavía no está conectada a datos reales.</div></div>
-    <div class="section-title">📋 Plan del día — Master Grower</div>
-
-    <!-- Proposal card -->
-    <div class="card" id="plan-proposal" style="border-left:3px solid var(--amber);margin-bottom:16px">
-      <div class="card-header">
-        <div class="card-title" style="color:var(--amber)">⏳ Propuesta pendiente de autorización</div>
-        <span class="badge badge-amber">Admin requerido</span>
-      </div>
-      <div style="font-size:13px;color:var(--fg2);margin-bottom:12px">
-        Master Grower ha generado el plan del día 07/11/2026 con 12 tareas. Revisado a las <strong style="color:var(--fg)">06:14</strong>. 3 tareas requieren aprobación de nivel supervisor.
-      </div>
-      <div style="font-size:12px;background:var(--bg3);padding:10px;border-radius:6px;margin-bottom:12px;font-family:monospace;color:var(--fg)">
-        <div>→ Aplicar <em>Amblyseius cucumeris</em> 50 uds/m² en Zona B3 (IPM preventivo)</div>
-        <div>→ Ajuste CE de 2.3 → 2.0 mS/cm en Zona A1 (floración semana 4)</div>
-        <div>→ Desplegar Dron D3 en zona exterior perimetral (inspección IR nocturna)</div>
-      </div>
-      <div id="admin-plan-actions" class="admin-only-section" style="display:flex;gap:10px;flex-wrap:wrap">
-        <div class="btn btn-green" onclick="authorizePlan()">✓ Autorizar plan completo</div>
-        <div class="btn btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="consultMg()">💬 Consultar con MG</div>
-        <div class="btn btn-sm" style="border-color:var(--red);color:var(--red)" onclick="rejectPlan()">✕ Rechazar y revisar</div>
-      </div>
-      <div id="plan-status-msg" style="display:none;font-size:12px;color:var(--green);margin-top:8px">✓ Plan autorizado — ejecutando tareas…</div>
-    </div>
-
-    <!-- Task table -->
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-header">
-        <div class="card-title">Tareas del día</div>
-        <div style="display:flex;gap:8px">
-          <span class="badge badge-green">9 activas</span>
-          <span class="badge badge-red">1 emergencia</span>
-          <span class="badge badge-amber">2 pendientes</span>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="plan-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Hora</th><th>Zona</th><th>Técnico</th><th>Tarea</th><th>Tipo</th><th>Estado</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-01</td>
-              <td>06:00</td><td>A1</td><td>M. García</td>
-              <td>Lectura sensores + ajuste VPD (22°C, 55% HR)</td>
-              <td><span class="badge badge-green">Auto</span></td>
-              <td><span class="badge badge-green">✓ Hecho</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-02</td>
-              <td>07:00</td><td>A2</td><td>T. Müller</td>
-              <td>Riego con solución nutritiva — CE 2.0, pH 6.1</td>
-              <td><span class="badge badge-green">Auto</span></td>
-              <td><span class="badge badge-green">✓ Hecho</span></td>
-              <td></td>
-            </tr>
-            <tr id="task-emergency" style="background:rgba(248,81,73,0.08)">
-              <td style="font-family:monospace;font-size:11px;color:var(--red)">T-03</td>
-              <td style="color:var(--red)"><strong>08:42</strong></td><td>B3</td><td style="color:var(--red)"><strong>M. García</strong></td>
-              <td>🚨 EMERGENCIA — Foco Botrytis detectado por Dron D3 (IR). Revisión urgente y contención.</td>
-              <td><span class="badge badge-red">Emergencia</span></td>
-              <td><span class="badge badge-amber">⏳ En curso</span></td>
-              <td><div class="btn btn-sm btn-green" onclick="resolveEmergency()">Resolver</div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-04</td>
-              <td>09:30</td><td>A1</td><td>T. Müller</td>
-              <td>Inspección visual hoja por hoja — búsqueda trips y ácaros</td>
-              <td><span class="badge">Manual</span></td>
-              <td><span class="badge badge-amber">⏳ Pendiente</span></td>
-              <td><div class="btn btn-sm" onclick="reassignTask(this,'T-04')">Reasignar</div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-05</td>
-              <td>10:00</td><td>B3</td><td>M. García</td>
-              <td>Aplicar <em>Amblyseius cucumeris</em> 50 uds/m² (previa autorización)</td>
-              <td><span class="badge badge-amber">IPM</span></td>
-              <td><span class="badge badge-amber">⏳ Autorización</span></td>
-              <td><div class="btn btn-sm btn-green admin-only-section" onclick="authSingleTask(this,'T-05')">Autorizar</div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-06</td>
-              <td>11:00</td><td>A1</td><td>M. García</td>
-              <td>Ajuste CE solución nutritiva: 2.3 → 2.0 mS/cm (semana 4 floración)</td>
-              <td><span class="badge badge-amber">Nutrición</span></td>
-              <td><span class="badge badge-amber">⏳ Autorización</span></td>
-              <td><div class="btn btn-sm btn-green admin-only-section" onclick="authSingleTask(this,'T-06')">Autorizar</div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-07</td>
-              <td>12:00</td><td>Todas</td><td>T. Müller</td>
-              <td>Registro GACP diario — datos ambientales + tratamientos del turno</td>
-              <td><span class="badge badge-green">GACP</span></td>
-              <td><span class="badge">— Programado</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-08</td>
-              <td>13:00</td><td>A2</td><td>M. García</td>
-              <td>Segundo riego + foliar calcio-magnesio 0.5 g/L</td>
-              <td><span class="badge badge-green">Auto</span></td>
-              <td><span class="badge">— Programado</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-09</td>
-              <td>15:00</td><td>B3</td><td>M. García</td>
-              <td>Vuelo dron D1 — inspección clorofila y stress hídrico Zona B3</td>
-              <td><span class="badge">Dron</span></td>
-              <td><span class="badge">— Programado</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-10</td>
-              <td>17:00</td><td>Ext.</td><td>T. Müller</td>
-              <td>Desplegar Dron D3 inspección IR perimetral exterior (nocturno)</td>
-              <td><span class="badge">Dron</span></td>
-              <td><span class="badge badge-amber">⏳ Autorización</span></td>
-              <td><div class="btn btn-sm btn-green admin-only-section" onclick="authSingleTask(this,'T-10')">Autorizar</div></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-11</td>
-              <td>18:00</td><td>Todas</td><td>T. Müller</td>
-              <td>Lectura final sensores — informe cierre de jornada</td>
-              <td><span class="badge badge-green">Auto</span></td>
-              <td><span class="badge">— Programado</span></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td style="font-family:monospace;font-size:11px">T-12</td>
-              <td>19:00</td><td>Todas</td><td>MG</td>
-              <td>Generación automática plan del día 08/11 — pendiente revisión</td>
-              <td><span class="badge badge-green">Auto</span></td>
-              <td><span class="badge">— Futuro</span></td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Emergency dispatch + yield row -->
-    <div class="grid grid-2" style="margin-bottom:0">
-
-      <!-- Emergency timeline -->
-      <div class="card">
-        <div class="card-header"><div class="card-title" style="color:var(--red)">🚨 Despacho de emergencia activo</div><span class="badge badge-red" id="emerg-badge">En curso</span></div>
-        <div style="font-size:12px;color:var(--fg2);margin-bottom:10px">Botrytis cinerea — Zona B3, plantas 14–17. Detectado por Dron D3 termografía IR.</div>
-        <div class="timeline" style="font-size:12px">
-          <div class="tl-item" style="display:flex;gap:10px;margin-bottom:8px">
-            <div style="width:4px;background:var(--red);border-radius:2px;flex-shrink:0"></div>
-            <div><div style="color:var(--fg2);font-size:11px">08:42</div><div>MG detecta foco — genera protocolo GACP emergencia</div></div>
-          </div>
-          <div class="tl-item" style="display:flex;gap:10px;margin-bottom:8px">
-            <div style="width:4px;background:var(--amber);border-radius:2px;flex-shrink:0"></div>
-            <div><div style="color:var(--fg2);font-size:11px">08:43</div><div>MG despacha M. García a Zona B3 — ETA 4 min</div></div>
-          </div>
-          <div class="tl-item" style="display:flex;gap:10px;margin-bottom:8px">
-            <div style="width:4px;background:var(--green);border-radius:2px;flex-shrink:0"></div>
-            <div><div style="color:var(--fg2);font-size:11px">08:47</div><div style="color:var(--green)">✓ M. García confirma llegada a B3</div></div>
-          </div>
-          <div class="tl-item" style="display:flex;gap:10px" id="emerg-last">
-            <div style="width:4px;background:var(--amber);border-radius:2px;flex-shrink:0"></div>
-            <div><div style="color:var(--fg2);font-size:11px">08:51</div><div style="color:var(--amber)">⏳ Contención mecánica en curso — esperando confirmación</div></div>
-          </div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:8px" id="emerg-btns">
-          <div class="btn btn-sm btn-green" onclick="resolveEmergency()">✓ Confirmar resolución</div>
-          <div class="btn btn-sm" onclick="escalateEmergency()">↑ Escalar a supervisor</div>
-        </div>
-        <div id="emerg-resolved" style="display:none;font-size:12px;color:var(--green);margin-top:8px">✓ Emergencia resuelta — registrado en GACP</div>
-      </div>
-
-      <!-- Yield estimates -->
-      <div class="card">
-        <div class="card-header"><div class="card-title">📊 Estimaciones de rendimiento por variedad</div><span class="badge">Semana 4/8 floración</span></div>
-        <table style="font-size:12px">
-          <thead>
-            <tr><th>Variedad</th><th>Estrés</th><th>g/m²</th><th>Confianza</th><th>Estado</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>CBD Carmagnola</strong></td>
-              <td><div style="display:flex;align-items:center;gap:6px"><div style="width:40px;height:6px;background:var(--bg3);border-radius:3px"><div style="width:20%;height:100%;background:var(--green);border-radius:3px"></div></div><span style="color:var(--green);font-size:11px">2/10</span></div></td>
-              <td><strong>88–96</strong></td>
-              <td><span class="badge badge-green">91%</span></td>
-              <td><span class="badge badge-green">Óptimo</span></td>
-            </tr>
-            <tr>
-              <td><strong>THC-low Fedora</strong></td>
-              <td><div style="display:flex;align-items:center;gap:6px"><div style="width:40px;height:6px;background:var(--bg3);border-radius:3px"><div style="width:40%;height:100%;background:var(--amber);border-radius:3px"></div></div><span style="color:var(--amber);font-size:11px">4/10</span></div></td>
-              <td><strong>71–82</strong></td>
-              <td><span class="badge badge-amber">78%</span></td>
-              <td><span class="badge badge-amber">Leve estrés</span></td>
-            </tr>
-            <tr>
-              <td><strong>CBD-01 <em>(nueva)</em></strong></td>
-              <td><div style="display:flex;align-items:center;gap:6px"><div style="width:40px;height:6px;background:var(--bg3);border-radius:3px"><div style="width:70%;height:100%;background:var(--red);border-radius:3px"></div></div><span style="color:var(--red);font-size:11px">7/10</span></div></td>
-              <td><strong>75–90*</strong></td>
-              <td><span class="badge badge-red">62%</span></td>
-              <td><span class="badge badge-red">Estrés alto</span></td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="font-size:11px;color:var(--fg3);margin-top:8px">* CBD-01 en seguimiento intensivo. Margen ampliado por datos insuficientes (semana 1).</div>
-        <div class="btn btn-sm" style="margin-top:10px" onclick="requestYieldReport()">Solicitar informe detallado</div>
-      </div>
-
-    </div><!-- /grid -->
-
-    <!-- Reassign modal -->
-    <div id="modal-reassign" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center">
-      <div class="card" style="width:min(360px,90vw);padding:20px">
-        <div class="card-title" style="margin-bottom:12px">Reasignar tarea <span id="reassign-task-id" style="font-family:monospace;color:var(--green)"></span></div>
-        <div class="form-row"><label>Asignar a</label>
-          <select id="reassign-select">
-            <option>M. García</option>
-            <option>T. Müller</option>
-            <option>MG (autónomo)</option>
-          </select>
-        </div>
-        <div class="form-row"><label>Motivo</label><input type="text" id="reassign-reason" placeholder="Motivo del cambio…" /></div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <div class="btn btn-green" onclick="confirmReassign()">Confirmar</div>
-          <div class="btn" onclick="document.getElementById('modal-reassign').style.display='none'">Cancelar</div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /view-plan -->
+      <div class="section-title">🗓️ Plan del día — Master Grower</div>
+      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin plan todavía. Pida al Grow Agent "Plan de hoy para el equipo": lo prepara con las tareas, alertas y personal reales.</div></div>
+    </div><!-- /view-plan -->
   <div class="view" id="view-growmaster">
     <div class="section-title">🛰️ Growmaster API — planificador de rutas de drones</div>
     <p style="font-size:12px;color:var(--fg2);line-height:1.6;margin-bottom:12px">
@@ -2075,53 +1214,10 @@ function sendMgMsg() {
   });
 }
 
-function sendEqMsg() {
-  const inp = document.getElementById('eq-input');
-  const txt = inp.value.trim(); if(!txt) return;
-  const now = new Date(); const ts = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  appendMsg('chat-equipo-messages', `<div class="msg outgoing"><div class="msg-avatar">MG</div><div><div class="msg-bubble">${txt.replace(/</g,'&lt;')}</div><div class="msg-meta" style="text-align:right">M. García · ${ts}</div></div></div>`);
-  inp.value = '';
-  if(txt.toLowerCase().includes('@mastergrow') || txt.toLowerCase().includes('@mg')) {
-    const typId = 'typ-eq-'+Date.now();
-    appendMsg('chat-equipo-messages', `<div class="msg" id="${typId}"><div class="msg-avatar">🧠</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`);
-    document.getElementById('chat-equipo-messages').scrollTop = 999999;
-    setTimeout(()=>{
-      const el = document.getElementById(typId); if(el) el.remove();
-      const ts2 = new Date().getHours()+':'+String(new Date().getMinutes()).padStart(2,'0');
-      appendMsg('chat-equipo-messages', `<div class="msg"><div class="msg-avatar">🧠</div><div><div class="msg-bubble"><strong style="color:var(--green)">Master Grower</strong><br>Recibido. Verificaré los sensores y drones relevantes y os aviso en este canal con el diagnóstico.</div><div class="msg-meta">Master Grower · ${ts2}</div></div></div>`);
-    }, 1600);
-  }
-}
-
-function simulatePhotoUpload(inp) {
-  if(!inp.files || !inp.files[0]) return;
-  const now = new Date(); const ts = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  appendMsg('chat-mg-messages', `<div class="msg outgoing"><div class="msg-avatar">MG</div><div><div class="msg-bubble msg-photo"><div class="photo-placeholder" style="background:linear-gradient(135deg,#1a2a1a,#2a4a1a);display:flex;align-items:center;justify-content:center;font-size:40px">📸</div></div><div class="msg-bubble" style="margin-top:6px">Foto enviada desde campo</div><div class="msg-meta" style="text-align:right">Tú · ${ts}</div></div></div>`);
-  document.getElementById('chat-mg-messages').scrollTop = 999999;
-  const typId = 'typ-photo-'+Date.now();
-  setTimeout(()=>{
-    appendMsg('chat-mg-messages', `<div class="msg" id="${typId}"><div class="msg-avatar">🧠</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><div style="font-size:10px;color:var(--fg3);margin-top:4px">Analizando imagen…</div></div></div>`);
-    document.getElementById('chat-mg-messages').scrollTop = 999999;
-  }, 400);
-  setTimeout(()=>{
-    const el = document.getElementById(typId); if(el) el.remove();
-    const ts2 = new Date().getHours()+':'+String(new Date().getMinutes()).padStart(2,'0');
-    appendMsg('chat-mg-messages', `<div class="msg"><div class="msg-avatar">🧠</div><div><div class="msg-bubble"><div class="ai-analysis"><div class="ai-analysis-header"><div class="brain-pulse"></div>Análisis completado · Confianza: 88%</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="badge badge-amber">Estrés hídrico leve</span><span class="badge badge-green">Sin patógenos detectados</span></div><div style="font-size:11px;color:var(--fg2)">Bordes foliares con ligera necrosis y leve enrollamiento — patrón compatible con VPD alto o déficit de riego. No se observan esporas ni daño de insecto.<br><br><strong>Recomendación:</strong> Verificar CE solución nutritiva y frecuencia de riego. Si CE &gt;2.5 reduce 15%. Sin urgencia de tratamiento biológico.</div></div></div><div class="msg-meta">Master Grower · ${ts2}</div></div></div>`);
-    document.getElementById('chat-mg-messages').scrollTop = 999999;
-  }, 3200);
-}
+function sendEqMsg() {}
+function simulatePhotoUpload() { showView('growmaster'); }
 
 function chatWithStaff(name) { showView('campo'); }
-
-// Staff timers
-let staffStart = Date.now() - (3*3600+12*60)*1000;
-let mullerStart = Date.now() - (2*3600+5*60)*1000;
-setInterval(()=>{
-  const d1=Math.floor((Date.now()-staffStart)/1000),h1=Math.floor(d1/3600),m1=Math.floor((d1%3600)/60);
-  const e1=document.getElementById('timer-garcia'); if(e1) e1.textContent=`↑ En campo: ${h1}h ${String(m1).padStart(2,'0')}m`;
-  const d2=Math.floor((Date.now()-mullerStart)/1000),h2=Math.floor(d2/3600),m2=Math.floor((d2%3600)/60);
-  const e2=document.getElementById('timer-muller'); if(e2) e2.textContent=`↑ En campo: ${h2}h ${String(m2).padStart(2,'0')}m`;
-}, 15000);
 
 // Plan del día functions
 function authorizePlan() {
@@ -2209,67 +1305,8 @@ function showNotif(msg) {
   clearTimeout(n._t);
   n._t = setTimeout(()=>{ n.style.opacity='0'; }, 3000);
 }
-function openImageAnalysis() {
-  const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = 'image/*'; inp.style.display = 'none';
-  inp.onchange = e => {
-    const f = e.target.files[0];
-    if(!f) return;
-    showNotif('Imagen enviada a Master Grower para análisis...');
-    setTimeout(()=>showNotif('Master Grower: Posible inicio de Botrytis detectado en hoja superior izquierda. Revisar humedad relativa. ¿Activar PRO-IPM-001?'), 2500);
-  };
-  document.body.appendChild(inp); inp.click(); document.body.removeChild(inp);
-}
+function openImageAnalysis() { showView('growmaster'); }
 
-// PIN settings
-async function saveNewPin() {
-  const currentPin = document.getElementById('settings-current-pin').value;
-  const newPin = document.getElementById('settings-new-pin').value;
-  const confirmPin = document.getElementById('settings-confirm-pin').value;
-  const errorDiv = document.getElementById('settings-error');
-  const successDiv = document.getElementById('settings-success');
-  const btn = document.getElementById('settings-save-btn');
-
-  errorDiv.style.display = 'none';
-  successDiv.style.display = 'none';
-
-  if (!currentPin || !newPin || !confirmPin) {
-    errorDiv.textContent = 'Todos los campos son requeridos.';
-    errorDiv.style.display = 'block';
-    return;
-  }
-
-  btn.textContent = 'Guardando...';
-  try {
-    const r = await fetch('/api/change-pin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPin, newPin, confirmPin })
-    });
-    const data = await r.json().catch(() => ({}));
-
-    if (r.ok) {
-      successDiv.textContent = data.message || 'PIN actualizado.';
-      successDiv.style.display = 'block';
-      document.getElementById('settings-current-pin').value = '';
-      document.getElementById('settings-new-pin').value = '';
-      document.getElementById('settings-confirm-pin').value = '';
-    } else {
-      errorDiv.textContent = data.message || 'No se pudo cambiar el PIN.';
-      errorDiv.style.display = 'block';
-    }
-  } catch (e) {
-    errorDiv.textContent = 'No se pudo conectar con el servidor.';
-    errorDiv.style.display = 'block';
-  }
-  btn.textContent = 'Guardar PIN';
-}
-
-// Hash routing
-const h = location.hash.replace('#','');
-if(views.includes(h)) showView(h);
-
-// --- Datos reales de operaciones (Airtable vía /api/ops-data) ---
 function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 async function loadOpsData() {

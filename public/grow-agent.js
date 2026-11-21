@@ -54,7 +54,7 @@
     document.body.appendChild(p);
     p.querySelector('#ga-close').onclick = close;
     p.querySelector('#ga-clear').onclick = () => { history = []; save(); renderHistory(); };
-    p.querySelector('#ga-voice').onclick = e => { voiceOn = !voiceOn; e.target.textContent = voiceOn ? '🔊' : '🔇'; if (!voiceOn && canTalk) speechSynthesis.cancel(); };
+    p.querySelector('#ga-voice').onclick = e => { voiceOn = !voiceOn; e.target.textContent = voiceOn ? '🔊' : '🔇'; if (!voiceOn) hush(); };
     p.querySelector('#ga-send').onclick = () => sendText();
     p.querySelector('#ga-input').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendText(); } };
     p.querySelector('#ga-orb').onclick = toggleConvo;
@@ -110,24 +110,45 @@
     speak(reply);
   }
 
-  function speak(text) {
-    if (!voiceOn || !canTalk) { if (convo) listen(); return; }
+  let audio = null, elevenOk = true;
+  function after() { state(''); if (convo) listen(); }
+  async function speak(text) {
+    if (!voiceOn) { if (convo) listen(); return; }
+    const clean = text.replace(/[*#_`]/g, '');
+    if (elevenOk) {
+      try {
+        state('Preparando voz…');
+        const r = await fetch('/api/gm-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tts: clean }) });
+        if (r.ok) {
+          const url = URL.createObjectURL(await r.blob());
+          if (audio) audio.pause();
+          audio = new Audio(url);
+          audio.onplay = () => state('Hablando… (pulse el micrófono para interrumpir)');
+          audio.onended = () => { URL.revokeObjectURL(url); after(); };
+          await audio.play();
+          return;
+        }
+        if (r.status === 503) elevenOk = false; // no ElevenLabs key yet: use browser voice
+      } catch (e) { /* fall back to browser voice */ }
+    }
+    if (!canTalk) { after(); return; }
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/[*#_`]/g, ''));
+    const u = new SpeechSynthesisUtterance(clean);
     u.lang = 'es-ES';
     const v = speechSynthesis.getVoices().find(x => x.lang === 'es-ES') || speechSynthesis.getVoices().find(x => x.lang && x.lang.startsWith('es'));
     if (v) u.voice = v;
     u.onstart = () => state('Hablando… (pulse el micrófono para interrumpir)');
-    u.onend = () => { state(''); if (convo) listen(); };
+    u.onend = after;
     speechSynthesis.speak(u);
   }
+  function hush() { if (audio) audio.pause(); if (canTalk) speechSynthesis.cancel(); }
 
   function listen() {
     if (!SR || listening || busy) return;
     rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = false; rec.maxAlternatives = 1;
     rec.onresult = e => { const t = e.results[0][0].transcript.trim(); if (t) send(t); };
     rec.onerror = e => { if (e.error === 'not-allowed') { convo = false; setOrb(); state('Permita el micrófono en el navegador para hablar.'); } };
-    rec.onend = () => { listening = false; if (!busy && convo && !(canTalk && speechSynthesis.speaking)) state('Conversación activa — hable cuando quiera'); };
+    rec.onend = () => { listening = false; if (!busy && convo && !(canTalk && speechSynthesis.speaking) && !(audio && !audio.paused)) state('Conversación activa — hable cuando quiera'); };
     try { rec.start(); listening = true; state('Escuchando…'); } catch (e) { listening = false; }
   }
   function stopListening() { if (rec && listening) { try { rec.stop(); } catch (e) { /* ignore */ } } listening = false; }
@@ -135,13 +156,13 @@
   function setOrb() { const o = document.getElementById('ga-orb'); if (o) o.classList.toggle('live', convo); }
   function toggleConvo() {
     if (!SR) { state('Este navegador no reconoce voz: use Chrome, Edge o Safari, o escriba.'); return; }
-    if (canTalk) speechSynthesis.cancel();
+    hush();
     convo = !convo; setOrb();
     if (convo) listen(); else { stopListening(); state(''); }
   }
 
   function open() { document.getElementById('ga-panel').classList.add('open'); document.getElementById('ga-input').focus(); }
-  function close() { convo = false; setOrb(); stopListening(); if (canTalk) speechSynthesis.cancel(); document.getElementById('ga-panel').classList.remove('open'); }
+  function close() { convo = false; setOrb(); stopListening(); hush(); document.getElementById('ga-panel').classList.remove('open'); }
 
   build();
   window.openGrowAgent = open;

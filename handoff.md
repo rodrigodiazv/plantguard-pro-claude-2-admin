@@ -103,6 +103,18 @@ clave no tiene acceso. `vercel.json`: micrófono permitido solo para el propio
 sitio. Pendiente (pedido por Rodrigo, después): roles — administrador
 general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
 
+## Limpieza total + voz Jarvis (21-nov-2026)
+
+- Vistas que eran maqueta (Germinación, Secado, Informes, Estadísticas,
+  Protocolos, Plan, Configuración) ahora son estados vacíos honestos; chats
+  de ejemplo, nombres inventados, análisis de fotos simulados, temporizadores
+  y modales falsos eliminados. Zonas sin zona por defecto.
+- Voz: ElevenLabs, voz diseñada "Master Grower — estilo Jarvis" (id en
+  `api/gm-chat/index.py`, env `ELEVENLABS_VOICE_ID` la puede cambiar).
+  `POST /api/gm-chat {tts}` devuelve MP3; si falta `ELEVENLABS_API_KEY`
+  en Vercel, el panel usa la voz del navegador. PENDIENTE: Rodrigo debe
+  crear `ELEVENLABS_API_KEY` (tipo Sensitive, Production) en Vercel.
+
 ## Pendiente / próximos pasos
 
 - Conectar hardware real (sensores, filtros de agua, drones) a
