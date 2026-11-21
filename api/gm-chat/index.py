@@ -21,6 +21,8 @@ FALLBACK_MODEL = "claude-haiku-4-5-20251001"
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
 # Voice "Master Grower — estilo Jarvis 3" (chosen by Rodrigo) designed in ElevenLabs (not secret).
 ELEVENLABS_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "x9KrIDxDgLgpS9PEHqw8")
+# ElevenLabs Conversational agent "PlantGuard Grow Agent" (voice + its own LLM, billed to ElevenLabs).
+ELEVENLABS_AGENT_ID = os.environ.get("ELEVENLABS_AGENT_ID", "agent_9701m8063kvheyrb6g1g4jhr19nz")
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY = 20
 CONTEXT_LIMIT = 60_000
@@ -260,6 +262,23 @@ class handler(BaseHTTPRequestHandler):
             payload = json.loads(raw.decode() or "{}")
         except Exception:  # noqa: BLE001
             self._json(400, {"error": "invalid_body"})
+            return
+        if isinstance(payload, dict) and payload.get("voice_session"):
+            # Start a live voice session with the ElevenLabs agent: signed URL + current operation data.
+            if not ELEVENLABS_API_KEY:
+                self._json(503, {"error": "voice_not_configured"})
+                return
+            try:
+                req = urllib.request.Request(
+                    "https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=" + ELEVENLABS_AGENT_ID,
+                    headers={"xi-api-key": ELEVENLABS_API_KEY})
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    signed = json.loads(r.read().decode()).get("signed_url")
+            except urllib.error.HTTPError as e:
+                self._json(502, {"error": "signed_url_failed", "detail": f"ElevenLabs {e.code}"})
+                return
+            context = build_context() if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
+            self._json(200, {"signed_url": signed, "ops_context": context[:40000]})
             return
         if isinstance(payload, dict) and payload.get("tts"):
             # Voice of the Grow Agent: returns MP3 from ElevenLabs.

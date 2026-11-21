@@ -129,6 +129,20 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
   dos. Voz ElevenLabs OK (200). Diagnóstico: `GET /api/gm-health?keys=1`
   (solo códigos de estado, sin claves).
 
+## Grow Agent = agente conversacional de ElevenLabs (21-nov-2026, idea de Rodrigo)
+
+- Cerebro + voz en ElevenLabs (saldo de ElevenLabs): agente "PlantGuard Grow
+  Agent (Master Grower)" (id en `api/gm-chat/index.py`, env
+  `ELEVENLABS_AGENT_ID`), LLM claude-sonnet-4-6, voz Jarvis 3, español,
+  zona horaria Europe/Zurich. Herramientas cliente `crear_registro` /
+  `actualizar_registro` (se ejecutan en el navegador con sesión, vía
+  `/api/ops-data`). Prompt con `{{ops_context}}` = datos de Airtable.
+- `POST /api/gm-chat {voice_session:true}` → URL firmada + contexto. El
+  panel carga `@elevenlabs/client@1.35.0` (jsDelivr) y abre la sesión.
+- Ya no depende de la clave de Anthropic ni del AI Gateway.
+- Pendiente: activar autenticación (solo URL firmada) en el agente de
+  ElevenLabs para que nadie más pueda usarlo con su saldo.
+
 ## Pendiente / próximos pasos
 
 - Conectar hardware real (sensores, filtros de agua, drones) a
