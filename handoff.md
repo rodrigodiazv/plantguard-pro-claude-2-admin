@@ -112,8 +112,8 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
 - Voz: ElevenLabs, voz diseñada "Master Grower — estilo Jarvis" (id en
   `api/gm-chat/index.py`, env `ELEVENLABS_VOICE_ID` la puede cambiar).
   `POST /api/gm-chat {tts}` devuelve MP3; si falta `ELEVENLABS_API_KEY`
-  en Vercel, el panel usa la voz del navegador. PENDIENTE: Rodrigo debe
-  crear `ELEVENLABS_API_KEY` (tipo Sensitive, Production) en Vercel.
+  en Vercel, el panel usa la voz del navegador. `ELEVENLABS_API_KEY` creada por Rodrigo en Vercel (Sensitive,
+  Production) el 21-nov-2026. Voz activa: muestra 3 ("estilo Jarvis 3").
 
 ## Pendiente / próximos pasos
 
