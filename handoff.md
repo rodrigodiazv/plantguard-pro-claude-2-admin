@@ -140,6 +140,12 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
 - `POST /api/gm-chat {voice_session:true}` → URL firmada + contexto. El
   panel carga `@elevenlabs/client@1.35.0` (jsDelivr) y abre la sesión.
 - Ya no depende de la clave de Anthropic ni del AI Gateway.
+- Base de conocimiento del cultivo cargada en el agente (21-nov): documento
+  de texto "PlantGuard Pro — Base de conocimiento del cultivo (Growmaster)"
+  (KB v4 de la web: ciclos, clima/VPD, luz/DLI, plagas, control biológico,
+  IPM, patógenos, raíces, nutrición, deficiencias, sustratos, clonación,
+  poda, tratamientos, ramas rotas, secado, calidad, normativa CH, GACP/GMP)
+  en modo prompt + PlantGuard-Pro-KB-11Labs-VOICE.docx con RAG multilingüe.
 - Pendiente: activar autenticación (solo URL firmada) en el agente de
   ElevenLabs para que nadie más pueda usarlo con su saldo.
 
