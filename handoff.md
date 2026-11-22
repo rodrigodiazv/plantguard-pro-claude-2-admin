@@ -248,3 +248,8 @@ Pendiente (decisión de Rodrigo / panel de Vercel):
 ## 22-nov — Endurecimiento del agente de voz
 - Agente EL: autenticación activada (solo URL firmada desde el panel) y guardrail de prompt-injection activado. `crear_registro` admite la tabla `memoria`.
 - Si la voz falla con "No se pudo iniciar": comprobar primero que `ELEVENLABS_API_KEY` sigue válida y que la URL firmada se genera (`/api/gm-health?keys=1`).
+
+## 22-nov — Cabecera CSP
+- `vercel.json`: Content-Security-Policy (default-src 'self'; scripts: self + 'unsafe-inline' (el panel usa scripts y onclick en línea) + cdn.jsdelivr.net + blob:; connect: self + *.elevenlabs.io https/wss; fonts: Google Fonts; sin frames, sin object, base-uri/form-action 'self').
+- Probado con Playwright local: sin violaciones en login, dashboard y operario. NO probado: voz de ElevenLabs bajo CSP (el sandbox no llega a ElevenLabs). Si la voz falla tras este cambio, quitar la cabecera CSP de vercel.json (un solo commit) y volver a probar.
+- Mejora futura: quitar 'unsafe-inline' (requiere mover scripts y onclick a archivos).
