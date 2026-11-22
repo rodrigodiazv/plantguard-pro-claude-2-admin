@@ -246,3 +246,7 @@ cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
 - `grow-agent.js` acumula la transcripción y la envía al terminar (onDisconnect/cerrar/pagehide, `keepalive`) a `POST /api/ops-data {action:"conversation"}` → fila `Memoria` Tipo "Conversación" (Detalle = transcripción, hasta 30000 car.).
 - `gm-chat build_context`: diario (60) + últimas 4 conversaciones (3500 car. c/u) al empezar cada sesión. Prompt: retomar lo pendiente sin que se lo repitan.
 - Límite conocido: si el navegador muere sin evento de cierre, esa conversación no se guarda. El MEMORIA.md descargable incluye las transcripciones.
+
+## 22-nov — Clima para el Grow Agent
+- `GET /api/ops-data?clima=<lugar>` (sesión requerida): geocodifica y devuelve tiempo actual + 7 días de Open-Meteo (sin clave). Marcado como previsión pública, NO sensores.
+- Client tool ElevenLabs `consultar_clima(lugar)` + `weather()` en `grow-agent.js`; prompt actualizado y publicado. Funciones Vercel: sin cambios (9).

@@ -6,6 +6,8 @@ import secrets
 import sys
 import datetime
 import urllib.error
+import urllib.parse
+import urllib.request
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "growmaster_lib"))
@@ -39,6 +41,9 @@ class handler(BaseHTTPRequestHandler):
         q = self.path or ""
         if "me=1" in q:
             self._json(200, {"role": self.sess["role"], "name": self.sess["name"], "uid": self.sess["uid"]})
+            return
+        if "clima=" in q:
+            self._clima(urllib.parse.unquote_plus(q.split("clima=", 1)[1].split("&", 1)[0]))
             return
         if "memoria=md" in q:
             if self.sess["role"] == "operario":
@@ -151,6 +156,32 @@ class handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "id_required"})
             return
         self._write("DELETE", table, "/" + rec_id, None, log=("DELETE", payload.get("table"), {}))
+
+    def _clima(self, lugar):
+        """Public weather forecast (Open-Meteo, no key) for any place name. NOT a facility sensor."""
+        lugar = lugar.strip()[:80]
+        if not lugar:
+            self._json(400, {"error": "lugar_requerido"})
+            return
+        try:
+            def get(url):
+                with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "plantguard-panel"}), timeout=8) as r:
+                    return json.loads(r.read().decode())
+            geo = get("https://geocoding-api.open-meteo.com/v1/search?" + urllib.parse.urlencode({"name": lugar, "count": 1, "language": "es"}))
+            res = (geo.get("results") or [None])[0]
+            if not res:
+                self._json(404, {"error": "lugar_no_encontrado"})
+                return
+            w = get("https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode({
+                "latitude": res["latitude"], "longitude": res["longitude"], "timezone": "auto", "forecast_days": 7,
+                "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation",
+                "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,et0_fao_evapotranspiration"}))
+        except Exception as e:  # noqa: BLE001
+            self._json(502, {"error": "clima_no_disponible", "detail": str(e)[:150]})
+            return
+        self._json(200, {"fuente": "Open-Meteo (previsión pública, no son sensores de la instalación)",
+                         "lugar": f"{res.get('name')}, {res.get('admin1','')}, {res.get('country','')}", "altitud_m": res.get("elevation"),
+                         "ahora": w.get("current"), "unidades": w.get("current_units"), "dias_7": w.get("daily")})
 
     def _ingest(self, payload):
         """IoT gateways push a reading here with header X-Ingest-Key."""

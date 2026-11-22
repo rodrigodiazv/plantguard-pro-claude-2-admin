@@ -84,6 +84,14 @@
     } catch (e) { return JSON.stringify({ ok: false, error: 'error de red' }); }
   }
 
+  async function weather(params) {
+    try {
+      const r = await fetch('/api/ops-data?clima=' + encodeURIComponent(params.lugar || ''), { cache: 'no-store' });
+      const d = await r.json().catch(() => ({}));
+      return JSON.stringify(r.ok ? { ok: true, ...d } : { ok: false, error: d.error || r.status });
+    } catch (e) { return JSON.stringify({ ok: false, error: 'error de red' }); }
+  }
+
   // Asks the person for authorization in the panel itself before anything is deleted.
   function askAuth(text) {
     return new Promise(resolve => {
@@ -148,6 +156,7 @@
           actualizar_registro: params => writeRecord('PATCH', params),
           borrar_registro: params => deleteRecords(params),
           leer_tabla: params => readTable(params),
+          consultar_clima: params => weather(params),
         },
         onConnect: () => { state('Escuchando… hable cuando quiera'); orb('live'); },
         onDisconnect: () => { saveConversation(); conv = null; orb(''); state('Conversación terminada. Pulse la esfera para hablar.'); },
