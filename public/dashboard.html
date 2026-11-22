@@ -472,6 +472,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.8 3.7 4 .6-2.9 2.8.7 4L8 10.7 4.4 12.6l.7-4L2.2 5.8l4-.6z"/></svg>
       Mejoras <span id="mejoras-badge" class="badge badge-amber" style="display:none;margin-left:6px"></span>
     </div>
+    <div class="nav-item" onclick="showView('ordenes')" id="nav-ordenes">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5v6M4.5 4a5 5 0 1 0 7 0"/></svg>
+      Órdenes <span id="ordenes-badge" class="badge badge-amber" style="display:none;margin-left:6px"></span>
+    </div>
     <div class="nav-item" onclick="showView('memoria')" id="nav-memoria">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h8l2 2v10H3z"/><path d="M5.5 6.5h5M5.5 9h5M5.5 11.5h3"/></svg>
       Memoria
@@ -793,6 +797,17 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
       <div id="mejoras-list"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
     </div>
 
+    <!-- ORDENES A EQUIPOS -->
+    <div class="view" id="view-ordenes">
+      <div class="section-title">⚡ Órdenes a equipos físicos</div>
+      <p style="font-size:12px;color:var(--fg2);line-height:1.6;margin-bottom:12px">
+        El Grow Agent <strong>propone</strong> órdenes (luz, ventilador, calefactor, riego). Solo usted las autoriza con el botón.
+        La placa del equipo las recoge, las ejecuta y confirma. Una orden autorizada caduca a los 30 minutos si nadie la recoge.
+        Los límites de seguridad (horario de luz, máximo de riego y corte por temperatura) viven en la propia placa.
+      </p>
+      <div id="ordenes-list"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
+    </div>
+
     <!-- MEMORIA -->
     <div class="view" id="view-memoria">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap">
@@ -948,8 +963,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
   </div><!-- /view-growmaster -->
 
 <script>
-const views = ['dashboard','zonas','ciclos','germinacion','drones','growmaster','ipm','nutricion','agua','secado','informes','estadisticas','protocolos','campo','dispositivos','sistemas','personal','plan','mejoras','memoria','config'];
-const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',growmaster:'Growmaster API',ipm:'IPM — Control integrado',nutricion:'Nutrición',agua:'Tratamiento de agua',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',sistemas:'Sistemas — equipos y conectividad',personal:'Personal en campo',plan:'Plan del día — Master Grower',mejoras:'Solicitudes de mejora',memoria:'Memoria del Grow Agent',config:'Configuración'};
+const views = ['dashboard','zonas','ciclos','germinacion','drones','growmaster','ipm','nutricion','agua','secado','informes','estadisticas','protocolos','campo','dispositivos','sistemas','personal','plan','mejoras','ordenes','memoria','config'];
+const titles = {dashboard:'Dashboard',zonas:'Zonas de cultivo',ciclos:'Planificación de ciclos',germinacion:'Germinación · Propagación',drones:'Monitoreo de drones',growmaster:'Growmaster API',ipm:'IPM — Control integrado',nutricion:'Nutrición',agua:'Tratamiento de agua',secado:'Secado · Curado',informes:'Informes IA',estadisticas:'Estadísticas de producción',protocolos:'Protocolos · Decisiones',campo:'Campo · Chat con Master Grower',dispositivos:'Dispositivos conectados',sistemas:'Sistemas — equipos y conectividad',personal:'Personal en campo',plan:'Plan del día — Master Grower',mejoras:'Solicitudes de mejora',ordenes:'Órdenes a equipos',memoria:'Memoria del Grow Agent',config:'Configuración'};
 
 let growmasterLoaded = false;
 

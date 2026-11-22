@@ -31,6 +31,36 @@ INGEST_KEY = os.environ.get("INGEST_KEY") or (
 
 
 
+# Orders to physical equipment. The agent only PROPOSES; the super administrator authorizes in the panel.
+CMD_ACTIONS = {"luz": ("on", "off"), "ventilador": ("on", "off"), "calefactor": ("on", "off"), "riego": "seconds"}
+CMD_IRRIGATION_MAX_S = 120
+CMD_VALID_MIN = 30  # an authorized order expires after this many minutes
+REC_RE = re.compile(r"^rec[A-Za-z0-9]{14}$")
+
+
+def validate_cmd(fields):
+    """Returns (clean fields, error)."""
+    dev = str(fields.get("Dispositivo") or "")
+    act = str(fields.get("Accion") or "").lower()
+    val = str(fields.get("Valor") or "").lower().strip()
+    if not REC_RE.match(dev):
+        return None, "Dispositivo debe ser el _id (rec...) de un dispositivo del panel."
+    rule = CMD_ACTIONS.get(act)
+    if rule is None:
+        return None, "Accion no permitida. Use: " + ", ".join(CMD_ACTIONS)
+    if rule == "seconds":
+        try:
+            n = int(float(val))
+        except ValueError:
+            return None, "Para riego, Valor son los segundos (1-%d)." % CMD_IRRIGATION_MAX_S
+        if not 1 <= n <= CMD_IRRIGATION_MAX_S:
+            return None, "Riego: entre 1 y %d segundos." % CMD_IRRIGATION_MAX_S
+        val = str(n)
+    elif val not in rule:
+        return None, "Valor debe ser on u off."
+    return {"Dispositivo": dev, "Accion": act, "Valor": val, "Motivo": str(fields.get("Motivo") or "")[:500]}, None
+
+
 ROLE_LABEL_ = {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}
 
 
@@ -40,9 +70,12 @@ def _short_(fields, n):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        q = self.path or ""
+        if "comandos=1" in q:
+            self._device_orders(q)
+            return
         if not self._auth():
             return
-        q = self.path or ""
         if "me=1" in q:
             self._json(200, {"role": self.sess["role"], "name": self.sess["name"], "uid": self.sess["uid"]})
             return
@@ -93,6 +126,9 @@ class handler(BaseHTTPRequestHandler):
         if payload.get("action") == "ingest":
             self._ingest(payload)
             return
+        if payload.get("action") == "ack":
+            self._device_ack(payload)
+            return
         if not self._auth():
             return
         if payload.get("action") in ("set_pin", "revoke_pin"):
@@ -122,6 +158,15 @@ class handler(BaseHTTPRequestHandler):
             fields.update({"Estado": "Pendiente", "SolicitadaPor": self.sess["name"] or "Usuario",
                            "Rol": {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}[self.sess["role"]],
                            "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
+        if payload.get("table") == "comandos":
+            clean, err = validate_cmd(fields)
+            if err:
+                self._json(400, {"error": "orden_no_valida", "detail": err})
+                return
+            clean.update({"Orden": f"{clean['Accion']} {clean['Valor']}", "Estado": "Propuesto",
+                          "ProponePor": self.sess["name"] or "Usuario", "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
+            self._write("POST", table, "", {"fields": clean, "typecast": True}, log=("POST", "comandos", clean))
+            return
         if payload.get("table") == "memoria":
             fields.update({"Tipo": "Nota", "Accion": "Nota", "Tabla": "", "RegistroId": "",
                            "Actor": self.sess["name"] or "Usuario", "Rol": ROLE_LABEL_[self.sess["role"]],
@@ -140,6 +185,19 @@ class handler(BaseHTTPRequestHandler):
         rec_id = str(payload.get("id") or "")
         if not rec_id.startswith("rec"):
             self._json(400, {"error": "id_required"})
+            return
+        if payload.get("table") == "comandos":
+            if self.headers.get("X-Panel-Approval") != "1":
+                self._json(403, {"error": "forbidden", "detail": "Autorizar una orden solo se hace desde el botón del panel."})
+                return
+            est = str(payload.get("fields", {}).get("Estado") or "")
+            if est not in ("Autorizado", "Rechazado"):
+                self._json(400, {"error": "estado_no_valido"})
+                return
+            upd = {"Estado": est, "AutorizaPor": self.sess["name"] or "Rodrigo"}
+            if est == "Autorizado":
+                upd["AutorizadoEn"] = datetime.datetime.utcnow().isoformat() + "Z"
+            self._write("PATCH", table, "/" + rec_id, {"fields": upd, "typecast": True}, log=("PATCH", "comandos", upd))
             return
         fields = _clean_fields(allowed, payload.get("fields"))
         if fields is None:
@@ -248,6 +306,59 @@ class handler(BaseHTTPRequestHandler):
         self._json(200, {"fuente": "Open-Meteo (previsión pública, no son sensores de la instalación)",
                          "lugar": f"{res.get('name')}, {res.get('admin1','')}, {res.get('country','')}", "altitud_m": res.get("elevation"),
                          "ahora": w.get("current"), "unidades": w.get("current_units"), "dias_7": w.get("daily")})
+
+    def _device_key_ok(self):
+        key = self.headers.get("X-Ingest-Key", "")
+        return bool(INGEST_KEY) and hmac.compare_digest(key, INGEST_KEY)
+
+    def _device_orders(self, q):
+        """The board asks (outbound only) for orders already authorized by Rodrigo and still valid."""
+        if not self._device_key_ok():
+            self._json(401, {"error": "unauthorized"})
+            return
+        dev = urllib.parse.parse_qs(urllib.parse.urlparse(q).query).get("device_id", [""])[0]
+        if not REC_RE.match(dev):
+            self._json(400, {"error": "device_id_required"})
+            return
+        try:
+            formula = "AND({Dispositivo}='%s',{Estado}='Autorizado')" % dev
+            rows = _airtable("GET", "Comandos", query={"filterByFormula": formula, "maxRecords": 10}).get("records", [])
+        except Exception as e:  # noqa: BLE001
+            self._json(502, {"error": "airtable_fetch_failed", "detail": str(e)[:100]})
+            return
+        now = datetime.datetime.utcnow()
+        out = []
+        for r in rows:
+            f = r.get("fields", {})
+            try:
+                at = datetime.datetime.strptime(f.get("AutorizadoEn", "")[:19], "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                continue
+            if (now - at).total_seconds() <= CMD_VALID_MIN * 60:
+                out.append({"id": r["id"], "accion": f.get("Accion"), "valor": f.get("Valor")})
+        self._json(200, {"ordenes": out})
+
+    def _device_ack(self, payload):
+        if not self._device_key_ok():
+            self._json(401, {"error": "unauthorized"})
+            return
+        cid, dev = str(payload.get("id") or ""), str(payload.get("device_id") or "")
+        if not (REC_RE.match(cid) and REC_RE.match(dev)):
+            self._json(400, {"error": "id_y_device_id_requeridos"})
+            return
+        try:
+            rec = _airtable("GET", "Comandos", "/" + cid)
+            if rec.get("fields", {}).get("Dispositivo") != dev or rec.get("fields", {}).get("Estado") != "Autorizado":
+                self._json(409, {"error": "orden_no_pendiente_para_este_dispositivo"})
+                return
+            ok = bool(payload.get("ok"))
+            _airtable("PATCH", "Comandos", "/" + cid, {"fields": {"Estado": "Ejecutado" if ok else "Error",
+                      "Resultado": str(payload.get("resultado") or "")[:300]}, "typecast": True})
+        except Exception as e:  # noqa: BLE001
+            self._json(502, {"error": "airtable_write_failed", "detail": str(e)[:100]})
+            return
+        log_memory(None, "Actualizar", "comandos", cid, "La placa confirmó una orden: " + ("ejecutada" if ok else "con error"), tipo="Sistema")
+        self._json(200, {"ok": True})
 
     def _ingest(self, payload):
         """IoT gateways push a reading here with header X-Ingest-Key."""

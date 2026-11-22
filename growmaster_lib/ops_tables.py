@@ -32,6 +32,7 @@ TABLES = {
     "liberaciones": ("Liberaciones", ["Agente", "PlagaObjetivo", "Zona", "Dosis", "Fecha"]),
     "riegos": ("Riegos", ["Zona", "Hora", "VolumenLm2", "Formula", "Estado"]),
     "conocimiento": ("BaseConocimiento", ["Titulo", "Categoria", "Contenido", "Fuente"]),
+    "comandos": ("Comandos", ["Dispositivo", "Accion", "Valor", "Motivo"]),
     "memoria": ("Memoria", ["Resumen", "Detalle"]),
     "mejoras": ("Mejoras", ["Titulo", "Detalle", "Tipo", "SolicitadaPor", "Rol", "Estado", "Fecha", "NotaRodrigo"]),
 }
@@ -61,6 +62,9 @@ def can_write(role, key, method):
     """method: POST (create) | PATCH (update) | DELETE."""
     if role == "super":
         return True
+    if key == "comandos":
+        # Agent/panel propose (super, jefe); authorizing is a panel button for the super administrator only.
+        return role in ("super", "jefe") and method == "POST" or role == "super"
     if key == "memoria":
         # Anyone logged in can leave a note; the journal itself is never edited or deleted.
         return method == "POST"

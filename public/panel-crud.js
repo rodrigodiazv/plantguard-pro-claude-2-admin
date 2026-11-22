@@ -347,6 +347,35 @@
   }
   window.renderZoneActions = renderZoneActions;
 
+  const ORD_COLOR = { Propuesto: 'badge-amber', Autorizado: 'badge-blue', Rechazado: 'badge-red', Ejecutado: 'badge-green', Error: 'badge-red' };
+  async function decideOrden(id, estado) {
+    const r = await fetch('/api/ops-data', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'X-Panel-Approval': '1' },
+      body: JSON.stringify({ table: 'comandos', id, fields: { Estado: estado } }) });
+    if (!r.ok) { const d = await r.json().catch(() => ({})); alert('No se pudo: ' + (d.detail || d.error || r.status)); }
+    if (window.loadOpsData) window.loadOpsData();
+  }
+  function renderOrdenes() {
+    const box = document.getElementById('ordenes-list');
+    if (!box) return;
+    const list = rows('comandos').slice().sort((a, b) => String(b.Fecha || '').localeCompare(String(a.Fecha || ''))).slice(0, 100);
+    const sup = isSuper();
+    const pend = list.filter(o => o.Estado === 'Propuesto').length;
+    const badge = document.getElementById('ordenes-badge');
+    if (badge) { badge.textContent = sup && pend ? pend : ''; badge.style.display = sup && pend ? 'inline-block' : 'none'; }
+    const devName = id => ((rows('dispositivos').find(d => d._id === id) || {}).Nombre) || id;
+    box.innerHTML = list.length ? list.map(o => `<div class="card" style="margin-bottom:10px">
+      <div class="card-header"><div><div class="card-title">${esc(o.Accion)} → ${esc(o.Valor)}${o.Accion === 'riego' ? ' s' : ''}</div>
+        <div class="card-subtitle">${esc([devName(o.Dispositivo), o.ProponePor && ('propone ' + o.ProponePor), o.Fecha && new Date(o.Fecha).toLocaleString()].filter(Boolean).join(' · '))}</div></div>
+        <span class="badge ${ORD_COLOR[o.Estado] || 'badge-gray'}">${esc(o.Estado || '—')}</span></div>
+      ${o.Motivo ? `<div style="font-size:12px;color:var(--fg2);overflow-wrap:anywhere">${esc(o.Motivo)}</div>` : ''}
+      ${o.Resultado ? `<div style="font-size:12px;margin-top:6px;color:var(--fg3)">Placa: ${esc(o.Resultado)}</div>` : ''}
+      ${sup && o.Estado === 'Propuesto' ? `<div style="display:flex;gap:6px;margin-top:10px">
+        <span class="btn btn-sm btn-green" data-ord="${esc(o._id)}" data-st="Autorizado">✓ Autorizar</span>
+        <span class="btn btn-sm" data-ord="${esc(o._id)}" data-st="Rechazado">✗ Rechazar</span></div>` : ''}</div>`).join('')
+      : '<div style="font-size:12px;color:var(--fg3)">Todavía no hay órdenes. El Grow Agent las propondrá cuando haya equipos conectados.</div>';
+    box.querySelectorAll('[data-ord]').forEach(b => { b.onclick = () => decideOrden(b.dataset.ord, b.dataset.st); });
+  }
+
   function renderMemoria() {
     const box = document.getElementById('memoria-list');
     if (!box) return;
@@ -404,6 +433,7 @@
   window.renderPanelExtras = function () {
     renderMejoras();
     renderMemoria();
+    renderOrdenes();
     buildSistemas();
     renderAguaEval();
     renderPersonalExtras();

@@ -257,3 +257,10 @@ Pendiente (decisión de Rodrigo / panel de Vercel):
 ## 22-nov — Búsqueda web reforzada
 - La búsqueda devolvía 200 sin resultados (el parseo no casaba). Ahora: regex más tolerante + fallback a DuckDuckGo lite + nota explícita si no hay resultados + log `web_search_diag` (largo de páginas, si hay captcha) en los logs de Vercel. Si sigue vacía: probable bloqueo de DDG a IPs de servidor → usar API con clave (p. ej. Brave Search, plan gratuito) vía credencial.
 - Piloto: zona "La Cueva" (Granada 18010, interior, 1 m², autofloreciente, inicio 1-dic) ya creada por el agente (zona + ciclo reales en Airtable).
+
+## 22-nov — Canal de órdenes a equipos (mejora aprobada por Rodrigo en chat)
+- Tabla Airtable `Comandos` (tblH99FKwjjSjWb5u). El agente PROPONE con `crear_registro` tabla `comandos` (Dispositivo=_id rec..., Accion luz|ventilador|calefactor|riego, Valor on|off o 1–120 s). Servidor valida (`validate_cmd`) y fuerza Estado=Propuesto.
+- Autorizar/Rechazar: solo botón de la vista "Órdenes" (cabecera X-Panel-Approval, solo super). Una orden autorizada caduca a los 30 min.
+- Placa: `GET /api/ops-data?comandos=1&device_id=rec...` y `POST {action:"ack"}` con X-Ingest-Key; solo órdenes autorizadas vigentes del propio dispositivo.
+- Firmware ESP32 en `firmware/la-cueva/` (límites de seguridad en la placa: calefactor ≤28 °C, riego ≤90 s con espera de 30 min, luz por horario, todo apagado al arrancar). `secrets.h` ignorado por git. NO PROBADO en hardware; usa HTTPS sin verificar certificado (setInsecure) — mejora pendiente.
+- Mejora en Airtable pasada a "En desarrollo" (nota: aprobada en conversación, no con el botón).
