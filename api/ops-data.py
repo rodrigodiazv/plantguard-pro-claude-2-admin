@@ -2,13 +2,15 @@ import hashlib
 import hmac
 import json
 import os
+import secrets
 import sys
 import datetime
 import urllib.error
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "growmaster_lib"))
-from session_check import has_valid_session  # noqa: E402
+from session_check import get_session, pin_hash  # noqa: E402
+from ops_tables import can_read, can_write  # noqa: E402
 
 from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, clean_fields as _clean_fields  # noqa: E402
 from ops_tables import airtable as _airtable, list_all as _list_all  # noqa: E402
@@ -26,12 +28,26 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self._auth():
             return
-        if "ingest_key=1" in (self.path or ""):
+        q = self.path or ""
+        if "me=1" in q:
+            self._json(200, {"role": self.sess["role"], "name": self.sess["name"], "uid": self.sess["uid"]})
+            return
+        if "ingest_key=1" in q:
+            if self.sess["role"] != "super":
+                self._json(403, {"error": "forbidden"})
+                return
             # Shown only inside the logged-in panel, on demand, to configure the gateway.
             self._json(200, {"ingest_key": INGEST_KEY})
             return
         try:
-            out = {key: _list_all(name) for key, (name, _) in TABLES.items()}
+            out = {}
+            for key, (name, _) in TABLES.items():
+                if not can_read(self.sess["role"], key):
+                    continue
+                rows = _list_all(name)
+                if key == "personal" and self.sess["role"] == "operario":
+                    rows = [r for r in rows if r.get("_id") == self.sess["uid"]]
+                out[key] = rows
         except Exception as e:  # noqa: BLE001
             self._json(502, {"error": "airtable_fetch_failed", "detail": str(e)})
             return
@@ -46,8 +62,11 @@ class handler(BaseHTTPRequestHandler):
             return
         if not self._auth():
             return
+        if payload.get("action") in ("set_pin", "revoke_pin"):
+            self._staff_pin(payload)
+            return
         table, allowed = self._table(payload)
-        if not table:
+        if not table or not self._allowed(payload, "POST"):
             return
         fields = _clean_fields(allowed, payload.get("fields"))
         if fields is None:
@@ -60,7 +79,7 @@ class handler(BaseHTTPRequestHandler):
         if payload is None or not self._auth():
             return
         table, allowed = self._table(payload)
-        if not table:
+        if not table or not self._allowed(payload, "PATCH"):
             return
         rec_id = str(payload.get("id") or "")
         if not rec_id.startswith("rec"):
@@ -77,7 +96,7 @@ class handler(BaseHTTPRequestHandler):
         if payload is None or not self._auth():
             return
         table, _ = self._table(payload)
-        if not table:
+        if not table or not self._allowed(payload, "DELETE"):
             return
         rec_id = str(payload.get("id") or "")
         if not rec_id.startswith("rec"):
@@ -119,8 +138,50 @@ class handler(BaseHTTPRequestHandler):
             return
         self._json(200, {"ok": True})
 
+    def _allowed(self, payload, method):
+        if not can_write(self.sess["role"], payload.get("table"), method):
+            self._json(403, {"error": "forbidden", "detail": "Su rol no permite esta operación."})
+            return False
+        return True
+
+    def _staff_pin(self, payload):
+        """Super administrator only: create/renew (set_pin) or remove (revoke_pin) an employee's PIN.
+        The PIN is returned once, to the logged-in super administrator's panel; only its fingerprint is stored."""
+        if self.sess["role"] != "super":
+            self._json(403, {"error": "forbidden"})
+            return
+        rec_id = str(payload.get("id") or "")
+        if not rec_id.startswith("rec"):
+            self._json(400, {"error": "id_required"})
+            return
+        try:
+            if payload.get("action") == "revoke_pin":
+                _airtable("PATCH", "PersonalCampo", "/" + rec_id, {"fields": {"PinHash": None}})
+                self._json(200, {"ok": True})
+                return
+            acceso = payload.get("acceso")
+            alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no look-alike characters
+            for _ in range(10):
+                pin = "".join(secrets.choice(alphabet) for _ in range(8))
+                h = pin_hash(pin)
+                clash = _airtable("GET", "PersonalCampo", query={"maxRecords": 1, "filterByFormula": "{PinHash}='%s'" % h})
+                if not clash.get("records"):
+                    break
+            else:
+                self._json(500, {"error": "pin_generation_failed"})
+                return
+            fields = {"PinHash": h}
+            if acceso in ("Jefe de cultivo", "Operario"):
+                fields["Acceso"] = acceso
+            _airtable("PATCH", "PersonalCampo", "/" + rec_id, {"fields": fields, "typecast": True})
+        except urllib.error.HTTPError as e:
+            self._json(502, {"error": "airtable_write_failed", "detail": e.read().decode()[:300]})
+            return
+        self._json(200, {"ok": True, "pin": pin})
+
     def _auth(self):
-        if not has_valid_session(self.headers.get("Cookie")):
+        self.sess = get_session(self.headers.get("Cookie"))
+        if not self.sess:
             self._json(401, {"error": "unauthorized"})
             return False
         if not AIRTABLE_API_KEY or not BASE_ID:

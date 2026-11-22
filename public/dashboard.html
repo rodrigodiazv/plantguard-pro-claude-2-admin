@@ -475,11 +475,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
   </nav>
 
   <div class="sidebar-role">
-    <div style="font-size:11px;color:var(--fg2)">Rol:</div>
-    <div class="role-toggle">
-      <div class="role-btn active" id="role-tec" onclick="setRole('tec')">Técnico</div>
-      <div class="role-btn" id="role-adm" onclick="setRole('adm')">Admin</div>
-    </div>
+    <div style="min-width:0"><div id="me-name" style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">…</div>
+      <div id="me-role" style="font-size:11px;color:var(--fg2)"></div></div>
+    <div class="btn btn-sm" onclick="logoutPanel()">Salir</div>
   </div>
 </div>
 
@@ -1158,18 +1156,24 @@ function selectZone(el, zone) {
 }
 
 let role = 'tec';
-function setRole(r) {
-  role = r;
-  document.getElementById('role-tec').classList.toggle('active', r==='tec');
-  document.getElementById('role-adm').classList.toggle('active', r==='adm');
-  const admin = document.getElementById('admin-only-section');
-  const addBtn = document.getElementById('add-agent-btn');
-  if (admin) admin.style.display = r==='adm' ? 'grid' : 'none';
-  if (addBtn) addBtn.style.display = r==='adm' ? 'inline-flex' : 'none';
-}
+function setRole() { /* el rol real viene de la sesión (ver loadMe) */ }
 
-// Init
-setRole('tec');
+// Rol real de la sesión (super / jefe de cultivo)
+async function logoutPanel() { try { await fetch('/api/access', { method: 'DELETE' }); } catch (e) { /* ignore */ } location.href = '/'; }
+(async function loadMe() {
+  try {
+    const r = await fetch('/api/ops-data?me=1');
+    if (!r.ok) { if (r.status === 401) location.href = '/'; return; }
+    window.PG_ME = await r.json();
+    const label = { super: 'Super administrador', jefe: 'Jefe de cultivo', operario: 'Operario' }[window.PG_ME.role] || '';
+    document.getElementById('me-name').textContent = window.PG_ME.name || 'Usuario';
+    document.getElementById('me-role').textContent = label;
+    if (window.PG_ME.role !== 'super') {
+      document.querySelectorAll('[onclick*="modal-settings"]').forEach(el => { el.style.display = 'none'; });
+    }
+    if (window.renderPanelExtras) window.renderPanelExtras();
+  } catch (e) { /* keep default view */ }
+})();
 
 function switchChatTab(tab, el) {
   document.querySelectorAll('.chat-tab').forEach(t=>t.classList.remove('active'));

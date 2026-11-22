@@ -32,10 +32,11 @@
       f('K', 'K (mg/L)', { t: 'number', list: 1 }), f('Ca', 'Ca (mg/L)', { t: 'number', list: 1 }), f('Mg', 'Mg (mg/L)', { t: 'number', list: 1 }),
       f('CE', 'CE objetivo (mS/cm)', { t: 'number', list: 1 }), f('pH', 'pH objetivo', { t: 'number', list: 1 }),
       f('Micronutrientes', 'Micronutrientes (Fe, Mn, Zn, Cu, B, Mo…)', { list: 1 })],
-    personal: [f('Nombre', 'Nombre', { req: 1, list: 1 }), f('Rol', 'Tipo / rol', { t: 'select', o: ['Tecnico de cultivo', 'Tecnico IPM', 'Responsable de zona', 'Agronomo', 'Operario', 'Laboratorio', 'Administracion'], list: 1 }),
+    personal: [f('Nombre', 'Nombre', { req: 1, list: 1 }), f('Rol', 'Tipo / rol', { t: 'select', o: ['Jefe de cultivo', 'Tecnico de cultivo', 'Tecnico IPM', 'Responsable de zona', 'Agronomo', 'Operario', 'Laboratorio', 'Administracion'], list: 1 }),
       f('Calificacion', 'Calificación', { list: 1 }), f('Especialidad', 'Especialidad', { list: 1 }),
       f('ZonaActual', 'Zona asignada', Object.assign({ list: 1 }, ZONA)), f('TareaActual', 'Tarea asignada', { list: 1 }),
       f('Prioridad', 'Prioridad', { t: 'select', o: PRIO }), f('DispositivoEmpresa', 'Dispositivo de empresa (ID)', { list: 1 }),
+      f('Acceso', 'Acceso al panel', { t: 'select', o: ['Jefe de cultivo', 'Operario'], list: 1 }),
       f('EnTurno', 'En turno', { t: 'bool', list: 1 })],
     ciclos: [f('Nombre', 'Nombre', { req: 1, list: 1 }), f('Variedad', 'Variedad', { list: 1 }), f('Fase', 'Fase', { t: 'select', o: FASES, list: 1 }),
       f('SemanaActual', 'Semana actual', { t: 'number', list: 1 }), f('SemanaTotal', 'Semanas totales', { t: 'number', list: 1 }),
@@ -268,6 +269,40 @@
     <div style="font-size:11px;color:var(--fg3);margin-top:6px">Tolerancia: pH ±0,3 · EC ±0,2 mS/cm respecto a la fórmula de la zona.</div>`;
   }
 
+  function isSuper() { return window.PG_ME && window.PG_ME.role === 'super'; }
+
+  function openPinModal(id) {
+    const p = rows('personal').find(x => x._id === id) || {};
+    const m = modal();
+    m.innerHTML = `<div class="card" style="width:440px;max-width:95vw">
+      <div class="card-header"><div class="card-title">🔑 Acceso de ${esc(p.Nombre || 'empleado')}</div><span class="btn btn-sm" data-close>✕</span></div>
+      <div class="form-row"><label>Nivel de acceso</label><select id="pin-acceso"><option${p.Acceso !== 'Operario' ? ' selected' : ''}>Jefe de cultivo</option><option${p.Acceso === 'Operario' || !p.Acceso ? ' selected' : ''}>Operario</option></select></div>
+      <div style="font-size:11px;color:var(--fg3);margin-bottom:8px">Jefe de cultivo: ve y gestiona todo el cultivo. Operario: solo sus tareas, incidencias, fotos y el Grow Agent. Se genera un PIN personal nuevo (el anterior deja de valer).</div>
+      <div id="pin-out" style="display:none;margin:10px 0;padding:12px;border:1px solid var(--green);border-radius:8px;text-align:center">
+        <div style="font-size:11px;color:var(--fg2)">PIN de acceso — se muestra UNA sola vez</div>
+        <div id="pin-val" style="font-family:monospace;font-size:26px;font-weight:700;letter-spacing:3px;margin:6px 0"></div>
+        <div style="font-size:11px;color:var(--fg3)">Entrégueselo en persona. No se guarda: si se pierde, genere otro.</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="btn btn-green" data-gen>Generar PIN</span>${p.TienePin ? '<span class="btn" data-rev>Revocar acceso</span>' : ''}<span class="btn" data-close>Cerrar</span></div>
+      <div data-err style="color:var(--red);font-size:12px;margin-top:8px"></div></div>`;
+    m.style.display = 'flex';
+    m.querySelectorAll('[data-close]').forEach(b => { b.onclick = () => { m.style.display = 'none'; window.loadOpsData && window.loadOpsData(); }; });
+    const err = m.querySelector('[data-err]');
+    m.querySelector('[data-gen]').onclick = async () => {
+      err.textContent = 'Generando…';
+      const r = await fetch('/api/ops-data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'set_pin', id, acceso: document.getElementById('pin-acceso').value }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { err.textContent = 'Error: ' + (d.error || r.status); return; }
+      err.textContent = '';
+      document.getElementById('pin-val').textContent = d.pin;
+      document.getElementById('pin-out').style.display = 'block';
+    };
+    const rev = m.querySelector('[data-rev]');
+    if (rev) rev.onclick = async () => {
+      const r = await fetch('/api/ops-data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'revoke_pin', id }) });
+      if (r.ok) { m.style.display = 'none'; window.loadOpsData && window.loadOpsData(); } else err.textContent = 'No se pudo revocar.';
+    };
+  }
+
   function renderPersonalExtras() {
     const pers = rows('personal');
     const zonas = rows('zonas');
@@ -291,9 +326,10 @@
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           ${p.Rol ? `<span class="badge badge-blue">${esc(p.Rol)}</span>` : ''}${p.Calificacion ? `<span class="badge badge-gray">${esc(p.Calificacion)}</span>` : ''}${p.Especialidad ? `<span class="badge badge-gray">${esc(p.Especialidad)}</span>` : ''}</div>
         <div class="staff-time">📱 ${p.DispositivoEmpresa ? 'Dispositivo ' + esc(p.DispositivoEmpresa) : 'Sin dispositivo de empresa'}</div>
-        <div style="display:flex;gap:6px;margin-top:4px"><span class="btn btn-sm" data-pers-edit="${esc(p._id)}">Asignar / editar ficha</span></div>
+        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap"><span class="btn btn-sm" data-pers-edit="${esc(p._id)}">Asignar / editar ficha</span>${isSuper() ? `<span class="btn btn-sm" data-pers-pin="${esc(p._id)}">🔑 ${p.TienePin ? 'Renovar / revocar PIN' : 'Dar acceso (PIN)'}</span>` : ''}</div>
       </div>`).join('') : '<div style="font-size:12px;color:var(--fg3)">Sin personal dado de alta. Use "+ Añadir" en la ficha de personal.</div>';
     cards.querySelectorAll('[data-pers-edit]').forEach(b => { b.onclick = () => openForm('personal', b.dataset.persEdit); });
+    cards.querySelectorAll('[data-pers-pin]').forEach(b => { b.onclick = () => openPinModal(b.dataset.persPin); });
   }
 
   function renderZoneActions(zone) {

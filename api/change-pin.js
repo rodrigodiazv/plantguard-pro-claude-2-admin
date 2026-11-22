@@ -11,7 +11,7 @@
 //                        - see the handoff notes for that tradeoff)
 //   VERCEL_PROJECT_ID - this project's id (not secret)
 //   VERCEL_TEAM_ID    - the team id that owns the project (not secret)
-const { hasValidSession, timingSafeEqual } = require("../lib/session.js");
+const { hasRole, timingSafeEqual } = require("../lib/session.js");
 
 const VERCEL_API = "https://api.vercel.com";
 
@@ -41,8 +41,8 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "method_not_allowed" });
   }
 
-  if (!hasValidSession(req)) {
-    return res.status(401).json({ error: "unauthorized" });
+  if (!hasRole(req, ["super"])) {
+    return res.status(403).json({ error: "forbidden", message: "Solo el super administrador puede cambiar el PIN." });
   }
 
   const { VERCEL_API_TOKEN, VERCEL_PROJECT_ID, VERCEL_TEAM_ID } = process.env;

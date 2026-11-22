@@ -12,8 +12,8 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "growmaster_lib"))
-from session_check import has_valid_session  # noqa: E402
-from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, airtable, clean_fields, list_all  # noqa: E402
+from session_check import get_session  # noqa: E402
+from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, airtable, can_read, clean_fields, list_all  # noqa: E402
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
@@ -59,14 +59,19 @@ TOOLS = [
 ]
 
 
-def build_context():
+def build_context(sess=None):
+    role = (sess or {}).get("role", "super")
     parts, size = [], 0
     for key, (name, _) in TABLES.items():
+        if not can_read(role, key):
+            continue
         try:
             rows = list_all(name)
         except Exception:  # noqa: BLE001
             parts.append(f"{key}: (no disponible)")
             continue
+        if key == "personal" and role == "operario":
+            rows = [r for r in rows if r.get("_id") == sess.get("uid")]
         chunk = f"{key}: {json.dumps(rows, ensure_ascii=False)}"
         if size + len(chunk) > CONTEXT_LIMIT:
             chunk = f"{key}: ({len(rows)} registros, omitidos por tamaño)"
@@ -249,7 +254,8 @@ def parse_history(payload):
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        if not has_valid_session(self.headers.get("Cookie")):
+        sess = get_session(self.headers.get("Cookie"))
+        if not sess:
             self._json(401, {"error": "unauthorized"})
             return
         _oidc["token"] = self.headers.get("x-vercel-oidc-token") or os.environ.get("VERCEL_OIDC_TOKEN", "")
@@ -277,8 +283,11 @@ class handler(BaseHTTPRequestHandler):
             except urllib.error.HTTPError as e:
                 self._json(502, {"error": "signed_url_failed", "detail": f"ElevenLabs {e.code}"})
                 return
-            context = build_context() if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
-            self._json(200, {"signed_url": signed, "ops_context": context[:40000]})
+            context = build_context(sess) if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
+            role_label = {"super": "super administrador (Rodrigo, dueño del software)", "jefe": "jefe de cultivo",
+                          "operario": "operario de cultivo"}[sess["role"]]
+            self._json(200, {"signed_url": signed, "ops_context": context[:40000],
+                             "user_name": sess["name"] or "usuario", "user_role": role_label})
             return
         if isinstance(payload, dict) and payload.get("tts"):
             # Voice of the Grow Agent: returns MP3 from ElevenLabs.
@@ -300,7 +309,7 @@ class handler(BaseHTTPRequestHandler):
         if not history:
             self._json(400, {"error": "message_required"})
             return
-        context = build_context() if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
+        context = build_context(sess) if (AIRTABLE_API_KEY and BASE_ID) else "(sin datos de operación disponibles)"
         try:
             reply, actions = converse(history, context)
         except urllib.error.HTTPError as e:

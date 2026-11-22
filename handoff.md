@@ -149,6 +149,32 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
 - Pendiente: activar autenticación (solo URL firmada) en el agente de
   ElevenLabs para que nadie más pueda usarlo con su saldo.
 
+## Roles y acceso por PIN (22-nov-2026) — paso 1 de la visión de producto
+
+- Tres roles: **super** (Rodrigo, `ADMIN_PIN`), **jefe** (jefe de cultivo) y **operario**.
+  Cada empleado tiene su PIN personal (8 caracteres sin ambiguos); en Airtable
+  (PersonalCampo) solo se guarda su huella HMAC (`PinHash`) y el nivel (`Acceso`).
+  Nunca el PIN. `TienePin` (bool) se expone al panel; `PinHash` nunca sale.
+- Cookie `pg2_admin` = `exp.role.uid.name.sig` (lib/session.js, middleware.js,
+  growmaster_lib/session_check.py; probado JS = Python = Edge). Las sesiones
+  antiguas dejan de valer (hay que volver a entrar).
+- Permisos en `growmaster_lib/ops_tables.py` (`can_read`/`can_write`): jefe todo
+  salvo personal (solo super); operario lee lo de campo, crea incidencias
+  (alertas_ipm, tareas, trampas, mediciones) y solo actualiza tareas.
+  El Grow Agent usa la sesión del navegador → hereda los mismos límites.
+- `api/ops-data.py`: `GET ?me=1` (quién soy), `POST {action:"set_pin"|"revoke_pin", id,
+  acceso}` solo super: el PIN se muestra UNA vez en el panel de Rodrigo (modal en
+  Personal → "🔑 Dar acceso (PIN)"). `gm-health?keys=1` ahora exige super.
+- `middleware.js`: operario → `/operario.html` (móvil: hablar con el Grow Agent,
+  mis tareas, incidencias, foto reducida en el aparato). super/jefe → dashboard.
+  `change-pin` y ajustes: solo super. `DELETE /api/access` = salir.
+- Funciones Vercel: siguen 9 de 12.
+- PENDIENTE: enviar el PIN por email (no hay servicio de correo en el backend;
+  hoy lo entrega Rodrigo); paso 2 (solicitudes de mejora con aprobación), paso 3
+  (panel por cliente con alta por email) y paso 4 (asistente de configuración
+  de equipos). Actualizar prompt del agente ElevenLabs con {{user_name}} /
+  {{user_role}} (hacerlo DESPUÉS de que el deploy esté READY).
+
 ## Pendiente / próximos pasos
 
 - Conectar hardware real (sensores, filtros de agua, drones) a

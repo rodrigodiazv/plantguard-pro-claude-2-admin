@@ -82,7 +82,7 @@
       conv = await Conversation.startSession({
         signedUrl: sess.signed_url,
         connectionType: 'websocket',
-        dynamicVariables: { ops_context: sess.ops_context || '(sin datos)' },
+        dynamicVariables: { ops_context: sess.ops_context || '(sin datos)', user_name: sess.user_name || 'usuario', user_role: sess.user_role || 'usuario' },
         clientTools: {
           crear_registro: params => writeRecord('POST', params),
           actualizar_registro: params => writeRecord('PATCH', params),

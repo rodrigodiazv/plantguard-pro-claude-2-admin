@@ -4,7 +4,7 @@
 // and logs a catalog row in the "PlantGuard Growmaster" Airtable base (a
 // separate base from the sales CRM - this is knowledge-base data, not a lead).
 const { put } = require("@vercel/blob");
-const { hasValidSession } = require("../lib/session.js");
+const { getSession } = require("../lib/session.js");
 
 async function callAnalyze(cookieHeader, host, image_base64, filename) {
   const r = await fetch(`https://${host}/api/gm-analyze-photo`, {
@@ -38,7 +38,8 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "method_not_allowed" });
   }
-  if (!hasValidSession(req)) {
+  const sess = getSession(req);
+  if (!sess) {
     return res.status(401).json({ error: "unauthorized" });
   }
 
@@ -81,7 +82,7 @@ module.exports = async function handler(req, res) {
   const airtableResult = await logToAirtable({
     Photo: blob.url,
     Zone: zone || "",
-    Technician: technician || "",
+    Technician: sess.name || technician || "",
     Note: note || "",
     ...(coveragePct != null ? { "Coverage Pct": coveragePct / 100 } : {}),
     Status: "New",

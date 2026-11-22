@@ -5,7 +5,7 @@
 import { next } from "@vercel/functions";
 
 export const config = {
-  matcher: ["/dashboard.html", "/dashboard"],
+  matcher: ["/dashboard.html", "/dashboard", "/operario.html", "/operario"],
 };
 
 const SECRET = process.env.ADMIN_KEY || process.env.ACCESS_SECRET || "";
@@ -34,15 +34,16 @@ function readCookie(cookieHeader, name) {
   return hit ? decodeURIComponent(hit.slice(name.length + 1)) : "";
 }
 
-async function validSession(cookieHeader) {
+// Cookie: exp.role.uid.name.sig  (see lib/session.js). Returns the role or "".
+async function sessionRole(cookieHeader) {
   const token = readCookie(cookieHeader, "pg2_admin");
-  if (!token) return false;
-  const [body, sig] = token.split(".");
-  if (!body || !sig) return false;
-  const computed = await sign("s" + body);
+  const parts = token.split(".");
+  if (parts.length !== 5) return "";
+  const [exp, role, uid, nameB64, sig] = parts;
+  if (!["super", "jefe", "operario"].includes(role)) return "";
+  const computed = await sign("s" + [exp, role, uid, nameB64].join("."));
   const isValid = await safeEqual(computed, sig);
-  const isNotExpired = Number(body) > Date.now();
-  return isValid && isNotExpired;
+  return isValid && Number(exp) > Date.now() ? role : "";
 }
 
 export default async function middleware(request) {
@@ -52,12 +53,16 @@ export default async function middleware(request) {
     return new Response("Admin panel not configured.", { status: 503 });
   }
 
-  const cookieHeader = request.headers.get("cookie");
-  const isValid = await validSession(cookieHeader);
-
-  if (isValid) {
-    return next({ headers: { "Cache-Control": "private, no-store" } });
+  const role = await sessionRole(request.headers.get("cookie"));
+  if (!role) {
+    return Response.redirect(new URL("/", request.url), 302);
   }
 
-  return Response.redirect(new URL("/", request.url), 302);
+  // Operarios only get the field view; super/jefe get the full panel.
+  const path = new URL(request.url).pathname;
+  const isOperarioPage = path === "/operario.html" || path === "/operario";
+  if (role === "operario" && !isOperarioPage) {
+    return Response.redirect(new URL("/operario.html", request.url), 302);
+  }
+  return next({ headers: { "Cache-Control": "private, no-store" } });
 }

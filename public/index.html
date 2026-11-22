@@ -123,7 +123,8 @@
           body: JSON.stringify({ pin: pinInput.value })
         });
         if (r.ok) {
-          window.location.href = "/dashboard.html";
+          const d = await r.json().catch(() => ({}));
+          window.location.href = d.role === "operario" ? "/operario.html" : "/dashboard.html";
           return;
         }
         errorDiv.textContent = "PIN incorrecto. Intenta de nuevo.";

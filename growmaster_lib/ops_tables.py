@@ -18,7 +18,7 @@ TABLES = {
     "automation_rules": ("AutomationRules", ["Zona", "Nombre", "Condicion", "Accion", "Activa"]),
     "nutricion": ("Nutricion", ["Zona", "N", "P", "K", "Ca", "Mg", "CE", "pH", "Micronutrientes"]),
     "personal": ("PersonalCampo", ["Nombre", "Rol", "Calificacion", "Especialidad", "ZonaActual",
-                                   "TareaActual", "Prioridad", "DispositivoEmpresa", "EnTurno"]),
+                                   "TareaActual", "Prioridad", "DispositivoEmpresa", "EnTurno", "Acceso"]),
     "ciclos": ("Ciclos", ["Nombre", "Variedad", "Fase", "SemanaActual", "SemanaTotal", "FechaInicio",
                           "FechaCosechaEstimada", "Plantas", "Zona", "Estado"]),
     "drones": ("Drones", ["Nombre", "Sector", "Estado", "BateriaPct", "UltimaDeteccion"]),
@@ -33,6 +33,42 @@ TABLES = {
     "riegos": ("Riegos", ["Zona", "Hora", "VolumenLm2", "Formula", "Estado"]),
     "conocimiento": ("BaseConocimiento", ["Titulo", "Categoria", "Contenido", "Fuente"]),
 }
+
+
+# ---- Roles: super (Rodrigo) | jefe (jefe de cultivo) | operario ----
+# Hidden from every read (panel and agent): the PIN fingerprint.
+HIDDEN_FIELDS = ("PinHash",)
+
+# Operarios see only what they need in the field.
+OPERARIO_READ = {"zonas", "tareas", "alertas_ipm", "trampas", "liberaciones", "riegos", "conocimiento",
+                 "ciclos", "nutricion", "agua", "mediciones_agua"}
+# What an operario may write: report incidents and measurements; update (not create) task progress.
+OPERARIO_CREATE = {"alertas_ipm", "tareas", "trampas", "mediciones_agua", "liberaciones"}
+OPERARIO_UPDATE = {"tareas"}
+# Only the super administrator manages staff records and their access.
+SUPER_ONLY_WRITE = {"personal"}
+
+
+def can_read(role, key):
+    if role in ("super", "jefe"):
+        return True
+    return role == "operario" and key in OPERARIO_READ
+
+
+def can_write(role, key, method):
+    """method: POST (create) | PATCH (update) | DELETE."""
+    if role == "super":
+        return True
+    if key in SUPER_ONLY_WRITE:
+        return False
+    if role == "jefe":
+        return True
+    if role == "operario":
+        if method == "POST":
+            return key in OPERARIO_CREATE
+        if method == "PATCH":
+            return key in OPERARIO_UPDATE
+    return False
 
 
 def airtable(method, table_name, path="", body=None, query=None):
@@ -56,7 +92,10 @@ def list_all(table_name):
             q["offset"] = offset
         data = airtable("GET", table_name, query=q)
         for rec in data.get("records", []):
-            row = dict(rec.get("fields", {}))
+            fields = rec.get("fields", {})
+            row = {k: v for k, v in fields.items() if k not in HIDDEN_FIELDS}
+            if "PinHash" in fields or table_name == "PersonalCampo":
+                row["TienePin"] = bool(fields.get("PinHash"))
             row["_id"] = rec["id"]
             out.append(row)
         offset = data.get("offset")

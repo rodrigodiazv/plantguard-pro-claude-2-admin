@@ -4,7 +4,7 @@ import sys
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "growmaster_lib"))
-from session_check import has_valid_session  # noqa: E402
+from session_check import get_session  # noqa: E402
 from photo_bank import check_manifest  # noqa: E402
 
 
@@ -55,12 +55,16 @@ def key_status(oidc=""):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if "keys=1" in (self.path or ""):
-            # Diagnostic: status codes only (200 = key works). No secrets returned.
-            self._json(200, key_status(self.headers.get("x-vercel-oidc-token", "")))
-            return
-        if not has_valid_session(self.headers.get("Cookie")):
+        sess = get_session(self.headers.get("Cookie"))
+        if not sess:
             self._json(401, {"error": "unauthorized"})
+            return
+        if "keys=1" in (self.path or ""):
+            # Diagnostic (super administrator only): status codes, no secrets.
+            if sess["role"] != "super":
+                self._json(403, {"error": "forbidden"})
+                return
+            self._json(200, key_status(self.headers.get("x-vercel-oidc-token", "")))
             return
         problems = check_manifest()
         self._json(200, {
