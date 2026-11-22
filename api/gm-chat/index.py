@@ -62,8 +62,15 @@ TOOLS = [
 def build_context(sess=None):
     role = (sess or {}).get("role", "super")
     parts, size = [], 0
+    if role in ("super", "jefe"):
+        try:
+            from ops_tables import memory_rows
+            mem = [f"{r.get('Fecha','')[:16]} {r.get('Actor','?')}: {r.get('Resumen','')}" for r in memory_rows(60)]
+            parts.append("MEMORIA RECIENTE (diario persistente, lo más nuevo primero):\n" + "\n".join(mem))
+        except Exception:  # noqa: BLE001
+            parts.append("MEMORIA RECIENTE: (no disponible)")
     for key, (name, _) in TABLES.items():
-        if not can_read(role, key):
+        if key == "memoria" or not can_read(role, key):
             continue
         try:
             rows = list_all(name)

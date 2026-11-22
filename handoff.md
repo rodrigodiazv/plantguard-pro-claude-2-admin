@@ -228,3 +228,11 @@ cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
 - Causa: el agente de voz anunciaba "registrado" antes de llamar a `crear_registro`; luego las llamadas se duplicaron (6 filas repetidas en BaseConocimiento, ya borradas).
 - Arreglo: regla de honestidad añadida al prompt del agente EL (solo confirmar tras `ok:true`, siempre `table`, no duplicar, no prometer cambios de software/hardware). Publicado.
 - Pendiente: Rodrigo repite la prueba (crear zona por voz) y verifica en el panel. Sin hardware conectado.
+
+## 22-nov — Memoria persistente del Grow Agent
+- Tabla Airtable `Memoria` (tblTj1okAo0ztNu5W): diario escrito por el sistema (Fecha, Actor, Rol, Tipo, Accion, Tabla, RegistroId, Resumen, Detalle).
+- `api/ops-data.py`: cada POST/PATCH/DELETE y cada emisión/revocación de PIN se anota solo (`log_memory`, no rompe la escritura si falla). POST a `memoria` = nota (el servidor fuerza autor/fecha); PATCH/DELETE prohibidos.
+- `GET /api/ops-data?memoria=md` (super/jefe) descarga MEMORIA-GrowAgent.md: recuento real por tabla + mejoras abiertas + diario.
+- `gm-chat`: `build_context` antepone "MEMORIA RECIENTE" (60 últimas entradas) al contexto del agente al empezar cada conversación.
+- Panel: vista "Memoria" (visor + botón de descarga).
+- Funciones Vercel: sin cambios (9).

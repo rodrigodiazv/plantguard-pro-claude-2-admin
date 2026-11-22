@@ -14,6 +14,7 @@ from ops_tables import can_read, can_write  # noqa: E402
 
 from ops_tables import AIRTABLE_API_KEY, BASE_ID, TABLES, clean_fields as _clean_fields  # noqa: E402
 from ops_tables import airtable as _airtable, list_all as _list_all  # noqa: E402
+from ops_tables import log_memory, memory_markdown  # noqa: E402
 
 _SESSION_SECRET = os.environ.get("ADMIN_KEY") or os.environ.get("ACCESS_SECRET") or ""
 # Key the IoT gateway sends in X-Ingest-Key. Explicit env var wins; otherwise it
@@ -24,6 +25,13 @@ INGEST_KEY = os.environ.get("INGEST_KEY") or (
 
 
 
+ROLE_LABEL_ = {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}
+
+
+def _short_(fields, n):
+    return "; ".join(f"{k}={v}" for k, v in (fields or {}).items() if v not in (None, ""))[:n]
+
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self._auth():
@@ -31,6 +39,19 @@ class handler(BaseHTTPRequestHandler):
         q = self.path or ""
         if "me=1" in q:
             self._json(200, {"role": self.sess["role"], "name": self.sess["name"], "uid": self.sess["uid"]})
+            return
+        if "memoria=md" in q:
+            if self.sess["role"] == "operario":
+                self._json(403, {"error": "forbidden"})
+                return
+            body = memory_markdown(self.sess["role"]).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/markdown; charset=utf-8")
+            self.send_header("Content-Disposition", 'attachment; filename="MEMORIA-GrowAgent.md"')
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
             return
         if "ingest_key=1" in q:
             if self.sess["role"] != "super":
@@ -78,7 +99,13 @@ class handler(BaseHTTPRequestHandler):
             fields.update({"Estado": "Pendiente", "SolicitadaPor": self.sess["name"] or "Usuario",
                            "Rol": {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}[self.sess["role"]],
                            "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
-        self._write("POST", table, "", {"fields": fields, "typecast": True})
+        if payload.get("table") == "memoria":
+            fields.update({"Tipo": "Nota", "Accion": "Nota", "Tabla": "", "RegistroId": "",
+                           "Actor": self.sess["name"] or "Usuario", "Rol": ROLE_LABEL_[self.sess["role"]],
+                           "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
+            self._write("POST", table, "", {"fields": fields, "typecast": True}, log=False)
+            return
+        self._write("POST", table, "", {"fields": fields, "typecast": True}, log=("POST", payload.get("table"), fields))
 
     def do_PATCH(self):
         payload = self._body()
@@ -99,7 +126,7 @@ class handler(BaseHTTPRequestHandler):
             # Approving/rejecting is a button in the panel, not something a voice agent can do.
             self._json(403, {"error": "forbidden", "detail": "La aprobación de mejoras solo se hace desde el botón del panel."})
             return
-        self._write("PATCH", table, "/" + rec_id, {"fields": fields, "typecast": True})
+        self._write("PATCH", table, "/" + rec_id, {"fields": fields, "typecast": True}, log=("PATCH", payload.get("table"), fields))
 
     def do_DELETE(self):
         payload = self._body()
@@ -112,7 +139,7 @@ class handler(BaseHTTPRequestHandler):
         if not rec_id.startswith("rec"):
             self._json(400, {"error": "id_required"})
             return
-        self._write("DELETE", table, "/" + rec_id, None)
+        self._write("DELETE", table, "/" + rec_id, None, log=("DELETE", payload.get("table"), {}))
 
     def _ingest(self, payload):
         """IoT gateways push a reading here with header X-Ingest-Key."""
@@ -167,6 +194,7 @@ class handler(BaseHTTPRequestHandler):
         try:
             if payload.get("action") == "revoke_pin":
                 _airtable("PATCH", "PersonalCampo", "/" + rec_id, {"fields": {"PinHash": None}})
+                log_memory(self.sess, "Actualizar", "personal", rec_id, "Revocó el PIN de un empleado")
                 self._json(200, {"ok": True})
                 return
             acceso = payload.get("acceso")
@@ -187,6 +215,7 @@ class handler(BaseHTTPRequestHandler):
         except urllib.error.HTTPError as e:
             self._json(502, {"error": "airtable_write_failed", "detail": e.read().decode()[:300]})
             return
+        log_memory(self.sess, "Actualizar", "personal", rec_id, "Generó o renovó el PIN de un empleado (el PIN no se guarda)")
         self._json(200, {"ok": True, "pin": pin})
 
     def _auth(self):
@@ -222,7 +251,7 @@ class handler(BaseHTTPRequestHandler):
             return None, None
         return entry
 
-    def _write(self, method, table, path, body):
+    def _write(self, method, table, path, body, log=None):
         try:
             result = _airtable(method, table, path, body)
         except urllib.error.HTTPError as e:
@@ -231,6 +260,11 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:  # noqa: BLE001
             self._json(502, {"error": "airtable_write_failed", "detail": str(e)})
             return
+        if log:
+            verbo = {"POST": "Creó", "PATCH": "Actualizó", "DELETE": "Borró"}[log[0]]
+            rid = (result or {}).get("id") or path.lstrip("/")
+            log_memory(self.sess, {"POST": "Crear", "PATCH": "Actualizar", "DELETE": "Borrar"}[log[0]], log[1], rid,
+                       f"{verbo} en {log[1]}: {_short_(log[2], 120)}", detalle=_short_(log[2], 800))
         self._json(200, {"ok": True, "record": result})
 
     def _json(self, status, payload):

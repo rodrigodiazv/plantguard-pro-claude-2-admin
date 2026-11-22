@@ -347,6 +347,16 @@
   }
   window.renderZoneActions = renderZoneActions;
 
+  function renderMemoria() {
+    const box = document.getElementById('memoria-list');
+    if (!box) return;
+    const list = rows('memoria').slice().sort((a, b) => String(b.Fecha || '').localeCompare(String(a.Fecha || ''))).slice(0, 200);
+    box.innerHTML = list.length ? list.map(m => `<div style="font-size:12px;padding:8px 0;border-top:1px solid var(--border);overflow-wrap:anywhere">
+      <span style="color:var(--fg3)">${esc((m.Fecha || '').replace('T', ' ').slice(0, 16))}</span> · <strong>${esc(m.Actor || '?')}</strong>
+      <span class="badge badge-gray">${esc(m.Tipo || '')}</span><br>${esc(m.Resumen || '')}</div>`).join('')
+      : '<div style="font-size:12px;color:var(--fg3)">El diario empieza a llenarse con el próximo cambio.</div>';
+  }
+
   // ---- Solicitudes de mejora: anyone asks, only the super administrator decides ----
   const MEJ_COLOR = { Pendiente: 'badge-amber', Aprobada: 'badge-green', Rechazada: 'badge-red', 'En desarrollo': 'badge-blue', Publicada: 'badge-green' };
   function renderMejoras() {
@@ -393,6 +403,7 @@
 
   window.renderPanelExtras = function () {
     renderMejoras();
+    renderMemoria();
     buildSistemas();
     renderAguaEval();
     renderPersonalExtras();

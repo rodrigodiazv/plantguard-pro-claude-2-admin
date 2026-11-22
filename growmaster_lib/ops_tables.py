@@ -32,6 +32,7 @@ TABLES = {
     "liberaciones": ("Liberaciones", ["Agente", "PlagaObjetivo", "Zona", "Dosis", "Fecha"]),
     "riegos": ("Riegos", ["Zona", "Hora", "VolumenLm2", "Formula", "Estado"]),
     "conocimiento": ("BaseConocimiento", ["Titulo", "Categoria", "Contenido", "Fuente"]),
+    "memoria": ("Memoria", ["Resumen", "Detalle"]),
     "mejoras": ("Mejoras", ["Titulo", "Detalle", "Tipo", "SolicitadaPor", "Rol", "Estado", "Fecha", "NotaRodrigo"]),
 }
 
@@ -60,6 +61,9 @@ def can_write(role, key, method):
     """method: POST (create) | PATCH (update) | DELETE."""
     if role == "super":
         return True
+    if key == "memoria":
+        # Anyone logged in can leave a note; the journal itself is never edited or deleted.
+        return method == "POST"
     if key == "mejoras":
         # Anyone can ask for an improvement; only the super administrator can decide.
         return method == "POST"
@@ -117,3 +121,59 @@ def clean_fields(allowed, fields):
             return None
         clean[k] = None if v == "" else v
     return clean
+
+
+# ---- Memoria persistente del Grow Agent ----
+ROLE_LABEL = {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}
+
+
+def log_memory(sess, accion, tabla, rec_id, resumen, tipo="Escritura", detalle=""):
+    """Append one line to the persistent journal. Never raises: a logging failure must not break a write."""
+    try:
+        import datetime
+        fields = {"Resumen": str(resumen)[:250], "Fecha": datetime.datetime.utcnow().isoformat() + "Z",
+                  "Actor": (sess or {}).get("name") or "Sistema", "Rol": ROLE_LABEL.get((sess or {}).get("role"), "Sistema"),
+                  "Tipo": tipo, "Accion": accion, "Tabla": tabla, "RegistroId": rec_id or "", "Detalle": str(detalle)[:4000]}
+        airtable("POST", "Memoria", "", {"fields": fields, "typecast": True})
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def memory_rows(limit=200):
+    rows = list_all("Memoria")
+    rows.sort(key=lambda r: r.get("Fecha") or "", reverse=True)
+    return rows[:limit]
+
+
+def _short(fields, n=140):
+    txt = "; ".join(f"{k}={v}" for k, v in (fields or {}).items() if v not in (None, ""))
+    return txt[:n]
+
+
+def memory_markdown(role="super"):
+    """Whole memory as Markdown: state snapshot + pending decisions + journal (newest first)."""
+    import datetime
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    out = [f"# MEMORIA DEL GROW AGENT — PlantGuard Pro", f"_Generada al momento: {now}. Fuente única de verdad: Airtable (diario `Memoria` + tablas vivas)._", ""]
+    out.append("## Estado actual (recuento real)")
+    for key, (name, _) in TABLES.items():
+        if key == "memoria" or not can_read(role, key):
+            continue
+        try:
+            out.append(f"- {key}: {len(list_all(name))} registros")
+        except Exception:  # noqa: BLE001
+            out.append(f"- {key}: (no disponible)")
+    try:
+        pend = [m for m in list_all("Mejoras") if m.get("Estado") in ("Pendiente", "Aprobada", "En desarrollo")]
+        out += ["", "## Mejoras abiertas"]
+        out += [f"- [{m.get('Estado')}] {m.get('Titulo')} — pedida por {m.get('SolicitadaPor')}" for m in pend] or ["- Ninguna"]
+    except Exception:  # noqa: BLE001
+        pass
+    out += ["", "## Diario (lo más reciente primero)"]
+    try:
+        for r in memory_rows(300):
+            out.append(f"- {r.get('Fecha','')[:19]} · {r.get('Actor','?')} ({r.get('Rol','')}) · {r.get('Tipo','')} · {r.get('Resumen','')}"
+                       + (f"\n  {r['Detalle']}" if r.get("Detalle") else ""))
+    except Exception:  # noqa: BLE001
+        out.append("- (diario no disponible)")
+    return "\n".join(out) + "\n"
