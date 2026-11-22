@@ -236,3 +236,8 @@ cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
 - `gm-chat`: `build_context` antepone "MEMORIA RECIENTE" (60 últimas entradas) al contexto del agente al empezar cada conversación.
 - Panel: vista "Memoria" (visor + botón de descarga).
 - Funciones Vercel: sin cambios (9).
+
+## 22-nov — Grow Agent con poder de borrar y leer
+- Nuevas client tools ElevenLabs: `borrar_registro` (table, ids_json, motivo) y `leer_tabla` (table), adjuntas al agente y publicadas.
+- `public/grow-agent.js`: `deleteRecords` muestra cuadro "Autorizar / Rechazar" en el panel antes de borrar (DELETE por id vía /api/ops-data, permisos por rol; `memoria` no se puede borrar); `readTable` lee en vivo.
+- Prompt: protocolo leer → anunciar y pedir autorización → borrar → confirmar solo tras ok:true.

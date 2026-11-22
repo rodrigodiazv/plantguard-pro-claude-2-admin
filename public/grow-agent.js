@@ -70,6 +70,56 @@
     }
   }
 
+  // Reads one table live (fresher than the context given at session start).
+  async function readTable(params) {
+    try {
+      const r = await fetch('/api/ops-data', { cache: 'no-store' });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) return JSON.stringify({ ok: false, error: d.error || r.status });
+      const rows = d[params.table];
+      if (!rows) return JSON.stringify({ ok: false, error: 'tabla desconocida o sin permiso' });
+      let out = JSON.stringify({ ok: true, total: rows.length, rows });
+      if (out.length > 40000) out = JSON.stringify({ ok: true, total: rows.length, rows: rows.slice(0, 40), nota: 'Solo las 40 primeras filas' });
+      return out;
+    } catch (e) { return JSON.stringify({ ok: false, error: 'error de red' }); }
+  }
+
+  // Asks the person for authorization in the panel itself before anything is deleted.
+  function askAuth(text) {
+    return new Promise(resolve => {
+      const box = document.createElement('div');
+      box.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px';
+      box.innerHTML = '<div style="background:var(--bg2,#fff);color:var(--fg,#111);border:1px solid var(--border,#ddd);border-radius:14px;padding:18px;max-width:420px;width:100%">'
+        + '<div style="font-weight:700;margin-bottom:8px">⚠️ El Grow Agent pide autorización</div>'
+        + '<div id="ga-auth-t" style="font-size:13px;line-height:1.5;margin-bottom:14px;overflow-wrap:anywhere"></div>'
+        + '<div style="display:flex;gap:8px"><span class="btn btn-green" id="ga-auth-ok">Autorizar</span><span class="btn" id="ga-auth-no">Rechazar</span></div></div>';
+      box.querySelector('#ga-auth-t').textContent = text;
+      const end = v => { box.remove(); resolve(v); };
+      box.querySelector('#ga-auth-ok').onclick = () => end(true);
+      box.querySelector('#ga-auth-no').onclick = () => end(false);
+      document.body.appendChild(box);
+    });
+  }
+
+  async function deleteRecords(params) {
+    let ids;
+    try { ids = typeof params.ids_json === 'string' ? JSON.parse(params.ids_json) : params.ids_json; } catch (e) { ids = null; }
+    if (!Array.isArray(ids) || !ids.length || ids.some(i => !String(i).startsWith('rec'))) return JSON.stringify({ ok: false, error: 'ids_json debe ser una lista de _id válidos' });
+    if (params.table === 'memoria') return JSON.stringify({ ok: false, error: 'el diario de memoria no se puede borrar' });
+    const okAuth = await askAuth('Borrar ' + ids.length + ' registro(s) de la tabla "' + params.table + '"' + (params.motivo ? ' — ' + params.motivo : '') + '. No se puede deshacer.');
+    if (!okAuth) { add('ga-act', '✗ Borrado rechazado por el usuario'); return JSON.stringify({ ok: false, error: 'el usuario no autorizó el borrado' }); }
+    let done = 0, last = null;
+    for (const id of ids) {
+      try {
+        const r = await fetch('/api/ops-data', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: params.table, id }) });
+        if (r.ok) done++; else { const d = await r.json().catch(() => ({})); last = d.detail || d.error || r.status; }
+      } catch (e) { last = 'error de red'; }
+    }
+    add('ga-act', (done === ids.length ? '✓ ' : '✗ ') + 'Borrados ' + done + '/' + ids.length + ' en ' + params.table + (last ? ' — ' + last : ''));
+    if (done && window.loadOpsData) window.loadOpsData();
+    return JSON.stringify({ ok: done === ids.length, borrados: done, pedidos: ids.length, error: last || undefined });
+  }
+
   async function start() {
     if (conv || starting) return;
     starting = true; orb('live'); state('Conectando con el Grow Agent…');
@@ -86,6 +136,8 @@
         clientTools: {
           crear_registro: params => writeRecord('POST', params),
           actualizar_registro: params => writeRecord('PATCH', params),
+          borrar_registro: params => deleteRecords(params),
+          leer_tabla: params => readTable(params),
         },
         onConnect: () => { state('Escuchando… hable cuando quiera'); orb('live'); },
         onDisconnect: () => { conv = null; orb(''); state('Conversación terminada. Pulse la esfera para hablar.'); },
