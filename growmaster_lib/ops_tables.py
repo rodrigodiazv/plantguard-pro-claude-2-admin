@@ -32,6 +32,7 @@ TABLES = {
     "liberaciones": ("Liberaciones", ["Agente", "PlagaObjetivo", "Zona", "Dosis", "Fecha"]),
     "riegos": ("Riegos", ["Zona", "Hora", "VolumenLm2", "Formula", "Estado"]),
     "conocimiento": ("BaseConocimiento", ["Titulo", "Categoria", "Contenido", "Fuente"]),
+    "mejoras": ("Mejoras", ["Titulo", "Detalle", "Tipo", "SolicitadaPor", "Rol", "Estado", "Fecha", "NotaRodrigo"]),
 }
 
 
@@ -59,6 +60,9 @@ def can_write(role, key, method):
     """method: POST (create) | PATCH (update) | DELETE."""
     if role == "super":
         return True
+    if key == "mejoras":
+        # Anyone can ask for an improvement; only the super administrator can decide.
+        return method == "POST"
     if key in SUPER_ONLY_WRITE:
         return False
     if role == "jefe":

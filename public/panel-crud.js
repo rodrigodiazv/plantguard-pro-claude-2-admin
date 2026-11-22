@@ -69,6 +69,8 @@
       f('Zona', 'Zona', Object.assign({ list: 1 }, ZONA)), f('Dosis', 'Dosis', { list: 1 }), f('Fecha', 'Fecha', { t: 'date', list: 1 })],
     riegos: [f('Zona', 'Zona', Object.assign({ req: 1, list: 1 }, ZONA)), f('Hora', 'Hora', { list: 1 }), f('VolumenLm2', 'Volumen L/m²', { t: 'number', list: 1 }),
       f('Formula', 'Fórmula', { list: 1 }), f('Estado', 'Estado', { t: 'select', o: ['Programado', 'Ejecutado', 'Cancelado'], list: 1 })],
+    mejoras: [f('Titulo', 'Qué quiere mejorar o añadir', { req: 1, list: 1 }), f('Detalle', 'Detalle (cuanto más concreto, mejor)', { t: 'textarea', req: 1, list: 1 }),
+      f('Tipo', 'Tipo', { t: 'select', o: ['Función nueva', 'Eficiencia', 'Conector / equipo', 'Error', 'Otro'], list: 1 })],
     conocimiento: [f('Titulo', 'Título', { req: 1, list: 1 }),
       f('Categoria', 'Categoría', { t: 'select', o: ['Plagas', 'Enfermedades', 'Nutricion', 'Riego y agua', 'Clima', 'Variedades', 'Protocolos GACP', 'Otros'], list: 1 }),
       f('Contenido', 'Contenido', { t: 'textarea', req: 1, list: 1 }), f('Fuente', 'Fuente', { list: 1 })],
@@ -345,7 +347,52 @@
   }
   window.renderZoneActions = renderZoneActions;
 
+  // ---- Solicitudes de mejora: anyone asks, only the super administrator decides ----
+  const MEJ_COLOR = { Pendiente: 'badge-amber', Aprobada: 'badge-green', Rechazada: 'badge-red', 'En desarrollo': 'badge-blue', Publicada: 'badge-green' };
+  function renderMejoras() {
+    const box = document.getElementById('mejoras-list');
+    if (!box) return;
+    const list = rows('mejoras').slice().sort((a, b) => String(b.Fecha || '').localeCompare(String(a.Fecha || '')));
+    const sup = isSuper();
+    const pend = list.filter(m => m.Estado === 'Pendiente').length;
+    const badge = document.getElementById('mejoras-badge');
+    if (badge) { badge.textContent = sup && pend ? pend : ''; badge.style.display = sup && pend ? 'inline-block' : 'none'; }
+    box.innerHTML = list.length ? list.map(m => `<div class="card" style="margin-bottom:10px">
+      <div class="card-header"><div><div class="card-title">${esc(m.Titulo)}</div>
+        <div class="card-subtitle">${esc([m.Tipo, m.SolicitadaPor && ('por ' + m.SolicitadaPor), m.Rol, m.Fecha && new Date(m.Fecha).toLocaleDateString()].filter(Boolean).join(' · '))}</div></div>
+        <span class="badge ${MEJ_COLOR[m.Estado] || 'badge-gray'}">${esc(m.Estado || '—')}</span></div>
+      <div style="font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg2)">${esc(m.Detalle || '')}</div>
+      ${m.NotaRodrigo ? `<div style="font-size:12px;margin-top:8px;padding:8px;border-left:3px solid var(--green);background:var(--bg3)"><strong>Rodrigo:</strong> ${esc(m.NotaRodrigo)}</div>` : ''}
+      ${sup ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+        ${m.Estado !== 'Aprobada' ? `<span class="btn btn-sm btn-green" data-mej="${esc(m._id)}" data-st="Aprobada">✓ Aprobar</span>` : ''}
+        ${m.Estado !== 'Rechazada' ? `<span class="btn btn-sm" data-mej="${esc(m._id)}" data-st="Rechazada">✗ Rechazar</span>` : ''}
+        ${m.Estado === 'Aprobada' ? `<span class="btn btn-sm" data-mej="${esc(m._id)}" data-st="En desarrollo">En desarrollo</span>` : ''}
+        ${m.Estado === 'En desarrollo' || m.Estado === 'Aprobada' ? `<span class="btn btn-sm" data-mej="${esc(m._id)}" data-st="Publicada">Publicada</span>` : ''}
+        <span class="btn btn-sm" data-mej-del="${esc(m._id)}">Borrar</span></div>` : ''}</div>`).join('')
+      : '<div style="font-size:12px;color:var(--fg3)">Todavía no hay solicitudes. Pulse "+ Solicitar mejora" o pídaselo al Grow Agent por voz.</div>';
+    box.querySelectorAll('[data-mej]').forEach(b => { b.onclick = () => decideMejora(b.dataset.mej, b.dataset.st); });
+    box.querySelectorAll('[data-mej-del]').forEach(b => { b.onclick = () => del('mejoras', b.dataset.mejDel); });
+  }
+
+  function decideMejora(id, estado) {
+    const m = modal(), cur = rows('mejoras').find(x => x._id === id) || {};
+    m.innerHTML = `<div class="card" style="width:460px;max-width:95vw">
+      <div class="card-header"><div class="card-title">${esc(estado)}: ${esc(cur.Titulo || '')}</div><span class="btn btn-sm" data-close>✕</span></div>
+      <div class="form-row"><label>Nota para quien lo pidió y para el desarrollo (opcional)</label><textarea id="mej-nota" rows="4">${esc(cur.NotaRodrigo || '')}</textarea></div>
+      <div style="display:flex;gap:8px"><span class="btn btn-green" data-ok>Confirmar</span><span class="btn" data-close>Cancelar</span></div>
+      <div data-err style="color:var(--red);font-size:12px;margin-top:8px"></div></div>`;
+    m.style.display = 'flex';
+    m.querySelectorAll('[data-close]').forEach(b => { b.onclick = () => { m.style.display = 'none'; }; });
+    m.querySelector('[data-ok]').onclick = async () => {
+      const r = await fetch('/api/ops-data', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'X-Panel-Approval': '1' },
+        body: JSON.stringify({ table: 'mejoras', id, fields: { Estado: estado, NotaRodrigo: document.getElementById('mej-nota').value.trim() || null } }) });
+      if (r.ok) { m.style.display = 'none'; window.loadOpsData && window.loadOpsData(); } else m.querySelector('[data-err]').textContent = 'No se pudo guardar.';
+    };
+  }
+  window.openMejoraForm = () => openForm('mejoras', null, {});
+
   window.renderPanelExtras = function () {
+    renderMejoras();
     buildSistemas();
     renderAguaEval();
     renderPersonalExtras();

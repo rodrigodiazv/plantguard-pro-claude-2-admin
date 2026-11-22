@@ -175,6 +175,20 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
   de equipos). Actualizar prompt del agente ElevenLabs con {{user_name}} /
   {{user_role}} (hacerlo DESPUÉS de que el deploy esté READY).
 
+## Solicitudes de mejora (22-nov-2026) — paso 2 de la visión de producto
+
+- Tabla Airtable `Mejoras` (Titulo, Detalle, Tipo, SolicitadaPor, Rol, Estado, Fecha, NotaRodrigo);
+  clave `mejoras` en `ops_tables.py`. Vista "Mejoras" del panel (super y jefe).
+- Cualquier rol puede CREAR (también el Grow Agent por voz). El servidor fija
+  Estado=Pendiente, SolicitadaPor, Rol y Fecha (el cliente/agente no puede elegirlos).
+  Solo el super cambia el estado, y solo con la cabecera `X-Panel-Approval: 1` que
+  envían los botones del panel (Aprobar / Rechazar / En desarrollo / Publicada):
+  el agente de voz no puede aprobar nada.
+- FLUJO DE DESARROLLO: al empezar una sesión en este repo, leer `Mejoras` con
+  Estado = "Aprobada" (Airtable MCP, base appEoJPsQoVqgRMYi), proponer el plan a
+  Rodrigo, pasar a "En desarrollo" al empezar y a "Publicada" SOLO tras probar,
+  desplegar y verificar READY. Nada de código a producción sin aprobación.
+
 ## Pendiente / próximos pasos
 
 - Conectar hardware real (sensores, filtros de agua, drones) a

@@ -72,6 +72,12 @@ class handler(BaseHTTPRequestHandler):
         if fields is None:
             self._json(400, {"error": "invalid_fields", "allowed": allowed})
             return
+        if payload.get("table") == "mejoras":
+            # Who asked, when and the initial state are decided here, never by the client or the agent.
+            fields.pop("NotaRodrigo", None)
+            fields.update({"Estado": "Pendiente", "SolicitadaPor": self.sess["name"] or "Usuario",
+                           "Rol": {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}[self.sess["role"]],
+                           "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
         self._write("POST", table, "", {"fields": fields, "typecast": True})
 
     def do_PATCH(self):
@@ -88,6 +94,10 @@ class handler(BaseHTTPRequestHandler):
         fields = _clean_fields(allowed, payload.get("fields"))
         if fields is None:
             self._json(400, {"error": "invalid_fields", "allowed": allowed})
+            return
+        if payload.get("table") == "mejoras" and self.headers.get("X-Panel-Approval") != "1":
+            # Approving/rejecting is a button in the panel, not something a voice agent can do.
+            self._json(403, {"error": "forbidden", "detail": "La aprobación de mejoras solo se hace desde el botón del panel."})
             return
         self._write("PATCH", table, "/" + rec_id, {"fields": fields, "typecast": True})
 
