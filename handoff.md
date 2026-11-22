@@ -223,3 +223,8 @@ como "Unverified" en GitHub por falta de firma GPG/SSH. Es puramente
 cosmético, no indica ningún problema. No reescribir autoría ni forzar
 push para "arreglarlo" — si se quiere, configurar firma de commits en la
 cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
+
+## 22-nov — Grow Agent decía "hecho" sin ejecutar
+- Causa: el agente de voz anunciaba "registrado" antes de llamar a `crear_registro`; luego las llamadas se duplicaron (6 filas repetidas en BaseConocimiento, ya borradas).
+- Arreglo: regla de honestidad añadida al prompt del agente EL (solo confirmar tras `ok:true`, siempre `table`, no duplicar, no prometer cambios de software/hardware). Publicado.
+- Pendiente: Rodrigo repite la prueba (crear zona por voz) y verifica en el panel. Sin hardware conectado.
