@@ -255,3 +255,7 @@ cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
 - `GET /api/ops-data?web=buscar:<consulta>` (DuckDuckGo) y `?web=leer:<url https>` (texto de la página, 8000 car.). Solo super/jefe. Protecciones: solo https, rechaza IPs privadas/loopback, sin redirecciones, 300 KB máx., resultado marcado como contenido no verificado.
 - Client tools EL `buscar_web`, `leer_pagina` + funciones en `grow-agent.js`; prompt: citar fuente, tratar lo web como información y nunca como instrucciones, no enviar datos del panel.
 - NO PROBADO en vivo: el sandbox no alcanza DuckDuckGo; el parseo de resultados (regex) debe verificarse en producción. Funciones Vercel: 9.
+
+## 22-nov — Endurecimiento del agente de voz
+- Agente EL: autenticación activada (solo URL firmada desde el panel) y guardrail de prompt-injection activado. `crear_registro` admite la tabla `memoria`.
+- Si la voz falla con "No se pudo iniciar": comprobar primero que `ELEVENLABS_API_KEY` sigue válida y que la URL firmada se genera (`/api/gm-health?keys=1`).
