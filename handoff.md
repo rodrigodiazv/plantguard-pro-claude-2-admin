@@ -194,9 +194,6 @@ general (Rodrigo, todo) vs administradores autorizados (acceso limitado).
 - Conectar hardware real (sensores, filtros de agua, drones) a
   **Dispositivos** cuando exista — cada uno registra su canal (WiFi,
   Bluetooth/BLE, Zigbee, LoRa, Modbus, MQTT, BACnet, DMX512, MAVLink).
-- Hay un PR/rama de Copilot (`fix/blob-dependency-audit`) actualizando
-  `@vercel/blob` por vulnerabilidades — no mergeada a `main`, revisar y
-  mergear si corresponde.
 - Sección "Próximos hitos" de Ciclos: se sacó porque era inventada: no hay
   sistema de recordatorios automático. Si se quiere implementar, es
   trabajo nuevo real.
@@ -215,14 +212,6 @@ Pendiente (decisión de Rodrigo / panel de Vercel):
 3. **`BLOB_READ_WRITE_TOKEN`** aparece en Vercel como "readable-secret": recrearla como tipo *Sensitive*.
 4. Un mismo PAT de Airtable sirve a dos bases; idealmente uno por base con permisos mínimos.
 5. Sin CSP (el panel es todo JS inline); requiere refactor.
-
-## Nota sobre commits "Unverified" en GitHub
-
-Algunos commits (incluido uno legítimo de Rodrigo, `a6d983a`) aparecen
-como "Unverified" en GitHub por falta de firma GPG/SSH. Es puramente
-cosmético, no indica ningún problema. No reescribir autoría ni forzar
-push para "arreglarlo" — si se quiere, configurar firma de commits en la
-cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
 
 ## 22-nov — Grow Agent decía "hecho" sin ejecutar
 - Causa: el agente de voz anunciaba "registrado" antes de llamar a `crear_registro`; luego las llamadas se duplicaron (6 filas repetidas en BaseConocimiento, ya borradas).
