@@ -92,6 +92,14 @@
     } catch (e) { return JSON.stringify({ ok: false, error: 'error de red' }); }
   }
 
+  async function web(arg) {
+    try {
+      const r = await fetch('/api/ops-data?web=' + encodeURIComponent(arg), { cache: 'no-store' });
+      const d = await r.json().catch(() => ({}));
+      return JSON.stringify(r.ok ? { ok: true, ...d } : { ok: false, error: d.error || r.status, detail: d.detail });
+    } catch (e) { return JSON.stringify({ ok: false, error: 'error de red' }); }
+  }
+
   // Asks the person for authorization in the panel itself before anything is deleted.
   function askAuth(text) {
     return new Promise(resolve => {
@@ -157,6 +165,8 @@
           borrar_registro: params => deleteRecords(params),
           leer_tabla: params => readTable(params),
           consultar_clima: params => weather(params),
+          buscar_web: params => web('buscar:' + (params.consulta || '')),
+          leer_pagina: params => web('leer:' + (params.url || '')),
         },
         onConnect: () => { state('Escuchando… hable cuando quiera'); orb('live'); },
         onDisconnect: () => { saveConversation(); conv = null; orb(''); state('Conversación terminada. Pulse la esfera para hablar.'); },
