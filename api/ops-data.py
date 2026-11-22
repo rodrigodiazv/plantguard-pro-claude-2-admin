@@ -86,6 +86,17 @@ class handler(BaseHTTPRequestHandler):
         if payload.get("action") in ("set_pin", "revoke_pin"):
             self._staff_pin(payload)
             return
+        if payload.get("action") == "conversation":
+            # The panel sends every finished voice conversation here, so nothing said is ever lost.
+            text = str(payload.get("transcript") or "")[:30000]
+            if len(text) < 20:
+                self._json(200, {"ok": True, "skipped": True})
+                return
+            first = str(payload.get("first") or "")[:160]
+            log_memory(self.sess, "Conversación", "", "", f"Conversación con el Grow Agent ({int(payload.get('turns') or 0)} mensajes): {first}",
+                       tipo="Conversación", detalle=text)
+            self._json(200, {"ok": True})
+            return
         table, allowed = self._table(payload)
         if not table or not self._allowed(payload, "POST"):
             return

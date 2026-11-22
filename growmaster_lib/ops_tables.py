@@ -133,7 +133,7 @@ def log_memory(sess, accion, tabla, rec_id, resumen, tipo="Escritura", detalle="
         import datetime
         fields = {"Resumen": str(resumen)[:250], "Fecha": datetime.datetime.utcnow().isoformat() + "Z",
                   "Actor": (sess or {}).get("name") or "Sistema", "Rol": ROLE_LABEL.get((sess or {}).get("role"), "Sistema"),
-                  "Tipo": tipo, "Accion": accion, "Tabla": tabla, "RegistroId": rec_id or "", "Detalle": str(detalle)[:4000]}
+                  "Tipo": tipo, "Accion": accion, "Tabla": tabla, "RegistroId": rec_id or "", "Detalle": str(detalle)[:30000]}
         airtable("POST", "Memoria", "", {"fields": fields, "typecast": True})
     except Exception:  # noqa: BLE001
         pass

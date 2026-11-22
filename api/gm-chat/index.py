@@ -65,8 +65,13 @@ def build_context(sess=None):
     if role in ("super", "jefe"):
         try:
             from ops_tables import memory_rows
-            mem = [f"{r.get('Fecha','')[:16]} {r.get('Actor','?')}: {r.get('Resumen','')}" for r in memory_rows(60)]
-            parts.append("MEMORIA RECIENTE (diario persistente, lo más nuevo primero):\n" + "\n".join(mem))
+            rows = memory_rows(300)
+            journal = [f"{r.get('Fecha','')[:16]} {r.get('Actor','?')}: {r.get('Resumen','')}" for r in rows if r.get("Tipo") != "Conversación"][:60]
+            parts.append("MEMORIA RECIENTE (diario persistente, lo más nuevo primero):\n" + "\n".join(journal))
+            convs = [r for r in rows if r.get("Tipo") == "Conversación"][:4]
+            if convs:
+                parts.append("CONVERSACIONES ANTERIORES (transcripción, la más reciente primero; retoma lo pendiente sin que se lo repitan):\n" + "\n---\n".join(
+                    f"[{r.get('Fecha','')[:16]} con {r.get('Actor','?')}]\n{(r.get('Detalle') or '')[:3500]}" for r in convs))
         except Exception:  # noqa: BLE001
             parts.append("MEMORIA RECIENTE: (no disponible)")
     for key, (name, _) in TABLES.items():

@@ -241,3 +241,8 @@ cuenta de GitHub de Rodrigo, sin tocar el historial pasado.
 - Nuevas client tools ElevenLabs: `borrar_registro` (table, ids_json, motivo) y `leer_tabla` (table), adjuntas al agente y publicadas.
 - `public/grow-agent.js`: `deleteRecords` muestra cuadro "Autorizar / Rechazar" en el panel antes de borrar (DELETE por id vía /api/ops-data, permisos por rol; `memoria` no se puede borrar); `readTable` lee en vivo.
 - Prompt: protocolo leer → anunciar y pedir autorización → borrar → confirmar solo tras ok:true.
+
+## 22-nov — Memoria de conversaciones (nunca perder contexto)
+- `grow-agent.js` acumula la transcripción y la envía al terminar (onDisconnect/cerrar/pagehide, `keepalive`) a `POST /api/ops-data {action:"conversation"}` → fila `Memoria` Tipo "Conversación" (Detalle = transcripción, hasta 30000 car.).
+- `gm-chat build_context`: diario (60) + últimas 4 conversaciones (3500 car. c/u) al empezar cada sesión. Prompt: retomar lo pendiente sin que se lo repitan.
+- Límite conocido: si el navegador muere sin evento de cierre, esa conversación no se guarda. El MEMORIA.md descargable incluye las transcripciones.

@@ -6,7 +6,7 @@
 // client tools that run here, in the logged-in browser, via /api/ops-data.
 (function () {
   const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.35.0/+esm';
-  let conv = null, starting = false;
+  let conv = null, starting = false, log = [], saved = false;
 
   const css = `
   #ga-panel{position:fixed;top:0;left:0;bottom:0;width:min(440px,100vw);background:var(--bg2,#fff);border-right:1px solid var(--border,#ddd);
@@ -120,9 +120,19 @@
     return JSON.stringify({ ok: done === ids.length, borrados: done, pedidos: ids.length, error: last || undefined });
   }
 
+  // Every conversation is stored in the persistent memory when it ends (or the tab closes).
+  function saveConversation() {
+    if (saved || log.length < 2) return;
+    saved = true;
+    const body = JSON.stringify({ action: 'conversation', turns: log.length, first: (log.find(l => l.u) || {}).t || '',
+      transcript: log.map(l => (l.u ? 'Usuario: ' : 'Grow Agent: ') + l.t).join('\n') });
+    try { fetch('/api/ops-data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).then(() => window.loadOpsData && window.loadOpsData()).catch(() => {}); } catch (e) { /* ignore */ }
+  }
+  window.addEventListener('pagehide', saveConversation);
+
   async function start() {
     if (conv || starting) return;
-    starting = true; orb('live'); state('Conectando con el Grow Agent…');
+    starting = true; log = []; saved = false; orb('live'); state('Conectando con el Grow Agent…');
     try {
       const [{ Conversation }, sess] = await Promise.all([
         import(SDK_URL),
@@ -140,7 +150,7 @@
           leer_tabla: params => readTable(params),
         },
         onConnect: () => { state('Escuchando… hable cuando quiera'); orb('live'); },
-        onDisconnect: () => { conv = null; orb(''); state('Conversación terminada. Pulse la esfera para hablar.'); },
+        onDisconnect: () => { saveConversation(); conv = null; orb(''); state('Conversación terminada. Pulse la esfera para hablar.'); },
         onError: msg => { state('Error: ' + msg); },
         onModeChange: ({ mode }) => {
           if (mode === 'speaking') { orb('speaking'); state('Hablando… (puede interrumpirle)'); }
@@ -148,6 +158,7 @@
         },
         onMessage: m => {
           const role = m.role || m.source;
+          if (m.message) log.push({ u: (m.role || m.source) === 'user', t: m.message });
           if (m.message) add('ga-m ' + (role === 'user' ? 'ga-u' : 'ga-a'), m.message);
         },
       });
@@ -162,6 +173,7 @@
   async function stop() {
     const c = conv; conv = null;
     if (c) { try { await c.endSession(); } catch (e) { /* ignore */ } }
+    saveConversation();
     orb(''); state('Conversación terminada. Pulse la esfera para hablar.');
   }
 
