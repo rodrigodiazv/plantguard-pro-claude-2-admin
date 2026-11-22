@@ -253,3 +253,7 @@ Pendiente (decisión de Rodrigo / panel de Vercel):
 - `vercel.json`: Content-Security-Policy (default-src 'self'; scripts: self + 'unsafe-inline' (el panel usa scripts y onclick en línea) + cdn.jsdelivr.net + blob:; connect: self + *.elevenlabs.io https/wss; fonts: Google Fonts; sin frames, sin object, base-uri/form-action 'self').
 - Probado con Playwright local: sin violaciones en login, dashboard y operario. NO probado: voz de ElevenLabs bajo CSP (el sandbox no llega a ElevenLabs). Si la voz falla tras este cambio, quitar la cabecera CSP de vercel.json (un solo commit) y volver a probar.
 - Mejora futura: quitar 'unsafe-inline' (requiere mover scripts y onclick a archivos).
+
+## 22-nov — Búsqueda web reforzada
+- La búsqueda devolvía 200 sin resultados (el parseo no casaba). Ahora: regex más tolerante + fallback a DuckDuckGo lite + nota explícita si no hay resultados + log `web_search_diag` (largo de páginas, si hay captcha) en los logs de Vercel. Si sigue vacía: probable bloqueo de DDG a IPs de servidor → usar API con clave (p. ej. Brave Search, plan gratuito) vía credencial.
+- Piloto: zona "La Cueva" (Granada 18010, interior, 1 m², autofloreciente, inicio 1-dic) ya creada por el agente (zona + ciclo reales en Airtable).
