@@ -376,6 +376,80 @@
     box.querySelectorAll('[data-ord]').forEach(b => { b.onclick = () => decideOrden(b.dataset.ord, b.dataset.st); });
   }
 
+  // ---- Informes guardados: ver, imprimir / guardar PDF, descargar ----
+  function mdToHtml(md) {
+    const lines = esc(md).split('\n'); let out = '', list = '', tbl = [];
+    const inl = t => t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>');
+    const flushList = () => { if (list) { out += '</' + list + '>'; list = ''; } };
+    const flushTbl = () => { if (tbl.length) { out += '<table>' + tbl.map((r, i) => '<tr>' + r.map(c => (i === 0 ? '<th>' : '<td>') + inl(c.trim()) + (i === 0 ? '</th>' : '</td>')).join('') + '</tr>').join('') + '</table>'; tbl = []; } };
+    for (const raw of lines) {
+      const l = raw.trimEnd();
+      if (/^\|.*\|$/.test(l)) { if (/^\|[\s:|-]+\|$/.test(l)) continue; flushList(); tbl.push(l.slice(1, -1).split('|')); continue; }
+      flushTbl();
+      let m;
+      if ((m = l.match(/^(#{1,4})\s+(.*)/))) { flushList(); out += `<h${m[1].length}>${inl(m[2])}</h${m[1].length}>`; }
+      else if ((m = l.match(/^\s*[-*]\s+(.*)/))) { if (list !== 'ul') { flushList(); out += '<ul>'; list = 'ul'; } out += '<li>' + inl(m[1]) + '</li>'; }
+      else if ((m = l.match(/^\s*\d+[.)]\s+(.*)/))) { if (list !== 'ol') { flushList(); out += '<ol>'; list = 'ol'; } out += '<li>' + inl(m[1]) + '</li>'; }
+      else if (!l.trim()) flushList();
+      else { flushList(); out += '<p>' + inl(l) + '</p>'; }
+    }
+    flushList(); flushTbl(); return out;
+  }
+  async function loadInforme(id) {
+    const r = await fetch('/api/ops-data?informe=' + encodeURIComponent(id), { cache: 'no-store' });
+    if (!r.ok) throw new Error('No se pudo abrir el informe');
+    return r.json();
+  }
+  const INF_CSS = 'body{font:14px/1.6 system-ui,Segoe UI,Arial,sans-serif;max-width:760px;margin:24px auto;padding:0 20px;color:#111}h1{font-size:22px;border-bottom:2px solid #2ea043;padding-bottom:6px}h2{font-size:17px;margin-top:22px}h3{font-size:15px}table{border-collapse:collapse;width:100%;margin:10px 0}th,td{border:1px solid #bbb;padding:5px 8px;text-align:left;font-size:13px}th{background:#eef1f4}.meta{color:#555;font-size:12px;margin-bottom:14px}code{background:#eef1f4;padding:1px 4px}';
+  function informeHtml(inf) {
+    return `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(inf.Titulo)}</title><style>${INF_CSS}</style></head><body>
+      <h1>${esc(inf.Titulo)}</h1><div class="meta">PlantGuard Pro · ${esc(inf.Autor || '')} · ${esc((inf.Fecha || '').replace('T', ' ').slice(0, 16))} UTC</div>${mdToHtml(inf.Contenido || '')}</body></html>`;
+  }
+  async function printInforme(id) {
+    try {
+      const inf = await loadInforme(id);
+      const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0';
+      document.body.appendChild(f);
+      const d = f.contentWindow.document; d.open(); d.write(informeHtml(inf)); d.close();
+      setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 2000); }, 300);
+    } catch (e) { alert(e.message); }
+  }
+  async function viewInforme(id) {
+    try {
+      const inf = await loadInforme(id), m = modal();
+      m.innerHTML = `<div class="card" style="width:760px;max-width:96vw;max-height:90vh;overflow:auto">
+        <div class="card-header"><div class="card-title">${esc(inf.Titulo)}</div><span class="btn btn-sm" data-close>✕</span></div>
+        <div class="informe-body" style="font-size:13px;line-height:1.6">${mdToHtml(inf.Contenido || '')}</div></div>`;
+    } catch (e) { alert(e.message); }
+  }
+  async function downloadInforme(id) {
+    try {
+      const inf = await loadInforme(id);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([`# ${inf.Titulo}\n\n${inf.Contenido || ''}\n`], { type: 'text/markdown' }));
+      a.download = (inf.Titulo || 'informe').replace(/[^A-Za-z0-9._-]+/g, '_').slice(0, 60) + '.md'; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    } catch (e) { alert(e.message); }
+  }
+  function renderInformes() {
+    const box = document.getElementById('informes-list');
+    if (!box) return;
+    const list = rows('informes').slice().sort((a, b) => String(b.Fecha || '').localeCompare(String(a.Fecha || '')));
+    box.innerHTML = list.length ? list.map(i => `<div class="card" style="margin-bottom:10px">
+      <div class="card-header"><div><div class="card-title">${esc(i.Titulo)}</div>
+        <div class="card-subtitle">${esc([i.Tipo, i.Autor, i.Fecha && new Date(i.Fecha).toLocaleString()].filter(Boolean).join(' · '))}</div></div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="btn btn-sm" data-inf-view="${esc(i._id)}">Ver</span>
+        <span class="btn btn-sm btn-green" data-inf-print="${esc(i._id)}">🖨 Imprimir / guardar PDF</span>
+        <span class="btn btn-sm" data-inf-dl="${esc(i._id)}">⬇ Descargar</span>
+        <span class="btn btn-sm" data-inf-del="${esc(i._id)}">Borrar</span></div></div>`).join('')
+      : '<div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin informes todavía. Pida uno al Grow Agent, por ejemplo: "hazme un informe del estado del cultivo y guárdalo".</div></div>';
+    box.querySelectorAll('[data-inf-view]').forEach(b => { b.onclick = () => viewInforme(b.dataset.infView); });
+    box.querySelectorAll('[data-inf-print]').forEach(b => { b.onclick = () => printInforme(b.dataset.infPrint); });
+    box.querySelectorAll('[data-inf-dl]').forEach(b => { b.onclick = () => downloadInforme(b.dataset.infDl); });
+    box.querySelectorAll('[data-inf-del]').forEach(b => { b.onclick = () => del('informes', b.dataset.infDel); });
+  }
+
   function renderMemoria() {
     const box = document.getElementById('memoria-list');
     if (!box) return;
@@ -434,6 +508,7 @@
     renderMejoras();
     renderMemoria();
     renderOrdenes();
+    renderInformes();
     buildSistemas();
     renderAguaEval();
     renderPersonalExtras();

@@ -75,7 +75,7 @@ def build_context(sess=None):
         except Exception:  # noqa: BLE001
             parts.append("MEMORIA RECIENTE: (no disponible)")
     for key, (name, _) in TABLES.items():
-        if key == "memoria" or not can_read(role, key):
+        if key in ("memoria", "informes") or not can_read(role, key):
             continue
         try:
             rows = list_all(name)

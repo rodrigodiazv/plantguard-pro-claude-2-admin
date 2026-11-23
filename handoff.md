@@ -264,3 +264,8 @@ Pendiente (decisión de Rodrigo / panel de Vercel):
 - Placa: `GET /api/ops-data?comandos=1&device_id=rec...` y `POST {action:"ack"}` con X-Ingest-Key; solo órdenes autorizadas vigentes del propio dispositivo.
 - Firmware ESP32 en `firmware/la-cueva/` (límites de seguridad en la placa: calefactor ≤28 °C, riego ≤90 s con espera de 30 min, luz por horario, todo apagado al arrancar). `secrets.h` ignorado por git. NO PROBADO en hardware; usa HTTPS sin verificar certificado (setInsecure) — mejora pendiente.
 - Mejora en Airtable pasada a "En desarrollo" (nota: aprobada en conversación, no con el botón).
+
+## 23-nov — Informes guardados (arreglo de "imprimir informe")
+- Causa: no existía ninguna función de imprimir; el agente decía "imprimiendo" sin herramienta y el botón "+ Informe" solo mostraba un alert falso (eliminado).
+- Ahora: tabla Airtable `Informes` (tblYcbkBQoTkLznyQ). El agente guarda con `crear_registro` tabla `informes` (Titulo, Tipo, Contenido en Markdown); servidor fija Autor/Fecha. Vista "Informes IA": Ver, Imprimir / guardar PDF (iframe + print del navegador), Descargar .md, Borrar. Listado sin Contenido (se pide con `?informe=rec...`) para no engordar la carga; fuera del contexto del agente.
+- Probado en local con Playwright (lista, vista, impresión, XSS escapado, sin violaciones CSP). Prompt del agente: nunca decir "imprimiendo".

@@ -499,7 +499,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <div class="topbar-actions">
       <div class="btn btn-sm" id="weather-badge" onclick="showView('sistemas')">☁️ Estación meteorológica: sin conectar</div>
       <div class="btn btn-sm" onclick="document.getElementById('modal-settings').style.display='flex'">⚙️ Ajustes</div>
-      <div class="btn btn-sm btn-green" onclick="alert('Informe PDF generado por el Cerebro')">+ Informe</div>
+      <div class="btn btn-sm btn-green" onclick="showView('informes')">📄 Informes</div>
     </div>
   </div>
 
@@ -669,7 +669,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--green); }
     <!-- INFORMES -->
     <div class="view" id="view-informes">
       <div class="section-title">📄 Informes IA</div>
-      <div class="card"><div style="font-size:13px;color:var(--fg2);line-height:1.6">Sin informes todavía. Pida un informe al Grow Agent (botón verde de arriba a la izquierda): lo redacta con los datos reales del panel.</div></div>
+      <p style="font-size:12px;color:var(--fg2);line-height:1.6;margin-bottom:12px">
+        Pídale un informe al Grow Agent (botón verde de arriba a la izquierda): lo redacta con los datos reales y lo
+        <strong>guarda aquí</strong>, en el software. Desde cada informe puede verlo, imprimirlo o guardarlo como PDF
+        (en el cuadro de imprimir elija "Guardar como PDF") y descargarlo.
+      </p>
+      <div id="informes-list"><div style="font-size:12px;color:var(--fg3)">Cargando…</div></div>
     </div>
 
     <!-- CAMPO & CHAT -->

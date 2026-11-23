@@ -85,6 +85,18 @@ class handler(BaseHTTPRequestHandler):
         if "clima=" in q:
             self._clima(urllib.parse.unquote_plus(q.split("clima=", 1)[1].split("&", 1)[0]))
             return
+        m_inf = re.search(r"informe=(rec[A-Za-z0-9]{14})", q)
+        if m_inf:
+            if self.sess["role"] == "operario":
+                self._json(403, {"error": "forbidden"})
+                return
+            try:
+                r = _airtable("GET", "Informes", "/" + m_inf.group(1))
+            except Exception as e:  # noqa: BLE001
+                self._json(404, {"error": "informe_no_encontrado", "detail": str(e)[:80]})
+                return
+            self._json(200, {"_id": r["id"], **r.get("fields", {})})
+            return
         if "memoria=md" in q:
             if self.sess["role"] == "operario":
                 self._json(403, {"error": "forbidden"})
@@ -111,6 +123,8 @@ class handler(BaseHTTPRequestHandler):
                 if not can_read(self.sess["role"], key):
                     continue
                 rows = _list_all(name)
+                if key == "informes":
+                    rows = [{k: v for k, v in r.items() if k != "Contenido"} | {"Chars": len(r.get("Contenido") or "")} for r in rows]
                 if key == "personal" and self.sess["role"] == "operario":
                     rows = [r for r in rows if r.get("_id") == self.sess["uid"]]
                 out[key] = rows
@@ -158,6 +172,14 @@ class handler(BaseHTTPRequestHandler):
             fields.update({"Estado": "Pendiente", "SolicitadaPor": self.sess["name"] or "Usuario",
                            "Rol": {"super": "Super administrador", "jefe": "Jefe de cultivo", "operario": "Operario"}[self.sess["role"]],
                            "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
+        if payload.get("table") == "informes":
+            if not str(fields.get("Titulo") or "").strip() or len(str(fields.get("Contenido") or "")) < 20:
+                self._json(400, {"error": "informe_vacio", "detail": "Hace falta Titulo y Contenido."})
+                return
+            fields["Contenido"] = str(fields["Contenido"])[:60000]
+            fields.update({"Autor": self.sess["name"] or "Usuario", "Fecha": datetime.datetime.utcnow().isoformat() + "Z"})
+            self._write("POST", table, "", {"fields": fields, "typecast": True}, log=("POST", "informes", {"Titulo": fields["Titulo"]}))
+            return
         if payload.get("table") == "comandos":
             clean, err = validate_cmd(fields)
             if err:

@@ -32,6 +32,7 @@ TABLES = {
     "liberaciones": ("Liberaciones", ["Agente", "PlagaObjetivo", "Zona", "Dosis", "Fecha"]),
     "riegos": ("Riegos", ["Zona", "Hora", "VolumenLm2", "Formula", "Estado"]),
     "conocimiento": ("BaseConocimiento", ["Titulo", "Categoria", "Contenido", "Fuente"]),
+    "informes": ("Informes", ["Titulo", "Contenido", "Tipo"]),
     "comandos": ("Comandos", ["Dispositivo", "Accion", "Valor", "Motivo"]),
     "memoria": ("Memoria", ["Resumen", "Detalle"]),
     "mejoras": ("Mejoras", ["Titulo", "Detalle", "Tipo", "SolicitadaPor", "Rol", "Estado", "Fecha", "NotaRodrigo"]),
